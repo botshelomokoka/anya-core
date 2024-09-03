@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  },
+  "scripts": {
+    "check": "node setup_check.js",
+    "lint": "eslint .",
+    "test": "jest",
+    "setup": "node setup_project.js"
+  }
+}

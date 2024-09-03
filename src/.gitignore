@@ -1,0 +1,32 @@
+# Python-related
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+
+# Build artifacts
+dist/
+build/
+
+# IDE/editor specific files
+.vscode/
+.idea/
+
+# System-specific files
+.DS_Store
+
+# Sensitive information (replace placeholders with actual file names if applicable)
+*.key
+*.pem
+wallet_data.json  # Or your actual wallet data storage file
+
+# Log files
+*.log
+
+# Potential future additions based on specific libraries and tools:
+# - Taproot asset specific files/folders
+# - Lightning Network specific files/folders
+# - RSK specific files/folders
