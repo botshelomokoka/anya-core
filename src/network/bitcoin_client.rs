@@ -47,4 +47,47 @@ pub fn send_raw_transaction(tx_hex: &str) -> Result<String, Box<dyn Error>> {
     Ok(txid.to_string())
 }
 
-// ... (Other RPC functions as needed, e.g., estimate_fee, get_block, etc.)
+/// Estimates the fee rate for a transaction to be confirmed within the specified number of blocks.
+pub fn estimate_fee(target_conf: u16) -> Result<f64, Box<dyn Error>> {
+    let client = create_rpc_client()?;
+    let fee_rate = client.estimate_smart_fee(target_conf, None)?;
+    Ok(fee_rate.fee_rate.unwrap_or(0.0))
+}
+
+/// Fetches a block by its hash.
+pub fn get_block(block_hash: &str) -> Result<serde_json::Value, Box<dyn Error>> {
+    let client = create_rpc_client()?;
+    let block_hash = bitcoin::BlockHash::from_str(block_hash)?;
+    let block = client.get_block(&block_hash)?;
+    Ok(serde_json::to_value(block)?)
+}
+
+/// Gets the current block count of the Bitcoin network.
+pub fn get_block_count() -> Result<u64, Box<dyn Error>> {
+    let client = create_rpc_client()?;
+    Ok(client.get_block_count()?)
+}
+
+/// Fetches the balance of a given address.
+pub fn get_address_balance(address: &str) -> Result<f64, Box<dyn Error>> {
+    let client = create_rpc_client()?;
+    let balance = client.get_received_by_address(
+        &bitcoin::Address::from_str(address)?,
+        Some(0)
+    )?;
+    Ok(balance.to_btc())
+}
+
+/// Validates a Bitcoin address.
+pub fn validate_address(address: &str) -> Result<bool, Box<dyn Error>> {
+    let client = create_rpc_client()?;
+    let validation = client.validate_address(&bitcoin::Address::from_str(address)?)?;
+    Ok(validation.is_valid)
+}
+
+pub fn select_rpc_config() -> RpcConfig {
+    // Use Blockstream endpoint by default
+    RpcConfig::new("https://bitcoin-mainnet.public.blastapi.io", None)
+}
+
+// ... existing code ...

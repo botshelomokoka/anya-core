@@ -1,116 +1,159 @@
 //! This module provides CoinJoin functionality for Anya Wallet.
 //!
-//! NOTE: This is a conceptual implementation. Actual CoinJoin integration will depend on the specific CoinJoin implementation you choose to use.
+//! This implementation uses a simplified CoinJoin protocol for demonstration purposes.
+//! In a production environment, you would want to use a more robust and secure implementation.
 
-// ... (Imports for CoinJoin library, network communication, etc.)
-
-use bitcoin::Transaction;
+use bitcoin::{Transaction, TxIn, TxOut, OutPoint, Script, Address, Network};
+use bitcoin::consensus::encode::serialize;
+use bitcoin::util::psbt::PartiallySignedTransaction;
 use std::error::Error;
+use std::collections::HashMap;
+use reqwest;
+use serde::{Serialize, Deserialize};
+use rand::Rng;
+use async_trait::async_trait;
+use tokio::time::{Duration, sleep};
 
-pub fn initiate_coinjoin(amount: u64, participants: Option<Vec<String>>, coordinator_url: Option<String>) -> Result<String, Box<dyn Error>> {
-    /// Initiates a CoinJoin transaction.
-    ///
-    /// # Arguments
-    ///
-    /// * `amount` - The amount of Bitcoin to participate with in the CoinJoin.
-    /// * `participants` - (Optional) A list of other participants' addresses to include in the CoinJoin.
-    /// * `coordinator_url` - (Optional) The URL of a CoinJoin coordinator service.
-    ///
-    /// # Returns
-    ///
-    /// The transaction ID of the CoinJoin transaction if successful, or an error if there's a problem.
+use crate::wallet::Wallet;
+use crate::network::bitcoin_client::BitcoinClient;
 
-    // ... (Implementation)
-
-    // 1. Select UTXOs for CoinJoin
-    let utxos = select_utxos_for_coinjoin(amount)?;
-
-    // 2. Connect to CoinJoin coordinator (if provided) or find one
-    let coordinator = if let Some(url) = coordinator_url {
-        connect_to_coordinator(&url)?
-    } else {
-        find_available_coordinator()?
-    };
-
-    // 3. Register with the coordinator and provide UTXOs
-    coordinator.register(&utxos)?;
-
-    // 4. Wait for other participants and coordinator to construct the CoinJoin transaction
-    let coinjoin_tx = coordinator.wait_for_transaction()?;
-
-    // 5. Sign the CoinJoin transaction
-    let signed_tx = sign_coinjoin_transaction(&coinjoin_tx)?;
-
-    // 6. Broadcast the signed transaction
-    let txid = broadcast_transaction(&signed_tx)?;
-
-    Ok(txid)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Utxo {
+    txid: String,
+    vout: u32,
+    amount: u64,
+    address: String,
 }
 
-fn select_utxos_for_coinjoin(amount: u64) -> Result<Vec<Utxo>, Box<dyn Error>> {
-    /// Selects UTXOs from the wallet to participate in a CoinJoin with the given amount.
-    ///
-    /// # Arguments
-    ///
-    /// * `amount` - The desired amount of Bitcoin to participate with.
-    ///
-    /// # Returns
-    ///
-    /// A list of UTXO structs suitable for CoinJoin.
-
-    // ... (Implementation)
-    // This will likely involve fetching UTXOs from the wallet and 
-    // selecting appropriate ones based on their values and privacy considerations
-
-    unimplemented!()
+#[derive(Debug)]
+pub struct CoinJoinCoordinator {
+    url: String,
+    client: reqwest::Client,
 }
 
-fn connect_to_coordinator(coordinator_url: &str) -> Result<CoinJoinCoordinator, Box<dyn Error>> {
-    /// Connects to a CoinJoin coordinator service.
-    ///
-    /// # Arguments
-    ///
-    /// * `coordinator_url` - The URL of the coordinator service.
-    ///
-    /// # Returns
-    ///
-    /// A CoinJoin coordinator object.
-
-    // ... (Implementation)
-    // This will depend on the specific CoinJoin implementation and its API
-
-    unimplemented!()
+#[async_trait]
+pub trait CoinJoinProtocol {
+    async fn initiate_coinjoin(&self, wallet: &Wallet, amount: u64, participants: Option<Vec<String>>, coordinator_url: Option<String>) -> Result<String, Box<dyn Error>>;
+    fn select_utxos_for_coinjoin(&self, wallet: &Wallet, amount: u64) -> Result<Vec<Utxo>, Box<dyn Error>>;
+    async fn connect_to_coordinator(&self, coordinator_url: &str) -> Result<CoinJoinCoordinator, Box<dyn Error>>;
+    async fn find_available_coordinator(&self) -> Result<CoinJoinCoordinator, Box<dyn Error>>;
+    fn sign_coinjoin_transaction(&self, wallet: &Wallet, psbt: PartiallySignedTransaction) -> Result<Transaction, Box<dyn Error>>;
+    async fn broadcast_transaction(&self, bitcoin_client: &BitcoinClient, signed_tx: &Transaction) -> Result<String, Box<dyn Error>>;
 }
 
-fn find_available_coordinator() -> Result<CoinJoinCoordinator, Box<dyn Error>> {
-    /// Finds an available CoinJoin coordinator service.
-    ///
-    /// # Returns
-    ///
-    /// A CoinJoin coordinator object.
+pub struct AnyCoinJoin;
 
-    // ... (Implementation)
-    // This might involve querying a list of known coordinators or using a discovery mechanism
+#[async_trait]
+impl CoinJoinProtocol for AnyCoinJoin {
+    async fn initiate_coinjoin(&self, wallet: &Wallet, amount: u64, participants: Option<Vec<String>>, coordinator_url: Option<String>) -> Result<String, Box<dyn Error>> {
+        let utxos = self.select_utxos_for_coinjoin(wallet, amount)?;
 
-    unimplemented!()
+        let coordinator = if let Some(url) = coordinator_url {
+            self.connect_to_coordinator(&url).await?
+        } else {
+            self.find_available_coordinator().await?
+        };
+
+        coordinator.register(&utxos).await?;
+
+        let psbt = coordinator.wait_for_transaction().await?;
+
+        let signed_tx = self.sign_coinjoin_transaction(wallet, psbt)?;
+
+        let bitcoin_client = BitcoinClient::new()?;
+        let txid = self.broadcast_transaction(&bitcoin_client, &signed_tx).await?;
+
+        Ok(txid)
+    }
+
+    fn select_utxos_for_coinjoin(&self, wallet: &Wallet, amount: u64) -> Result<Vec<Utxo>, Box<dyn Error>> {
+        let mut selected_utxos = Vec::new();
+        let mut total_amount = 0;
+
+        for utxo in wallet.get_utxos()? {
+            if total_amount >= amount {
+                break;
+            }
+            selected_utxos.push(utxo.clone());
+            total_amount += utxo.amount;
+        }
+
+        if total_amount < amount {
+            return Err("Insufficient funds for CoinJoin".into());
+        }
+
+        Ok(selected_utxos)
+    }
+
+    async fn connect_to_coordinator(&self, coordinator_url: &str) -> Result<CoinJoinCoordinator, Box<dyn Error>> {
+        let client = reqwest::Client::new();
+        Ok(CoinJoinCoordinator {
+            url: coordinator_url.to_string(),
+            client,
+        })
+    }
+
+    async fn find_available_coordinator(&self) -> Result<CoinJoinCoordinator, Box<dyn Error>> {
+        let coordinator_urls = vec![
+            "https://coordinator1.example.com",
+            "https://coordinator2.example.com",
+            "https://coordinator3.example.com",
+        ];
+
+        for url in coordinator_urls {
+            if let Ok(coordinator) = self.connect_to_coordinator(url).await {
+                return Ok(coordinator);
+            }
+        }
+
+        Err("No available coordinator found".into())
+    }
+
+    fn sign_coinjoin_transaction(&self, wallet: &Wallet, mut psbt: PartiallySignedTransaction) -> Result<Transaction, Box<dyn Error>> {
+        wallet.sign_psbt(&mut psbt)?;
+        let tx = psbt.extract_tx();
+        Ok(tx)
+    }
+
+    async fn broadcast_transaction(&self, bitcoin_client: &BitcoinClient, signed_tx: &Transaction) -> Result<String, Box<dyn Error>> {
+        let txid = bitcoin_client.broadcast_transaction(signed_tx).await?;
+        Ok(txid)
+    }
 }
 
-fn sign_coinjoin_transaction(coinjoin_tx: &Transaction) -> Result<Transaction, Box<dyn Error>> {
-    /// Signs a CoinJoin transaction.
-    ///
-    /// # Arguments
-    ///
-    /// * `coinjoin_tx` - The CoinJoin transaction object.
-    ///
-    /// # Returns
-    ///
-    /// The signed CoinJoin transaction object
+impl CoinJoinCoordinator {
+    pub async fn register(&self, utxos: &[Utxo]) -> Result<(), Box<dyn Error>> {
+        let response = self.client.post(&format!("{}/register", self.url))
+            .json(utxos)
+            .send()
+            .await?;
 
-    // ... (Implementation)
-    // This will likely involve interacting with the wallet's key management 
-    // to sign the relevant inputs in the CoinJoin transaction
+        if response.status().is_success() {
+            Ok(())
+        } else {
+            Err(format!("Failed to register with coordinator: {}", response.status()).into())
+        }
+    }
 
-    unimplemented!()
+    pub async fn wait_for_transaction(&self) -> Result<PartiallySignedTransaction, Box<dyn Error>> {
+        let mut attempts = 0;
+        let max_attempts = 10;
+        let delay = Duration::from_secs(5);
+
+        while attempts < max_attempts {
+            let response = self.client.get(&format!("{}/transaction", self.url))
+                .send()
+                .await?;
+
+            if response.status().is_success() {
+                let psbt_bytes: Vec<u8> = response.json().await?;
+                return Ok(PartiallySignedTransaction::from_bytes(&psbt_bytes)?);
+            }
+
+            attempts += 1;
+            sleep(delay).await;
+        }
+
+        Err("Timeout waiting for CoinJoin transaction".into())
+    }
 }
-
-// ... (Other CoinJoin related functions as needed)
