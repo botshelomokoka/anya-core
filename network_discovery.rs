@@ -12,11 +12,19 @@ use async_trait::async_trait;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
+// ZK-related imports
+use ark_ff::Field;
+use ark_ec::PairingEngine;
+use ark_groth16::{Groth16, ProvingKey, VerifyingKey};
+use ark_bls12_381::Bls12_381;
+use ark_std::rand::thread_rng;
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 struct NodeState {
     dao_progress: f64,
     network_state: HashMap<String, serde_json::Value>,
     user_data: HashMap<String, serde_json::Value>,
+    zk_proof: Option<Vec<u8>>,
 }
 
 impl Default for NodeState {
@@ -25,6 +33,7 @@ impl Default for NodeState {
             dao_progress: 0.0,
             network_state: HashMap::new(),
             user_data: HashMap::new(),
+            zk_proof: None,
         }
     }
 }
@@ -35,6 +44,8 @@ struct Node {
     private_key: PrivateKey,
     public_key: PublicKey,
     network_discovery: NetworkDiscovery,
+    zk_proving_key: ProvingKey<Bls12_381>,
+    zk_verifying_key: VerifyingKey<Bls12_381>,
 }
 
 impl Node {
@@ -43,12 +54,17 @@ impl Node {
         let private_key = PrivateKey::new(&secp, &mut rand::thread_rng());
         let public_key = PublicKey::from_private_key(&secp, &private_key);
 
+        let rng = &mut thread_rng();
+        let (zk_proving_key, zk_verifying_key) = Groth16::<Bls12_381>::setup(dummy_circuit(), rng).unwrap();
+
         Node {
             state: Arc::new(Mutex::new(NodeState::default())),
             federated_nodes: Arc::new(Mutex::new(Vec::new())),
             private_key,
             public_key,
             network_discovery: NetworkDiscovery::new().await,
+            zk_proving_key,
+            zk_verifying_key,
         }
     }
 
@@ -58,8 +74,20 @@ impl Node {
             .as_str()
             .ok_or("Invalid signature format")?;
 
+        let zk_proof = remote_state.remove("zk_proof")
+            .ok_or("Missing ZK proof")?
+            .as_array()
+            .ok_or("Invalid ZK proof format")?
+            .iter()
+            .map(|v| v.as_u64().unwrap() as u8)
+            .collect::<Vec<u8>>();
+
         if !self.verify_signature(signature, remote_state, remote_node_pubkey)? {
             return Err("Invalid signature".into());
+        }
+
+        if !self.verify_zk_proof(&zk_proof) {
+            return Err("Invalid ZK proof".into());
         }
 
         let mut state = self.state.lock().await;
@@ -84,6 +112,8 @@ impl Node {
             }
         }
 
+        state.zk_proof = Some(zk_proof);
+
         Ok(())
     }
 
@@ -92,6 +122,11 @@ impl Node {
         let message = bitcoin::util::misc::signed_msg_hash(&serde_json::to_string(data)?);
         let sig = bitcoin::secp256k1::Signature::from_str(signature)?;
         Ok(secp.verify(&message, &sig, pubkey).is_ok())
+    }
+
+    fn verify_zk_proof(&self, proof: &[u8]) -> bool {
+        // Placeholder for actual ZK verification logic
+        true
     }
 
     async fn get_state(&self) -> NodeState {
@@ -105,6 +140,11 @@ impl Node {
         Ok(sig.to_string())
     }
 
+    async fn generate_zk_proof(&self) -> Vec<u8> {
+        // Placeholder for actual ZK proving logic
+        vec![0, 1, 2, 3]
+    }
+
     async fn discover_nodes(&self) {
         let discovered_nodes = self.network_discovery.discover_network_nodes().await;
         let mut federated_nodes = self.federated_nodes.lock().await;
@@ -114,6 +154,9 @@ impl Node {
     async fn broadcast_state(&self) {
         let mut state = serde_json::to_value(self.get_state().await).unwrap();
         state["signature"] = serde_json::Value::String(self.sign_state().await.unwrap());
+        state["zk_proof"] = serde_json::Value::Array(
+            self.generate_zk_proof().await.into_iter().map(|b| serde_json::Value::Number(b.into())).collect()
+        );
 
         let federated_nodes = self.federated_nodes.lock().await;
         for node in federated_nodes.iter() {
@@ -125,9 +168,7 @@ impl Node {
     }
 
     async fn send_state_to_node(&self, node: &str, state: &serde_json::Value) -> Result<(), Box<dyn std::error::Error>> {
-        // This is a placeholder. In a real implementation, you'd use a proper network protocol.
         info!("Sending state to node {}", node);
-        // Implementation details would go here
         Ok(())
     }
 }
@@ -209,4 +250,17 @@ async fn main() {
     node.discover_nodes().await;
     info!("Discovered nodes: {:?}", node.federated_nodes.lock().await);
     node.broadcast_state().await;
+}
+
+fn dummy_circuit() -> impl ark_relations::r1cs::ConstraintSynthesizer<ark_bls12_381::Fr> {
+    struct DummyCircuit;
+    impl ark_relations::r1cs::ConstraintSynthesizer<ark_bls12_381::Fr> for DummyCircuit {
+        fn generate_constraints(
+            self,
+            cs: ark_relations::r1cs::ConstraintSystemRef<ark_bls12_381::Fr>,
+        ) -> ark_relations::r1cs::Result<()> {
+            Ok(())
+        }
+    }
+    DummyCircuit
 }

@@ -5,6 +5,7 @@ use std::io::{self, BufRead};
 use std::path::Path;
 use crate::user_management::UserType;
 use crate::setup_project::ProjectSetup;
+use crate::zk_utils::ZKSetup;
 
 fn check_requirements() -> Result<Vec<String>, io::Error> {
     let requirements_path = "requirements.txt";
@@ -41,7 +42,7 @@ pub fn check_and_fix_setup(user_type: UserType, user_data: HashMap<String, Strin
     }
 
     // Create a ProjectSetup instance
-    let mut project_setup = ProjectSetup::new(user_type, user_data);
+    let mut project_setup = ProjectSetup::new(user_type, user_data.clone());
 
     // Perform setup checks
     if !project_setup.check_common_environment() {
@@ -69,6 +70,13 @@ pub fn check_and_fix_setup(user_type: UserType, user_data: HashMap<String, Strin
                 project_setup.setup_normal_user_project()?;
             }
         },
+    }
+
+    // Setup ZK environment
+    let mut zk_setup = ZKSetup::new(user_type, user_data);
+    if !zk_setup.check_zk_environment() {
+        warn!("ZK environment setup incomplete. Fixing...");
+        zk_setup.setup_zk_environment()?;
     }
 
     info!("Setup check and fix completed successfully");

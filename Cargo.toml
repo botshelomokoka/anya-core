@@ -1,58 +1,76 @@
 [package]
-name = "anya-core"
+name = "anya"
 version = "0.1.0"
 edition = "2021"
-authors = ["Human <botshelomokoka@gmail.com>"]
-description = "Core functionality for the Anya AI assistant"
+authors = ["botshelomokoka@gmail.com"]
+description = "A Bitcoin, Taproot Asset and AI-enabled wallet with ZK capabilities, project setup, and setup checking"
 license = "MIT"
-repository = "https://github.com/botshelomokoka/anya-core-main"
 
 [dependencies]
-# Core dependencies
-tokio = { version = "1.28", features = ["full"] }
-async-trait = "0.1.68"
-futures = "0.3.28"
+# Bitcoin and cryptocurrency related
+bitcoin = { version = "*", features = ["latest"] }
+bitcoincore-rpc = { version = "*", features = ["latest"] }
+secp256k1 = { version = "*", features = ["latest"] }
+rust-bitcoin = { version = "*", features = ["latest"] }
+rust-lightning = { version = "*", features = ["latest"] }
+rust-miniscript = { version = "*", features = ["latest"] }
+rust-bip39 = { version = "*", features = ["latest"] }
+rust-secp256k1 = { version = "*", features = ["latest"] }
+rust-base58 = { version = "*", features = ["latest"] }
+rust-bech32 = { version = "*", features = ["latest"] }
 
-# Logging and error handling
-log = "0.4.17"
-env_logger = "0.10.0"
-thiserror = "1.0.40"
-anyhow = "1.0.71"
-
-# NLP and machine learning
-rust-bert = "0.20.0"
-
-# HTTP client
-reqwest = { version = "0.11.18", features = ["json"] }
+# Cryptography and hashing
+sha2 = { version = "*", features = ["latest"] }
+hex = { version = "*", features = ["latest"] }
+bech32 = { version = "*", features = ["latest"] }
+rust-crypto = { version = "*", features = ["latest"] }
 
 # Serialization and deserialization
-serde = { version = "1.0.163", features = ["derive"] }
-serde_json = "1.0.96"
+serde = { version = "*", features = ["derive", "latest"] }
+serde_json = { version = "*", features = ["latest"] }
 
-# Configuration management
-config = "0.13.3"
-dotenv = "0.15.0"
+# Async runtime and networking
+tokio = { version = "*", features = ["full", "latest"] }
+reqwest = { version = "*", features = ["json", "latest"] }
 
-# CLI interface
-clap = { version = "4.3.0", features = ["derive"] }
+# Error handling
+thiserror = { version = "*", features = ["latest"] }
 
-# Date and time utilities
-chrono = "0.4.24"
+# Random number generation
+rand = { version = "*", features = ["latest"] }
+
+# Zero-Knowledge Proof Libraries
+ark-ff = { version = "*", features = ["latest"] }
+ark-ec = { version = "*", features = ["latest"] }
+ark-bls12-381 = { version = "*", features = ["latest"] }
+ark-groth16 = { version = "*", features = ["latest"] }
+ark-serialize = { version = "*", features = ["latest"] }
+ark-snark = { version = "*", features = ["latest"] }
+
+# For ZK-friendly hash functions
+blake2 = { version = "*", features = ["latest"] }
+
+# For ZK-SNARKs
+bellman = { version = "*", features = ["latest"] }
+pairing = { version = "*", features = ["latest"] }
+
+# For ZK-STARKs
+winterfell = { version = "*", features = ["latest"] }
+
+# Logging
+log = { version = "*", features = ["latest"] }
+slog = { version = "*", features = ["latest"] }
+env_logger = { version = "*", features = ["latest"] }
+
+# Environment variables
+dotenv = { version = "*", features = ["latest"] }
+
+# File system operations
+fs_extra = { version = "*", features = ["latest"] }
+
+# Networking (Kademlia)
+kademlia = { version = "*", features = ["latest"] }  # Replace with actual Kademlia library if different
 
 [dev-dependencies]
-tokio-test = "0.4.2"
-mockall = "0.11.4"
-
-[profile.release]
-opt-level = 3
-lto = true
-codegen-units = 1
-panic = "abort"
-
-[profile.dev]
-opt-level = 0
-debug = true
-
-[profile.test]
-opt-level = 3
-debug = true
+mockall = { version = "*", features = ["latest"] }
+tokio-test = { version = "*", features = ["latest"] }
