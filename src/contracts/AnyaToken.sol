@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
@@ -7,12 +7,17 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Snapshot.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 /**
  * @title AnyaToken
- * @dev ERC20 token with voting and snapshot capabilities for the Anya DAO
+ * @author Botshelo Mokoka
+ * @notice ERC20 token with voting and snapshot capabilities for the Anya DAO
+ * @dev Implements OpenZeppelin's ERC20 extensions for enhanced functionality
  */
 contract AnyaToken is ERC20, ERC20Burnable, ERC20Snapshot, AccessControl, ERC20Permit, ERC20Votes {
+    using SafeMath for uint256;
+
     bytes32 public constant SNAPSHOT_ROLE = keccak256("SNAPSHOT_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     uint256 private constant MAX_SUPPLY = 1_000_000_000 * 10**18; // 1 billion tokens
@@ -40,7 +45,7 @@ contract AnyaToken is ERC20, ERC20Burnable, ERC20Snapshot, AccessControl, ERC20P
      * @param amount The amount of tokens to mint
      */
     function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {
-        require(totalSupply() + amount <= MAX_SUPPLY, "AnyaToken: Max supply exceeded");
+        require(totalSupply().add(amount) <= MAX_SUPPLY, "AnyaToken: Max supply exceeded");
         _mint(to, amount);
     }
 

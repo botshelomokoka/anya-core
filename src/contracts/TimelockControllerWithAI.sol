@@ -2,22 +2,23 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/governance/TimelockController.sol";
-import "./AIReview.sol"; // Assuming you have an AIReview contract
+import "./AIOracle.sol";
+import "./interfaces/IAIOracle.sol";
 
 /**
  * @title TimelockControllerWithAI
  * @dev Extends OpenZeppelin's TimelockController to incorporate AI review for certain operations
  */
 contract TimelockControllerWithAI is TimelockController {
-    AIReview public aiReviewer;
+    IAIOracle public aiOracle;
 
     constructor(
         uint256 minDelay,
         address[] memory proposers,
         address[] memory executors,
-        address aiOracle
+        address _aiOracle
     ) TimelockController(minDelay, proposers, executors) {
-        aiReviewer = AIReview(aiOracle);
+        aiOracle = IAIOracle(_aiOracle);
     }
 
     function queueTransaction(
@@ -27,11 +28,10 @@ contract TimelockControllerWithAI is TimelockController {
         bytes calldata data,
         uint256 eta
     ) public override returns (bytes32) {
-        // ... (Standard queueTransaction logic from TimelockController)
+        bytes32 txHash = super.queueTransaction(target, value, signature, data, eta);
 
-        // Additionally, trigger AI review for certain operations (you'll need to define the criteria)
         if (shouldTriggerAIReview(target, signature)) {
-            aiReviewer.requestReview(target, signature, data);
+            aiOracle.requestReview(txHash, target, signature, data);
         }
 
         return txHash;
@@ -44,19 +44,21 @@ contract TimelockControllerWithAI is TimelockController {
         bytes calldata data,
         uint256 eta
     ) public payable override returns (bytes memory) {
-        // ... (Standard executeTransaction logic from TimelockController)
-
-        // Additionally, check AI review status before executing (if applicable)
         if (shouldTriggerAIReview(target, signature)) {
-            require(aiReviewer.isApproved(target, signature, data), "AI review not approved or pending");
+            bytes32 txHash = hashOperation(target, value, signature, data, eta);
+            require(aiOracle.isApproved(txHash), "AI review not approved or pending");
         }
 
-        return returnData;
+        return super.executeTransaction(target, value, signature, data, eta);
     }
 
     function shouldTriggerAIReview(address target, string memory signature) internal view returns (bool) {
-        // ... (Implementation - define criteria for triggering AI review)
-        // Example: Trigger review for certain sensitive operations or high-value transactions
-        return false; // Placeholder - replace with your actual logic
+        // Implement logic to determine if AI review is needed
+        // For example, trigger review for high-value transactions or specific function signatures
+        return true; // Placeholder - replace with actual logic
+    }
+
+    function setAIOracle(address _aiOracle) external onlyRole(TIMELOCK_ADMIN_ROLE) {
+        aiOracle = IAIOracle(_aiOracle);
     }
 }

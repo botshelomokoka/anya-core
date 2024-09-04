@@ -1,6 +1,6 @@
 # Anya Wallet User Guide
 
-Welcome to Anya Wallet, your gateway to the Bitcoin ecosystem! This guide will walk you through the basic features and functionalities of the wallet, empowering you to manage your Bitcoin and other assets securely and privately.
+Welcome to Anya Wallet, your gateway to the Bitcoin ecosystem! This guide will walk you through the basic features and functionalities of the wallet, empowering you to manage your Bitcoin, RSK, and other assets securely and privately.
 
 ## Getting Started
 
@@ -19,26 +19,27 @@ Welcome to Anya Wallet, your gateway to the Bitcoin ecosystem! This guide will w
      * Enter your mnemonic phrase and password to unlock your wallet.
 
 3. **View Your Balance:**
-   * Once your wallet is loaded, your Bitcoin balance will be displayed on the main screen.
-   * In the future, you'll also be able to view your Taproot asset balances here.
+   * Once your wallet is loaded, your Bitcoin and RSK balances will be displayed on the main screen.
+   * You'll also be able to view your Taproot asset balances here.
 
 4. **Receive Payments:**
-   * Click on the "Receive" button to generate a new Bitcoin address.
-   * Share this address with the sender to receive Bitcoin payments.
-   * You can also use PayNyms (human-readable identifiers) to receive payments in the future.
+   * Click on the "Receive" button to generate a new Bitcoin or RSK address.
+   * Share this address with the sender to receive payments.
+   * You can also use PayNyms (human-readable identifiers) to receive payments.
 
 5. **Send Payments:**
    * Click on the "Send" button.
-   * Enter the recipient's Bitcoin address or PayNym and the amount you want to send.
+   * Enter the recipient's Bitcoin or RSK address (or PayNym) and the amount you want to send.
    * Review the transaction details and confirm the payment.
-   * In the future, you'll be able to send Lightning payments and Taproot assets as well.
+   * You can send Lightning payments and Taproot assets as well.
 
-## Advanced Features (Coming Soon)
+## Advanced Features
 
 * **Lightning Network:**    Send and receive instant, low-cost payments using the Lightning Network.
 * **Taproot Assets:**       Create, manage, and trade assets on the Bitcoin blockchain using Taproot.
 * **CoinJoin:**             Enhance your privacy by participating in CoinJoin transactions.
 * **DAO Governance:**       Participate in the Anya DAO's governance by voting on proposals and shaping the future of the platform.
+* **RSK Integration:**      Interact with smart contracts and decentralized applications on the RSK network.
 
 ## Security
 
@@ -51,4 +52,4 @@ Welcome to Anya Wallet, your gateway to the Bitcoin ecosystem! This guide will w
 
 If you have any questions or need assistance, please visit our [Issues page](https://github.com/botshelomokoka/anya-core-main/issues) on GitHub or reach out to us on our [Discussions forum](https://github.com/botshelomokoka/anya-core-main/discussions).
 
-We're excited to have you on board! Let's explore the world of Bitcoin together with Anya Wallet.
+We're excited to have you on board! Let's explore the world of Bitcoin and RSK together with Anya Wallet.

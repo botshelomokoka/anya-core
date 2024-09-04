@@ -74,11 +74,7 @@ mod wallet {
     fn main() -> Result<(), Box<dyn Error>> {
         // Example usage
         let address = "your_bitcoin_address";
-        let btc_balance = get_balance(address)?;
-        let taproot_balances = get_taproot_asset_balances(address)?;
-
-        println!("Bitcoin balance for {}: {} satoshis", address, btc_balance);
-        println!("Taproot asset balances for {}: {:?}", address, taproot_balances);
+        display_wallet_info(address)?;
 
         Ok(())
     }

@@ -14,6 +14,7 @@ The Anya Core project is organized into several modules:
   * **`dao/`:**       DAO functionality (governance, proposals, voting, treasury)
   * **`network/`:**   Bitcoin and RSK network communication
   * **`security/`:**  Encryption and authentication features
+  * **`utils/`:**     Helper functions and utilities
 * **`tests/`:**       Unit and integration tests
 * **`docs/`:**        Project documentation
 * **`scripts/`:**     Utility scripts for development and deployment
@@ -56,6 +57,26 @@ We welcome contributions! Please follow these guidelines:
 * Write clear comments and documentation
 * Keep functions small and focused
 * Use proper error handling
+* Utilize the `anyhow` crate for error management
+* Implement async functions where appropriate
+
+## Key Components
+
+### DAO Functionality
+
+The `dao` module handles governance aspects of the Anya DAO:
+
+* **Proposal Management:** Create, store, and validate proposals using Web5 DWN.
+* **Voting:** Record and tally votes for proposals.
+* **Treasury Management:** Handle both on-chain (RSK) and off-chain (Bitcoin) assets.
+* **Membership:** Manage DAO membership and access control.
+
+### Web5 Integration
+
+We use Web5 for decentralized data storage and communication:
+
+* **DID (Decentralized Identifiers):** Used for identifying DAO members and proposals.
+* **DWN (Decentralized Web Nodes):** Store and retrieve DAO-related data.
 
 ## Additional Resources
 
@@ -63,6 +84,7 @@ We welcome contributions! Please follow these guidelines:
 * [Bitcoin Developer Documentation](https://developer.bitcoin.org/)
 * [RSK Developer Portal](https://developers.rsk.co/)
 * [Lightning Network Resources](https://lightning.network/resources/)
+* [Web5 Documentation](https://developer.tbd.website/docs/web5/)
 
 ## Getting Help
 
