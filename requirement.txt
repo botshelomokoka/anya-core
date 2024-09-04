@@ -1,57 +1,47 @@
+[dependencies]
 # Core dependencies
-python-dotenv==1.0.0
-typing==3.7.4.3
+dotenv = "0.15.0"
 
 # Cryptography and security
-cryptography==41.0.1
-lnd-grpc==0.5.1
+rust-crypto = "0.2.36"
+tonic = "0.8.3"  # For gRPC, similar to lnd-grpc
 
 # Networking
-twisted==22.10.0
-kademlia==2.2.2
+tokio = { version = "1.28.0", features = ["full"] }
+kad = "0.3.1"  # Similar to kademlia
 
-# Database (assuming SQLite is used, adjust if using a different database)
-SQLAlchemy==2.0.15
+# Database
+diesel = { version = "2.0.3", features = ["sqlite"] }
 
 # Testing
-pytest==7.3.1
+tokio-test = "0.4.2"
 
 # JSON handling
-simplejson==3.19.1
-
-# Web5 (if it's actually used in the project)
-# web5==0.1.0  # Uncomment if Web5 is actually used
+serde_json = "1.0.96"
 
 # Additional utilities
-random2==1.0.1
+rand = "0.8.5"
 
-# Machine Learning (for ml_logic.py)
-scikit-learn==1.2.2
-numpy==1.24.3
-pandas==2.0.2
-tensorflow==2.12.0
-nltk==3.8.1
+# Machine Learning
+ndarray = "0.15.6"
+linfa = "0.6.1"
+tensorflow = "0.17.0"
 
-# Network Discovery (for network_discovery.py)
-scapy==2.5.0
-netifaces==0.11.0
+# Network Discovery
+pnet = "0.33.0"
 
-# Main System (for main_system.py)
-aiohttp==3.8.4
+# Main System
+reqwest = { version = "0.11.18", features = ["json"] }
 
-# Additional common libraries that might be used across these modules
-requests==2.31.0
-beautifulsoup4==4.12.2
-matplotlib==3.7.1
+# Additional common libraries
+scraper = "0.16.0"  # Similar to beautifulsoup4
+plotters = "0.3.4"  # Similar to matplotlib
 
-# User management (assuming it's a custom module)
-# user_management  # This should be your local module, not a PyPI package
-
-# Additional dependencies from setup_project.py
-# subprocess32 is removed as it's for Python 2.7, and we're using Python 3
-
-# Additional dependencies for user_management.py
-# Add any specific dependencies required by user_management.py here
+# User management
+# Add any specific dependencies required by user_management here
 # For example:
-# bcrypt==4.0.1  # If you're using bcrypt for password hashing
-# pyjwt==2.6.0  # If you're using JWT for authentication
+# bcrypt = "0.13.0"
+# jsonwebtoken = "8.3.0"
+
+[dev-dependencies]
+criterion = "0.4.0"  # For benchmarking

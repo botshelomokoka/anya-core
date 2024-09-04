@@ -3,9 +3,9 @@
     "dotenv": "^16.4.5"
   },
   "scripts": {
-    "check": "node setup_check.js",
-    "lint": "eslint .",
-    "test": "jest",
-    "setup": "node setup_project.js"
+    "check": "cargo check",
+    "lint": "cargo clippy",
+    "test": "cargo test",
+    "setup": "cargo run --bin setup_project"
   }
 }

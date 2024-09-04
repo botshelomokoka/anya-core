@@ -1,1 +1,28 @@
-pip install python-dotenv
+// Check if python-dotenv is installed and install if not
+use std::process::Command;
+
+fn check_and_install_dotenv() {
+    let output = Command::new("pip")
+        .args(&["show", "python-dotenv"])
+        .output()
+        .expect("Failed to execute pip command");
+
+    if !output.status.success() {
+        println!("Installing python-dotenv...");
+        let install = Command::new("pip")
+            .args(&["install", "python-dotenv"])
+            .output()
+            .expect("Failed to install python-dotenv");
+
+        if install.status.success() {
+            println!("python-dotenv installed successfully");
+        } else {
+            eprintln!("Failed to install python-dotenv");
+        }
+    } else {
+        println!("python-dotenv is already installed");
+    }
+}
+
+// Call the function
+check_and_install_dotenv();

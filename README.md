@@ -15,21 +15,20 @@ Anya Core is a sophisticated system designed to manage and monitor a decentraliz
 
 ## Requirements
 
-- Python 3.8+
-- TensorFlow 2.12.0
-- NumPy 1.24.3
-- Scikit-learn 1.2.2
-- Cryptography 41.0.1
-- Requests 2.31.0
-- python-dotenv 1.0.0
-- SQLAlchemy 2.0.15
-- Twisted 22.10.0
-- Kademlia 2.2.2
-- NLTK 3.8.1
-- Pandas 2.0.2
-- Aiohttp 3.8.4
-- Scapy 2.5.0
-- Netifaces 0.11.0
+- Rust 1.68.0+
+- Tokio 1.28.0
+- Diesel 2.0.3 (with SQLite feature)
+- Tonic 0.8.3
+- Rust-crypto 0.2.36
+- Ndarray 0.15.6
+- Linfa 0.6.1
+- TensorFlow 0.17.0
+- Reqwest 0.11.18
+- Dotenv 0.15.0
+- Serde_json 1.0.96
+- Pnet 0.33.0
+- Scraper 0.16.0
+- Plotters 0.3.4
 
 ## Setup Instructions
 
