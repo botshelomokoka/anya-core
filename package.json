@@ -1,11 +1,22 @@
 {
+  "name": "your-project-name",
+  "version": "1.0.0",
   "dependencies": {
-    "dotenv": "^16.4.5"
+    "@web5/api": "^0.8.3",
+    "@web5/credentials": "^0.4.1"
   },
   "scripts": {
-    "check": "cargo check",
-    "lint": "cargo clippy",
-    "test": "cargo test",
-    "setup": "cargo run --bin setup_project"
+    "check": "cargo check --all-features",
+    "lint": "cargo clippy --all-features -- -D warnings",
+    "test": "cargo test --all-features",
+    "setup": "cargo run --bin setup_project",
+    "build": "cargo build --release",
+    "doc": "cargo doc --no-deps --open"
+  },
+  "devDependencies": {
+    "rust-bitcoin": "^0.30.0",
+    "rust-lightning": "^0.0.116",
+    "rust-dlc": "^0.4.1",
+    "rust-libp2p": "^0.51.3"
   }
 }

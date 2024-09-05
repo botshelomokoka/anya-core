@@ -13,7 +13,7 @@
 
 ## 1. Executive Summary
 
-Anya is a revolutionary, fully decentralized and open-source platform designed to provide advanced Bitcoin intelligence and connectivity across all Bitcoin layers. Leveraging cutting-edge machine learning techniques, Anya aims to offer unparalleled security, efficiency, and user experience in the Bitcoin ecosystem while maintaining a strong focus on privacy, low fees, and sustainable growth.
+Anya is a revolutionary, fully decentralized and open-source platform designed to provide advanced Bitcoin intelligence and connectivity across all Bitcoin layers. Leveraging cutting-edge machine learning techniques, Anya aims to offer unparalleled security, efficiency, and user experience in the Bitcoin ecosystem while maintaining a strong focus on privacy, low fees, and sustainable growth. The platform is built using Rust and integrates key libraries such as rust-bitcoin, rust-lightning, rust-dlc, rust-libp2p, and stacks-rs for robust and efficient implementation. Full Web5 support is also included to enhance decentralized identity and data management capabilities.
 
 ## 2. Core Principles (Hard-coded)
 
@@ -55,12 +55,12 @@ Anya is a revolutionary, fully decentralized and open-source platform designed t
 - Continuous system upgrades and optimizations
 
 ### 4.3 Web5 Integration
-- Decentralized identity (DID) implementation
+- Decentralized identity (DID) implementation using TBD's Web5 SDK
 - User-controlled data storage and sharing
 - Verifiable credentials for enhanced trust and privacy
 
 ### 4.4 Discreet Log Contracts (DLCs)
-- Native support for creating and managing DLCs
+- Native support for creating and managing DLCs using rust-dlc
 - ML-optimized oracle selection and contract terms
 - Integration with Lightning Network for instant settlements
 
@@ -70,7 +70,7 @@ Anya is a revolutionary, fully decentralized and open-source platform designed t
 - Homomorphic encryption for secure, private computations
 
 ### 4.6 Multi-Layer Bitcoin Support
-- Seamless integration of Bitcoin base layer, Lightning Network, and future layers
+- Seamless integration of Bitcoin base layer (using rust-bitcoin), Lightning Network (using rust-lightning), and future layers
 - ML-driven optimization for cross-layer transactions and liquidity management
 
 ### 4.7 DAO Governance
@@ -83,11 +83,16 @@ Anya is a revolutionary, fully decentralized and open-source platform designed t
 - Automated code review and integration process
 - ML-driven bounty system for contributions
 
+### 4.9 Stacks Integration
+- Full support for Stacks (STX) using stacks-rs
+- Cross-chain analytics and optimization
+- Stacks smart contract integration
+
 ## 5. Technical Architecture
 
 ### 5.1 Core System
 - Modular design with separate components for wallet connectivity, layer management, ML analytics, and DAO governance
-- Decentralized node network with incentive structure
+- Decentralized node network with incentive structure using rust-libp2p
 - Client-side processing for enhanced privacy and reduced data transfer
 
 ### 5.2 ML Infrastructure
@@ -115,15 +120,17 @@ Anya is a revolutionary, fully decentralized and open-source platform designed t
 
 ### Phase 1: Foundation (Months 0-6)
 - Implement core ML engine with hard-coded principles
-- Develop initial Web5 and DLC integrations
+- Develop initial Web5 and DLC integrations using rust-dlc and TBD's Web5 SDK
 - Implement basic CoinJoin functionality
-- Establish Bitcoin Core and Lightning Network connections
+- Establish Bitcoin Core (rust-bitcoin) and Lightning Network (rust-lightning) connections
+- Set up P2P networking infrastructure using rust-libp2p
 
 ### Phase 2: Intelligence Expansion (Months 7-12)
 - Enhance ML capabilities for code assimilation
 - Expand Web5 features for decentralized identity and data management
-- Develop advanced DLC creation and management tools
+- Develop advanced DLC creation and management tools using rust-dlc
 - Implement initial version of federated learning
+- Integrate Stacks support using stacks-rs
 
 ### Phase 3: Privacy and Scalability (Months 13-18)
 - Implement full privacy suite (advanced CoinJoin, zero-knowledge proofs, homomorphic encryption)
@@ -146,11 +153,11 @@ Anya is a revolutionary, fully decentralized and open-source platform designed t
 ## 7. Open Source Integration
 
 ### 7.1 Bitcoin Core
-- Build upon Bitcoin Core for base layer operations
+- Build upon rust-bitcoin for base layer operations
 - Develop ML interfaces for optimized interaction
 
 ### 7.2 Lightning Network
-- Integrate with LND, c-lightning, or Eclair
+- Integrate with rust-lightning for Lightning Network operations
 - Develop ML-driven channel management and routing optimization
 
 ### 7.3 Web5
@@ -158,33 +165,41 @@ Anya is a revolutionary, fully decentralized and open-source platform designed t
 - Enhance with ML capabilities for privacy and user experience
 
 ### 7.4 Discreet Log Contracts
-- Build upon Bitcoin-S for DLC implementation
+- Utilize rust-dlc for DLC implementation
 - Develop ML models for optimizing DLC terms and oracle selection
 
 ### 7.5 CoinJoin
-- Adapt Wasabi Wallet's CoinJoin implementation
+- Adapt Wasabi Wallet's CoinJoin implementation to Rust
 - Enhance with ML for optimal mixing strategies
 
 ### 7.6 Zero-Knowledge Proofs
-- Utilize libsnark for cryptographic primitives
+- Utilize bellman or other Rust-based ZKP libraries
 - Develop Bitcoin-specific ZK applications
 
 ### 7.7 Federated Learning
-- Adapt TensorFlow Federated for Bitcoin-specific use cases
+- Implement custom federated learning solution in Rust
 - Implement privacy enhancements for federated learning
 
 ### 7.8 DAO Governance
-- Adapt Aragon for Bitcoin-native DAO operations
+- Develop Bitcoin-native DAO operations in Rust
 - Integrate ML for proposal analysis and impact assessment
 
 ### 7.9 Homomorphic Encryption
-- Utilize SEAL for homomorphic encryption primitives
+- Utilize SEAL-rs for homomorphic encryption primitives
 - Develop Bitcoin-specific applications integrated with ML models
+
+### 7.10 Stacks Integration
+- Implement full Stacks (STX) support using stacks-rs
+- Develop ML-driven cross-chain analytics and optimization
+
+### 7.11 P2P Networking
+- Utilize rust-libp2p for decentralized peer-to-peer networking
+- Implement custom protocols for Anya-specific communication
 
 ## 8. Challenges and Mitigations
 
 ### 8.1 Security
-- Regular third-party security audits
+- Regular third-party security audits of Rust codebase
 - Implement multiple safeguards and fail-safes in the ML system
 - Develop an ML-driven threat detection and mitigation system
 
@@ -211,7 +226,7 @@ Anya is a revolutionary, fully decentralized and open-source platform designed t
 ## 9. Future Roadmap
 
 ### 9.1 Advanced Privacy Features
-- Investigate and implement emerging privacy technologies
+- Investigate and implement emerging privacy technologies in Rust
 - Develop ML models for privacy-preserving collaborative analytics
 
 ### 9.2 Interoperability
@@ -219,7 +234,7 @@ Anya is a revolutionary, fully decentralized and open-source platform designed t
 - Develop cross-chain analytics capabilities
 
 ### 9.3 AI Advancements
-- Investigate the use of more advanced AI techniques (e.g., reinforcement learning, GANs)
+- Investigate the use of more advanced AI techniques (e.g., reinforcement learning, GANs) in Rust
 - Explore quantum-resistant cryptography and its integration with ML systems
 
 ### 9.4 Regulatory Technology
@@ -227,8 +242,8 @@ Anya is a revolutionary, fully decentralized and open-source platform designed t
 - Create tools for real-time compliance monitoring and reporting
 
 ### 9.5 Decentralized Finance (DeFi) on Bitcoin
-- Explore and implement Bitcoin-native DeFi primitives
+- Explore and implement Bitcoin-native DeFi primitives using Rust
 - Develop ML models for risk assessment and yield optimization in Bitcoin DeFi
 
 ---
-This comprehensive document outlines the vision, architecture, and implementation plan for Anya. It serves as a blueprint for creating a revolutionary, decentralized Bitcoin intelligence platform that leverages advanced machine learning techniques while maintaining the core principles of openness, security, and user empowerment that are fundamental to the Bitcoin ecosystem.
+This comprehensive document outlines the vision, architecture, and implementation plan for Anya. It serves as a blueprint for creating a revolutionary, decentralized Bitcoin intelligence platform that leverages advanced machine learning techniques while maintaining the core principles of openness, security, and user empowerment that are fundamental to the Bitcoin ecosystem. The implementation is based on Rust, utilizing key libraries such as rust-bitcoin, rust-lightning, rust-dlc, rust-libp2p, and stacks-rs for robust and efficient development. Full Web5 support is integrated to enhance decentralized identity and data management capabilities, creating a powerful and flexible platform for the future of Bitcoin.

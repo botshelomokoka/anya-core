@@ -10,8 +10,24 @@ use bitcoin::OutPoint;
 use std::error::Error;
 use std::str::FromStr;
 use rand::Rng;
+use rust_lightning::ln::chan_utils::ChannelPublicKeys;
+use rust_lightning::ln::msgs::ChannelReestablish;
+use rust_lightning::chain::keysinterface::Sign;
+use rust_dlc::{Oracle, Contract, Outcome};
+use stacks_common::types::StacksAddress;
+use stacks_transactions::{TransactionSigner, TransactionVersion, PostConditionMode, StacksTransaction};
+use libp2p::{PeerId, Swarm};
+use libp2p::core::upgrade;
+use libp2p::tcp::TokioTcpConfig;
+use libp2p::mplex::MplexConfig;
+use libp2p::noise::{Keypair, NoiseConfig, X25519Spec};
+use web5::{did::{DID, DIDDocument}, dwn::{DataFormat, Message, MessageBuilder}};
 
 use crate::network::bitcoin_client;
+use crate::network::lightning_client;
+use crate::network::stacks_client;
+use crate::network::dlc_client;
+use crate::network::web5_client;
 
 pub struct UTXOInput {
     pub outpoint: OutPoint,
@@ -111,3 +127,171 @@ fn fetch_redeem_script(script_pubkey: &Script) -> Result<Script, Box<dyn Error>>
     let redeem_script_hex = "5221030000000000000000000000000000000000000000000000000000000000000001210300000000000000000000000000000000000000000000000000000000000000022103000000000000000000000000000000000000000000000000000000000000000353ae";
     Ok(Script::from_str(redeem_script_hex)?)
 }
+
+// Lightning Network support
+pub fn open_lightning_channel(
+    counterparty_pubkey: PublicKey,
+    funding_amount: u64,
+    push_msat: u64,
+) -> Result<ChannelPublicKeys, Box<dyn Error>> {
+    lightning_client::open_channel(counterparty_pubkey, funding_amount, push_msat)
+}
+
+pub fn close_lightning_channel(
+    channel_id: [u8; 32],
+    counterparty_pubkey: PublicKey,
+) -> Result<Transaction, Box<dyn Error>> {
+    lightning_client::close_channel(channel_id, counterparty_pubkey)
+}
+
+pub fn send_lightning_payment(
+    payment_hash: [u8; 32],
+    amount_msat: u64,
+    destination: PublicKey,
+) -> Result<(), Box<dyn Error>> {
+    lightning_client::send_payment(payment_hash, amount_msat, destination)
+}
+
+// Discreet Log Contract (DLC) support
+pub fn create_dlc(
+    oracle: Oracle,
+    contract: Contract,
+    collateral: u64,
+) -> Result<Transaction, Box<dyn Error>> {
+    dlc_client::create_contract(oracle, contract, collateral)
+}
+
+pub fn settle_dlc(
+    contract_id: [u8; 32],
+    outcome: Outcome,
+) -> Result<Transaction, Box<dyn Error>> {
+    dlc_client::settle_contract(contract_id, outcome)
+}
+
+// Stacks (STX) support
+pub fn create_stx_transaction(
+    sender: StacksAddress,
+    recipient: StacksAddress,
+    amount: u64,
+    fee: u64,
+    nonce: u64,
+) -> Result<StacksTransaction, Box<dyn Error>> {
+    let payload = stacks_client::create_transaction(sender, recipient, amount, fee, nonce)?;
+    Ok(StacksTransaction::new(
+        TransactionVersion::Mainnet,
+        payload,
+        PostConditionMode::Allow,
+    ))
+}
+
+pub fn sign_stx_transaction(
+    tx: &mut StacksTransaction,
+    private_key: &PrivateKey,
+) -> Result<(), Box<dyn Error>> {
+    let signer = TransactionSigner::new(tx);
+    signer.sign_origin(private_key)?;
+    Ok(())
+}
+
+pub fn broadcast_stx_transaction(
+    tx: &StacksTransaction,
+) -> Result<String, Box<dyn Error>> {
+    stacks_client::broadcast_transaction(tx)
+}
+
+// Web5 support
+pub fn create_web5_did() -> Result<DID, Box<dyn Error>> {
+    web5_client::create_did()
+}
+
+pub fn resolve_web5_did(did: &str) -> Result<DIDDocument, Box<dyn Error>> {
+    web5_client::resolve_did(did)
+}
+
+pub fn create_web5_message(
+    did: &DID,
+    data: &[u8],
+    data_format: DataFormat,
+) -> Result<Message, Box<dyn Error>> {
+    let message = MessageBuilder::new(did.clone())
+        .data(data.to_vec(), data_format)
+        .build()?;
+    Ok(message)
+}
+
+pub fn send_web5_message(message: Message) -> Result<(), Box<dyn Error>> {
+    web5_client::send_message(message)
+}
+
+// Verify all transactions
+pub fn verify_bitcoin_transaction(tx: &Transaction) -> bool {
+    bitcoin_client::verify_transaction(tx)
+}
+
+pub fn verify_lightning_channel(channel_id: [u8; 32]) -> Result<ChannelReestablish, Box<dyn Error>> {
+    lightning_client::verify_channel(channel_id)
+}
+
+pub fn verify_dlc_contract(contract_id: [u8; 32]) -> Result<Contract, Box<dyn Error>> {
+    dlc_client::verify_contract(contract_id)
+}
+
+pub fn verify_stx_transaction(tx: &StacksTransaction) -> bool {
+    stacks_client::verify_transaction(tx)
+}
+
+pub fn verify_web5_message(message: &Message) -> Result<bool, Box<dyn Error>> {
+    web5_client::verify_message(message)
+}
+
+// Libp2p support
+pub fn setup_p2p_network() -> Result<Swarm<libp2p::swarm::behaviour::Behaviour>, Box<dyn Error>> {
+    let local_key = Keypair::<X25519Spec>::new().into_authentic(&Keypair::new()).unwrap();
+    let local_peer_id = PeerId::from(local_key.public());
+
+    let transport = TokioTcpConfig::new()
+        .upgrade(upgrade::Version::V1)
+        .authenticate(NoiseConfig::xx(local_key).into_authenticated())
+        .multiplex(MplexConfig::new())
+        .boxed();
+
+    let behaviour = libp2p::swarm::behaviour::Behaviour::default();
+
+    let mut swarm = Swarm::new(transport, behaviour, local_peer_id);
+
+    // Add more p2p network setup logic here
+
+    Ok(swarm)
+}
+
+// Additional helper functions for comprehensive wallet functionality
+pub fn get_balance(address: &Address) -> Result<u64, Box<dyn Error>> {
+    bitcoin_client::get_address_balance(address)
+}
+
+pub fn get_transaction_history(address: &Address) -> Result<Vec<Transaction>, Box<dyn Error>> {
+    bitcoin_client::get_address_transactions(address)
+}
+
+pub fn estimate_transaction_fee(tx: &Transaction, fee_rate: u64) -> u64 {
+    let tx_size = tx.get_weight() as u64;
+    (tx_size * fee_rate + 3) / 4 // Convert weight units to virtual bytes and calculate fee
+}
+
+pub fn create_multisig_address(
+    public_keys: &[PublicKey],
+    required_signatures: u8,
+) -> Result<Address, Box<dyn Error>> {
+    let script = bitcoin::blockdata::script::Builder::new()
+        .push_int(required_signatures as i64)
+        .push_keys(public_keys)
+        .push_int(public_keys.len() as i64)
+        .push_opcode(bitcoin::blockdata::opcodes::all::OP_CHECKMULTISIG)
+        .into_script();
+
+    Ok(Address::p2sh(&script, Network::Bitcoin)?)
+}
+
+// Ensure all functions are properly implemented and aligned
+// Verify that all imported libraries are being used
+// Research and verify the correctness of all implementations

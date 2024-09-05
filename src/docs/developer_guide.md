@@ -12,9 +12,13 @@ The Anya Core project is organized into several modules:
   * **`taproot/`:**   Taproot assets implementation
   * **`coinjoin/`:**  CoinJoin privacy features
   * **`dao/`:**       DAO functionality (governance, proposals, voting, treasury)
-  * **`network/`:**   Bitcoin and RSK network communication
+  * **`network/`:**   Bitcoin, RSK, and Stacks network communication
   * **`security/`:**  Encryption and authentication features
   * **`utils/`:**     Helper functions and utilities
+  * **`stx/`:**       Stacks blockchain integration
+  * **`web5/`:**      Web5 API and credentials implementation
+  * **`dlc/`:**       Discreet Log Contracts (DLC) functionality
+  * **`p2p/`:**       Peer-to-peer networking using libp2p
 * **`tests/`:**       Unit and integration tests
 * **`docs/`:**        Project documentation
 * **`scripts/`:**     Utility scripts for development and deployment
@@ -22,21 +26,24 @@ The Anya Core project is organized into several modules:
 ## Getting Started
 
 1. **Clone the Repository:**
+
    ```bash
    git clone https://github.com/botshelomokoka/anya-core-main.git
    cd anya-core-main
    ```
 
 2. **Set Up the Development Environment:**
-   * Install Rust: https://www.rust-lang.org/tools/install
+   * Install Rust: <https://www.rust-lang.org/tools/install>
    * Install required dependencies (see `README.md` for specifics)
 
 3. **Build the Project:**
+
    ```bash
    cargo build
    ```
 
 4. **Run Tests:**
+
    ```bash
    cargo test
    ```
@@ -68,7 +75,7 @@ The `dao` module handles governance aspects of the Anya DAO:
 
 * **Proposal Management:** Create, store, and validate proposals using Web5 DWN.
 * **Voting:** Record and tally votes for proposals.
-* **Treasury Management:** Handle both on-chain (RSK) and off-chain (Bitcoin) assets.
+* **Treasury Management:** Handle on-chain (Bitcoin, RSK, Stacks) and off-chain assets.
 * **Membership:** Manage DAO membership and access control.
 
 ### Web5 Integration
@@ -77,20 +84,6 @@ We use Web5 for decentralized data storage and communication:
 
 * **DID (Decentralized Identifiers):** Used for identifying DAO members and proposals.
 * **DWN (Decentralized Web Nodes):** Store and retrieve DAO-related data.
+* **Verifiable Credentials:** Issue and verify credentials for secure authentication.
 
-## Additional Resources
-
-* [Rust Documentation](https://doc.rust-lang.org/book/)
-* [Bitcoin Developer Documentation](https://developer.bitcoin.org/)
-* [RSK Developer Portal](https://developers.rsk.co/)
-* [Lightning Network Resources](https://lightning.network/resources/)
-* [Web5 Documentation](https://developer.tbd.website/docs/web5/)
-
-## Getting Help
-
-If you have questions or need assistance:
-
-* Open an issue on our [GitHub repository](https://github.com/botshelomokoka/anya-core-main/issues)
-* Join our developer chat on [Discord/Matrix] (link to be added)
-
-Thank you for contributing to Anya Core! Together, we're building a more accessible and private Bitcoin ecosystem.
+Example usage of Web5 API:

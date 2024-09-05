@@ -1,5 +1,5 @@
 //! This module handles key generation, storage, and derivation for the Anya Wallet,
-//! including potential hardware wallet support.
+//! including support for Bitcoin, Stacks, Web5, DLC, Lightning Network, and libp2p.
 
 use std::error::Error;
 use bitcoin::{bip32, bip39, PrivateKey, Network, Transaction, TxIn, Script, SigHashType};
@@ -8,10 +8,32 @@ use cryptography::hazmat::primitives::hashes::{self, Sha256};
 use cryptography::hazmat::primitives::kdf::pbkdf2::PBKDF2HMAC;
 use rand::{random, thread_rng};
 use secp256k1::{Secp256k1, Message};
+use stacks_common::types::{StacksPrivateKey, StacksPublicKey};
+use stacks_transactions::{TransactionSigner, TransactionVersion, PostConditionMode, StacksTransaction};
+use rust_dlc::{Oracle, Contract, Outcome, DlcParty, OracleInfo, ContractDescriptor, PayoutFunction};
+use rust_lightning::ln::channelmanager::{ChannelManager, ChannelManagerReadArgs};
+use rust_lightning::ln::peer_handler::{PeerManager, MessageHandler};
+use rust_lightning::routing::router::Router;
+use rust_lightning::util::events::EventHandler;
+use rust_lightning::util::config::UserConfig;
+use rust_lightning::util::logger::Logger;
+use rust_lightning::util::persist::Persister;
+use rust_bitcoin::blockdata::transaction::Transaction as BitcoinTransaction;
+use rust_bitcoin::network::constants::Network as BitcoinNetwork;
+use libp2p::{PeerId, Swarm, Transport, identity};
+use libp2p::core::upgrade;
+use libp2p::tcp::TokioTcpConfig;
+use libp2p::mplex::MplexConfig;
+use libp2p::noise::{Keypair, NoiseConfig, X25519Spec};
+use web5::did::{DID, DIDDocument};
+use web5::dwn::{DataModel, Message};
 
 // Import from other Anya modules
 use crate::anya_core::wallet::address_management;
 use crate::anya_core::wallet::Wallet;
+use crate::anya_core::network::bitcoin_client;
+use crate::anya_core::network::stacks_client;
+use crate::anya_core::network::dlc_client;
 
 pub struct HardwareWallet;
 
@@ -193,3 +215,93 @@ fn derive_public_key_from_derivation_path(derivation_path: &str) -> Result<bitco
     let private_key = PrivateKey::new(&secp, &mut thread_rng());
     Ok(bitcoin::PublicKey::from_private_key(&secp, &private_key))
 }
+
+// Stacks-specific key management functions
+pub fn generate_stacks_private_key() -> StacksPrivateKey {
+    StacksPrivateKey::new()
+}
+
+pub fn derive_stacks_public_key(private_key: &StacksPrivateKey) -> StacksPublicKey {
+    StacksPublicKey::from_private(private_key)
+}
+
+pub fn sign_stacks_transaction(tx: &mut StacksTransaction, private_key: &StacksPrivateKey) -> Result<(), Box<dyn Error>> {
+    let signer = TransactionSigner::new(private_key);
+    signer.sign_tx(tx)?;
+    Ok(())
+}
+
+// DLC-specific key management functions
+pub fn create_dlc_contract(oracle: &Oracle, outcomes: Vec<Outcome>) -> Result<Contract, Box<dyn Error>> {
+    let contract = Contract::new(oracle, outcomes);
+    Ok(contract)
+}
+
+pub fn sign_dlc_contract(contract: &mut Contract, private_key: &PrivateKey) -> Result<(), Box<dyn Error>> {
+    let secp = Secp256k1::new();
+    let public_key = bitcoin::PublicKey::from_private_key(&secp, private_key);
+    let dlc_party = DlcParty::new(public_key);
+    contract.sign(&dlc_party, private_key)?;
+    Ok(())
+}
+
+// Lightning Network-specific key management functions
+pub fn initialize_lightning_node(network: BitcoinNetwork, seed: &[u8]) -> Result<ChannelManager<Logger>, Box<dyn Error>> {
+    let config = UserConfig::default();
+    let logger = Logger::new();
+    let fee_estimator = rust_lightning::chain::chaininterface::FeeEstimator::new_static(2000);
+    let persister = Box::new(DummyPersister);
+    let keys_manager = rust_lightning::util::ser::ReadableArgs::read_args(
+        &mut &seed[..],
+        (network, logger.clone(), 42),
+    )?;
+    let channel_manager = ChannelManager::new(
+        fee_estimator,
+        &keys_manager,
+        config,
+        &network,
+        logger.clone(),
+        persister,
+    )?;
+    Ok(channel_manager)
+}
+
+pub fn create_lightning_invoice(channel_manager: &ChannelManager<Logger>, amount_msat: u64, description: &str) -> Result<String, Box<dyn Error>> {
+    let invoice = channel_manager.create_invoice(None, amount_msat, description.as_bytes(), 3600, None)?;
+    Ok(invoice.to_string())
+}
+
+// Libp2p-specific key management functions
+pub fn generate_libp2p_keypair() -> identity::Keypair {
+    identity::Keypair::generate_ed25519()
+}
+
+pub fn initialize_libp2p_swarm(keypair: identity::Keypair) -> Swarm<libp2p::swarm::dummy::Behaviour> {
+    let transport = TokioTcpConfig::new()
+        .upgrade(upgrade::Version::V1)
+        .authenticate(NoiseConfig::xx(keypair.clone()).into_authenticated())
+        .multiplex(MplexConfig::new())
+        .boxed();
+
+    let behaviour = libp2p::swarm::dummy::Behaviour;
+    Swarm::new(transport, behaviour, keypair.public().to_peer_id())
+}
+
+// Web5-specific key management functions
+pub fn create_web5_did() -> Result<DID, Box<dyn Error>> {
+    let did = DID::new()?;
+    Ok(did)
+}
+
+pub fn create_web5_dwn_message(did: &DID, data: &[u8]) -> Result<Message, Box<dyn Error>> {
+    let data_model = DataModel::new(data);
+    let message = Message::new(did, data_model)?;
+    Ok(message)
+}
+
+struct DummyPersister;
+
+impl Persister for DummyPersister {
+    fn persist_new_channel(&self, _channel_id: &[u8; 32], _data: &[u8]) -> std::io::Result<()> {
+        Ok(())
+    }

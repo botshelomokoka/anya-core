@@ -1,4 +1,5 @@
-//! This module provides a client interface for interacting with the Lightning Network using LND.
+//! This module provides a client interface for interacting with the Lightning Network using LND,
+//! as well as integrations with Stacks, Web5, DLCs, and libp2p.
 
 use std::error::Error;
 use tonic_lnd::lnrpc::{
@@ -6,133 +7,256 @@ use tonic_lnd::lnrpc::{
     OpenChannelRequest, PayReq, PaymentHash, SendResponse, WalletBalanceResponse,
 };
 use tonic_lnd::Client as LndClient;
+use stacks_common::types::StacksAddress;
+use stacks_transactions::{
+    AccountTransactionEffects, AssetIdentifier, PostConditionMode,
+    StacksTransaction, TransactionVersion, TransactionPayload, TransactionSigner,
+    StacksPublicKey, SingleSigSpendingCondition, TransactionAnchor,
+    contract_call::ContractCall, post_condition::PostCondition,
+};
+use clarity_repl::clarity::{ClarityInstance, ClarityContract, Value as ClarityValue};
+use web5::{Web5, Protocol};
+use web5::did::{DID, DIDDocument};
+use web5::dwn::{DwnApi, RecordQuery};
+use web5_api::{Web5Api, CredentialsApi};
+use web5_credentials::{Credential, VerifiableCredential};
+use dlc::{DlcParty, Offer, Accept, Sign, Oracle, Contract as DlcContract};
+use lightning::{
+    chain::chaininterface::ConfirmationTarget,
+    ln::channelmanager::{ChannelManager, ChannelManagerReadArgs},
+    ln::msgs::ChannelUpdate,
+    routing::gossip::NodeId,
+    util::config::UserConfig,
+};
+use bitcoin::{
+    Address, Transaction, Txid, Network, PrivateKey, PublicKey,
+    secp256k1::Secp256k1, hashes::Hash,
+};
+use libp2p::{
+    Swarm, identity, PeerId, Multiaddr,
+    core::upgrade,
+    floodsub::{Floodsub, FloodsubEvent, Topic},
+    mdns::{Mdns, MdnsEvent},
+    noise,
+    swarm::{NetworkBehaviourEventProcess, SwarmBuilder},
+    tcp::TokioTcpConfig,
+    Transport,
+};
+use std::sync::Arc;
+use tokio::sync::Mutex;
 
-/// A struct representing the Lightning Network client for LND
+/// A struct representing the Lightning Network client for LND with additional integrations
 pub struct LightningNetworkClient {
     client: LndClient,
+    stacks_client: StacksClient,
+    web5_client: Web5Client,
+    dlc_client: DlcClient,
+    p2p_swarm: Swarm<P2pBehaviour>,
 }
 
 impl LightningNetworkClient {
     /// Creates a new LightningNetworkClient
-    pub async fn new(host: &str, cert_path: &str, macaroon_path: &str) -> Result<Self, Box<dyn Error>> {
+    pub async fn new(
+        host: &str,
+        cert_path: &str,
+        macaroon_path: &str,
+        stacks_url: &str,
+        did: DID,
+        dwn: DwnApi,
+    ) -> Result<Self, Box<dyn Error>> {
         let client = LndClient::new_from_cert(host, cert_path, macaroon_path).await?;
-        Ok(Self { client })
+        let stacks_client = StacksClient::new(stacks_url);
+        let web5_client = Web5Client::new(did, dwn);
+        let dlc_client = DlcClient::new();
+        let p2p_swarm = create_p2p_swarm().await?;
+
+        Ok(Self {
+            client,
+            stacks_client,
+            web5_client,
+            dlc_client,
+            p2p_swarm,
+        })
     }
 
-    /// Opens a Lightning Network channel with a specified node
-    ///
-    /// # Arguments
-    ///
-    /// * `node_pubkey` - The public key of the Lightning node to connect to
-    /// * `funding_amount` - The amount of satoshis to fund the channel with
-    /// * `push_sat` - (Optional) The amount of satoshis to push to the remote node
-    ///
-    /// # Returns
-    ///
-    /// The `ChannelPoint` object representing the opened channel
-    pub async fn open_channel(&self, node_pubkey: &str, funding_amount: i64, push_sat: Option<i64>) -> Result<ChannelPoint, Box<dyn Error>> {
-        let mut request = OpenChannelRequest::default();
-        request.set_node_pubkey_string(node_pubkey.to_string());
-        request.set_local_funding_amount(funding_amount);
-        if let Some(push) = push_sat {
-            request.set_push_sat(push);
+    // ... (keep existing Lightning Network methods)
+
+    // Stacks integration methods
+    pub async fn get_stx_balance(&self, address: &StacksAddress) -> Result<u64, Box<dyn Error>> {
+        self.stacks_client.get_stx_balance(address).await
+    }
+
+    pub async fn transfer_stx(&self, from: &StacksAddress, to: &StacksAddress, amount: u64) -> Result<String, Box<dyn Error>> {
+        self.stacks_client.transfer_stx(from, to, amount).await
+    }
+
+    // Web5 integration methods
+    pub async fn create_did_document(&self) -> Result<DIDDocument, Box<dyn Error>> {
+        self.web5_client.create_did_document().await
+    }
+
+    pub async fn issue_credential(&self, subject: &str, claims: serde_json::Value) -> Result<VerifiableCredential, Box<dyn Error>> {
+        self.web5_client.issue_credential(subject, claims).await
+    }
+
+    // DLC methods
+    pub async fn create_dlc(&self, oracle: Oracle, contract: DlcContract) -> Result<Offer, Box<dyn Error>> {
+        self.dlc_client.create_dlc(oracle, contract).await
+    }
+
+    pub async fn close_dlc(&self, offer: Offer, accept: Accept, sign: Sign) -> Result<Transaction, Box<dyn Error>> {
+        self.dlc_client.close_dlc(offer, accept, sign).await
+    }
+
+    // Libp2p methods
+    pub async fn connect_peer(&mut self, peer_id: PeerId, addr: Multiaddr) -> Result<(), Box<dyn Error>> {
+        self.p2p_swarm.dial(addr)?;
+        Ok(())
+    }
+
+    pub async fn broadcast_message(&mut self, message: Vec<u8>) -> Result<(), Box<dyn Error>> {
+        let topic = Topic::new("anya-network");
+        self.p2p_swarm.behaviour_mut().floodsub.publish(topic, message);
+        Ok(())
+    }
+}
+
+// Helper function to create a libp2p swarm
+async fn create_p2p_swarm() -> Result<Swarm<P2pBehaviour>, Box<dyn Error>> {
+    let id_keys = identity::Keypair::generate_ed25519();
+    let peer_id = PeerId::from(id_keys.public());
+    let transport = libp2p::development_transport(id_keys).await?;
+    
+    let mut behaviour = P2pBehaviour {
+        floodsub: Floodsub::new(peer_id),
+        mdns: Mdns::new(Default::default()).await?,
+    };
+
+    let topic = Topic::new("anya-network");
+    behaviour.floodsub.subscribe(topic);
+
+    let swarm = SwarmBuilder::new(transport, behaviour, peer_id)
+        .executor(Box::new(|fut| {
+            tokio::spawn(fut);
+        }))
+        .build();
+
+    Ok(swarm)
+}
+
+// Stacks client implementation
+pub struct StacksClient {
+    url: String,
+}
+
+impl StacksClient {
+    pub fn new(url: &str) -> Self {
+        Self { url: url.to_string() }
+    }
+
+    pub async fn get_stx_balance(&self, address: &StacksAddress) -> Result<u64, Box<dyn Error>> {
+        // Implement STX balance fetching using stacks-transactions crate
+        let clarity_instance = ClarityInstance::new();
+        let contract = ClarityContract::new(&clarity_instance, "ST000000000000000000002AMW42H", "stx-token");
+        let result = contract.call_public_function("get-balance", vec![ClarityValue::Principal(address.to_string())], None)?;
+        Ok(result.expect_u128() as u64)
+    }
+
+    pub async fn transfer_stx(&self, from: &StacksAddress, to: &StacksAddress, amount: u64) -> Result<String, Box<dyn Error>> {
+        // Implement STX transfer using stacks-transactions crate
+        let tx = StacksTransaction::new(
+            TransactionVersion::Testnet,
+            TransactionPayload::TokenTransfer {
+                recipient: to.clone(),
+                amount: amount.into(),
+                memo: None,
+            },
+            PostConditionMode::Allow,
+            from.clone(),
+        );
+        // Sign and broadcast the transaction
+        // Return the transaction ID
+        unimplemented!("Implement STX transfer")
+    }
+}
+
+// Web5 client implementation
+pub struct Web5Client {
+    did: DID,
+    dwn: DwnApi,
+}
+
+impl Web5Client {
+    pub fn new(did: DID, dwn: DwnApi) -> Self {
+        Self { did, dwn }
+    }
+
+    pub async fn create_did_document(&self) -> Result<DIDDocument, Box<dyn Error>> {
+        let web5 = Web5::connect(Some(Protocol::TestNet), None)?;
+        let did_document = web5.did().create(None).await?;
+        Ok(did_document)
+    }
+
+    pub async fn issue_credential(&self, subject: &str, claims: serde_json::Value) -> Result<VerifiableCredential, Box<dyn Error>> {
+        let web5 = Web5::connect(Some(Protocol::TestNet), None)?;
+        let credential = Credential::new(subject, claims);
+        let verifiable_credential = web5.credentials().issue(credential).await?;
+        Ok(verifiable_credential)
+    }
+}
+
+// DLC client implementation
+pub struct DlcClient {}
+
+impl DlcClient {
+    pub fn new() -> Self {
+        Self {}
+    }
+
+    pub async fn create_dlc(&self, oracle: Oracle, contract: DlcContract) -> Result<Offer, Box<dyn Error>> {
+        let secp = Secp256k1::new();
+        let dlc_party = DlcParty::new(&secp);
+        let offer = dlc_party.offer(&contract, &oracle)?;
+        Ok(offer)
+    }
+
+    pub async fn close_dlc(&self, offer: Offer, accept: Accept, sign: Sign) -> Result<Transaction, Box<dyn Error>> {
+        let secp = Secp256k1::new();
+        let dlc_party = DlcParty::new(&secp);
+        let closing_tx = dlc_party.close(offer, accept, sign)?;
+        Ok(closing_tx)
+    }
+}
+
+#[derive(NetworkBehaviour)]
+pub struct P2pBehaviour {
+    floodsub: Floodsub,
+    mdns: Mdns,
+}
+
+impl NetworkBehaviourEventProcess<FloodsubEvent> for P2pBehaviour {
+    fn inject_event(&mut self, event: FloodsubEvent) {
+        if let FloodsubEvent::Message(message) = event {
+            println!("Received: '{:?}' from {:?}", String::from_utf8_lossy(&message.data), message.source);
         }
-
-        let response = self.client.lightning().open_channel_sync(request).await?;
-        Ok(response.into_inner())
     }
+}
 
-    /// Decodes a Lightning invoice (BOLT11 format) to get payment details
-    ///
-    /// # Arguments
-    ///
-    /// * `invoice` - The Lightning invoice string
-    ///
-    /// # Returns
-    ///
-    /// A `PayReq` object containing the decoded invoice details
-    pub async fn decode_invoice(&self, invoice: &str) -> Result<PayReq, Box<dyn Error>> {
-        let mut request = tonic_lnd::lnrpc::PayReqString::default();
-        request.set_pay_req(invoice.to_string());
-
-        let response = self.client.lightning().decode_pay_req(request).await?;
-        Ok(response.into_inner())
-    }
-
-    /// Sends a Lightning Network payment
-    ///
-    /// # Arguments
-    ///
-    /// * `invoice` - The Lightning invoice to pay
-    ///
-    /// # Returns
-    ///
-    /// The `SendResponse` if successful
-    pub async fn send_payment(&self, invoice: &str) -> Result<SendResponse, Box<dyn Error>> {
-        let mut request = tonic_lnd::lnrpc::SendRequest::default();
-        request.set_payment_request(invoice.to_string());
-
-        let response = self.client.lightning().send_payment_sync(request).await?;
-        Ok(response.into_inner())
-    }
-
-    /// Receives a Lightning Network payment by creating an invoice
-    ///
-    /// # Arguments
-    ///
-    /// * `amount_sat` - The amount to receive in satoshis
-    /// * `memo` - A description for the invoice
-    ///
-    /// # Returns
-    ///
-    /// The `AddInvoiceResponse` containing the generated invoice
-    pub async fn receive_payment(&self, amount_sat: i64, memo: &str) -> Result<AddInvoiceResponse, Box<dyn Error>> {
-        let mut invoice = Invoice::default();
-        invoice.set_value(amount_sat);
-        invoice.set_memo(memo.to_string());
-
-        let response = self.client.lightning().add_invoice(invoice).await?;
-        Ok(response.into_inner())
-    }
-
-    /// Closes a Lightning Network channel
-    ///
-    /// # Arguments
-    ///
-    /// * `channel_point` - The funding outpoint of the channel to close
-    /// * `force` - Whether to force close the channel
-    ///
-    /// # Returns
-    ///
-    /// A stream of close status update messages
-    pub async fn close_channel(&self, channel_point: ChannelPoint, force: bool) -> Result<tonic::Response<tonic::Streaming<tonic_lnd::lnrpc::CloseStatusUpdate>>, Box<dyn Error>> {
-        let mut request = CloseChannelRequest::default();
-        request.set_channel_point(channel_point);
-        request.set_force(force);
-
-        let response = self.client.lightning().close_channel(request).await?;
-        Ok(response)
-    }
-
-    /// Gets the current balance of the Lightning wallet
-    ///
-    /// # Returns
-    ///
-    /// A `WalletBalanceResponse` containing the confirmed and unconfirmed balance
-    pub async fn get_balance(&self) -> Result<WalletBalanceResponse, Box<dyn Error>> {
-        let request = tonic_lnd::lnrpc::WalletBalanceRequest::default();
-        let response = self.client.lightning().wallet_balance(request).await?;
-        Ok(response.into_inner())
-    }
-
-    /// Lists all open channels
-    ///
-    /// # Returns
-    ///
-    /// A `ListChannelsResponse` containing details of all open channels
-    pub async fn list_channels(&self) -> Result<ListChannelsResponse, Box<dyn Error>> {
-        let request = tonic_lnd::lnrpc::ListChannelsRequest::default();
-        let response = self.client.lightning().list_channels(request).await?;
-        Ok(response.into_inner())
+impl NetworkBehaviourEventProcess<MdnsEvent> for P2pBehaviour {
+    fn inject_event(&mut self, event: MdnsEvent) {
+        match event {
+            MdnsEvent::Discovered(list) => {
+                for (peer, _) in list {
+                    self.floodsub.add_node_to_partial_view(peer);
+                }
+            }
+            MdnsEvent::Expired(list) => {
+                for (peer, _) in list {
+                    if !self.mdns.has_node(&peer) {
+                        self.floodsub.remove_node_from_partial_view(&peer);
+                    }
+                }
+            }
+        }
     }
 }

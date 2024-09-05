@@ -5,19 +5,41 @@ use bitcoin::Transaction;
 use sha2::{Sha256, Digest};
 use std::error::Error;
 use bitcoin::util::amount::Amount;
+use stacks_common::types::{StacksAddress, StacksEpochId};
+use stacks_transactions::{AccountTransactionEffects, AssetIdentifier, PostConditionMode, StacksTransaction, TransactionVersion};
+use clarity_repl::clarity::ClarityInstance;
+use clarity_repl::repl::Session;
+use web5::{
+    did::{DidResolver, DidMethod},
+    dids::{generate_did, resolve_did},
+    credentials::{VerifiableCredential, VerifiablePresentation, create_credential, verify_credential},
+};
+use std::sync::{Arc, Mutex};
+use std::thread;
+use std::time::Duration;
+use std::io::{self, Read, Write};
+use std::fs::{self, File};
+use std::path::Path;
+use dlc::{DlcParty, Offer, Accept, Sign, Oracle, Contract};
+use lightning::{
+    chain, ln, routing::router,
+    util::events::{Event, EventHandler},
+    ln::channelmanager::{ChannelManager, ChannelManagerReadArgs},
+};
+use libp2p::{
+    core::upgrade,
+    floodsub::{Floodsub, FloodsubEvent, Topic},
+    mdns::{Mdns, MdnsEvent},
+    swarm::{NetworkBehaviourEventProcess, Swarm},
+    NetworkBehaviour, PeerId,
+};
 
 /// Calculates the transaction ID (txid) from a raw transaction hex string
 pub fn calculate_txid(tx_hex: &str) -> Result<String, Box<dyn Error>> {
-    // 1. Deserialize the transaction hex
     let tx: Transaction = deserialize(&hex::decode(tx_hex)?)?;
-
-    // 2. Calculate the double SHA-256 hash of the transaction
     let tx_bytes = serialize(&tx);
     let tx_hash = Sha256::digest(Sha256::digest(&tx_bytes));
-
-    // 3. Reverse the bytes and convert to hex
     let txid = hex::encode(tx_hash.reverse());
-
     Ok(txid)
 }
 
@@ -56,6 +78,120 @@ pub fn derive_private_key(mnemonic: &str, derivation_path: &str) -> Result<bitco
     let derived_key = master_key.derive_priv(&derivation_path)?;
     
     Ok(derived_key.private_key)
+}
+
+/// Creates a Stacks transaction
+pub fn create_stacks_transaction(
+    sender: &StacksAddress,
+    nonce: u64,
+    fee: u64,
+    payload: &[u8],
+) -> Result<StacksTransaction, Box<dyn Error>> {
+    let tx = StacksTransaction::new(
+        TransactionVersion::Testnet,
+        sender.clone(),
+        nonce,
+        fee,
+        payload.to_vec(),
+        PostConditionMode::Allow,
+    );
+    Ok(tx)
+}
+
+/// Generates a DID using Web5
+pub fn generate_web5_did() -> Result<String, Box<dyn Error>> {
+    let did = generate_did(DidMethod::Key)?;
+    Ok(did)
+}
+
+/// Creates a verifiable credential using Web5
+pub fn create_web5_credential(
+    issuer: &str,
+    subject: &str,
+    claims: serde_json::Value,
+) -> Result<VerifiableCredential, Box<dyn Error>> {
+    let credential = create_credential(issuer, subject, claims)?;
+    Ok(credential)
+}
+
+/// Initializes a DLC contract
+pub fn init_dlc_contract(
+    oracle_public_key: &[u8],
+    outcomes: Vec<String>,
+    collateral: u64,
+) -> Result<Contract, Box<dyn Error>> {
+    let oracle = Oracle::new(oracle_public_key.to_vec());
+    let contract = Contract::new(oracle, outcomes, collateral);
+    Ok(contract)
+}
+
+/// Initializes a Lightning Network channel manager
+pub fn init_lightning_channel_manager(
+    network: bitcoin::Network,
+    fee_estimator: Arc<dyn chain::FeeEstimator>,
+    logger: Arc<dyn lightning::util::logger::Logger>,
+) -> Result<Arc<ChannelManager>, Box<dyn Error>> {
+    let channel_manager = Arc::new(ChannelManager::new(
+        fee_estimator,
+        &[],
+        logger,
+        &ChannelManagerReadArgs::default(),
+    )?);
+    Ok(channel_manager)
+}
+
+/// Initializes a libp2p swarm
+pub fn init_libp2p_swarm() -> Result<Swarm<impl NetworkBehaviour>, Box<dyn Error>> {
+    let local_key = libp2p::identity::Keypair::generate_ed25519();
+    let local_peer_id = PeerId::from(local_key.public());
+
+    let transport = libp2p::development_transport(local_key)?;
+
+    let mut swarm = {
+        let mdns = Mdns::new(Default::default())?;
+        let mut behaviour = MyBehaviour {
+            floodsub: Floodsub::new(local_peer_id),
+            mdns,
+        };
+
+        behaviour.floodsub.subscribe(Topic::new("chat"));
+        Swarm::new(transport, behaviour, local_peer_id)
+    };
+
+    Ok(swarm)
+}
+
+#[derive(NetworkBehaviour)]
+struct MyBehaviour {
+    floodsub: Floodsub,
+    mdns: Mdns,
+}
+
+impl NetworkBehaviourEventProcess<FloodsubEvent> for MyBehaviour {
+    fn inject_event(&mut self, event: FloodsubEvent) {
+        if let FloodsubEvent::Message(message) = event {
+            println!("Received: '{:?}' from {:?}", String::from_utf8_lossy(&message.data), message.source);
+        }
+    }
+}
+
+impl NetworkBehaviourEventProcess<MdnsEvent> for MyBehaviour {
+    fn inject_event(&mut self, event: MdnsEvent) {
+        match event {
+            MdnsEvent::Discovered(list) => {
+                for (peer, _) in list {
+                    self.floodsub.add_node_to_partial_view(peer);
+                }
+            }
+            MdnsEvent::Expired(list) => {
+                for (peer, _) in list {
+                    if !self.mdns.has_node(&peer) {
+                        self.floodsub.remove_node_from_partial_view(&peer);
+                    }
+                }
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -100,4 +236,6 @@ mod tests {
         let private_key = derive_private_key(mnemonic, derivation_path).unwrap();
         assert_eq!(private_key.to_wif(), "L4rK1yDtCWekvXuE6oXD9jCYfFNV2cWRpVuPLBcCU2z8TrisoyY1");
     }
+
+    // Add more tests for new functions as needed
 }

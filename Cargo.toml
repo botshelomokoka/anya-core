@@ -7,70 +7,70 @@ description = "A Bitcoin, Taproot Asset and AI-enabled wallet with ZK capabiliti
 license = "MIT"
 
 [dependencies]
-# Bitcoin and cryptocurrency related
-bitcoin = { version = "*", features = ["latest"] }
-bitcoincore-rpc = { version = "*", features = ["latest"] }
-secp256k1 = { version = "*", features = ["latest"] }
-rust-bitcoin = { version = "*", features = ["latest"] }
-rust-lightning = { version = "*", features = ["latest"] }
-rust-miniscript = { version = "*", features = ["latest"] }
-rust-bip39 = { version = "*", features = ["latest"] }
-rust-secp256k1 = { version = "*", features = ["latest"] }
-rust-base58 = { version = "*", features = ["latest"] }
-rust-bech32 = { version = "*", features = ["latest"] }
+anyhow = "1.0.69"
+ark-bls12-381 = "0.3.0"
+ark-ec = "0.3.0"
+ark-ff = "0.3.0"
+ark-groth16 = "0.3.0"
+ark-serialize = "0.3.0"
+ark-snark = "0.3.0"
+bech32 = "0.9.1"
+bellman = "0.13.1"
+bitcoin = { version = "0.29.2", features = ["rand"] }
+bitcoincore-rpc = "0.16.0"
+blake2 = "0.10.6"
+clarity-repl = "0.3.1"
+dotenv = "0.15.0"
+env_logger = "0.10.0"
+fs_extra = "1.3.0"
+hex = "0.4.3"
+libp2p = { version = "0.50.0", features = ["tcp-tokio", "mdns"] }
+libp2p-kad = "0.42.1"
+log = "0.4.17"
+pairing = "0.22.0"
+rand = "0.8.5"
+reqwest = { version = "0.11.14", features = ["json"] }
+rust-base58 = "0.0.4"
+rust-bech32 = "0.9.1"
+rust-bitcoin = "0.29.2"
+rust-bip39 = "1.0.0"
+rust-crypto = "0.2.36"
+rust-dlc = "0.1.0"
+rust-lightning = "0.0.115"
+rust-miniscript = "9.0.0"
+rust-secp256k1 = { version = "0.24.0", features = ["rand-std"] }
+secp256k1 = { version = "0.24.0", features = ["rand-std"] }
+serde = { version = "1.0.152", features = ["derive"] }
+serde_json = "1.0.93"
+sha2 = "0.10.6"
+stacks-common = "0.1.0"
+stacks-transactions = "0.1.0"
+thiserror = "1.0.38"
+tokio = { version = "1.25.0", features = ["full"] }
+tracing = "0.1.37"
+web5 = "0.1.0"
+web5-api = "0.1.0"
+web5-credentials = "0.1.0"
+winterfell = "0.6.0"
 
-# Cryptography and hashing
-sha2 = { version = "*", features = ["latest"] }
-hex = { version = "*", features = ["latest"] }
-bech32 = { version = "*", features = ["latest"] }
-rust-crypto = { version = "*", features = ["latest"] }
+# Add these new dependencies
+pyo3 = { version = "0.18.3", features = ["extension-module"] }
+python3-sys = "0.7.1"
 
-# Serialization and deserialization
-serde = { version = "*", features = ["derive", "latest"] }
-serde_json = { version = "*", features = ["latest"] }
+[dependencies]
+egui = "0.21.0"  # Use the latest version available
 
-# Async runtime and networking
-tokio = { version = "*", features = ["full", "latest"] }
-reqwest = { version = "*", features = ["json", "latest"] }
-
-# Error handling
-thiserror = { version = "*", features = ["latest"] }
-
-# Random number generation
-rand = { version = "*", features = ["latest"] }
-
-# Zero-Knowledge Proof Libraries
-ark-ff = { version = "*", features = ["latest"] }
-ark-ec = { version = "*", features = ["latest"] }
-ark-bls12-381 = { version = "*", features = ["latest"] }
-ark-groth16 = { version = "*", features = ["latest"] }
-ark-serialize = { version = "*", features = ["latest"] }
-ark-snark = { version = "*", features = ["latest"] }
-
-# For ZK-friendly hash functions
-blake2 = { version = "*", features = ["latest"] }
-
-# For ZK-SNARKs
-bellman = { version = "*", features = ["latest"] }
-pairing = { version = "*", features = ["latest"] }
-
-# For ZK-STARKs
-winterfell = { version = "*", features = ["latest"] }
-
-# Logging
-log = { version = "*", features = ["latest"] }
-slog = { version = "*", features = ["latest"] }
-env_logger = { version = "*", features = ["latest"] }
-
-# Environment variables
-dotenv = { version = "*", features = ["latest"] }
-
-# File system operations
-fs_extra = { version = "*", features = ["latest"] }
-
-# Networking (Kademlia)
-kademlia = { version = "*", features = ["latest"] }  # Replace with actual Kademlia library if different
+[build-dependencies]
+pyo3-build-config = "0.18.3"
 
 [dev-dependencies]
-mockall = { version = "*", features = ["latest"] }
-tokio-test = { version = "*", features = ["latest"] }
+mockall = "0.11.3"
+tokio-test = "0.4.2"
+
+[dependencies]
+yew = "0.19"
+yew-hooks = "0.1"
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+i18n-embed = "0.13"
+i18n-embed-fl = "0.6"

@@ -4,11 +4,11 @@ dotenv = "0.15.0"
 
 # Cryptography and security
 rust-crypto = "0.2.36"
-tonic = "0.8.3"  # For gRPC, similar to lnd-grpc
+tonic = "0.8.3"
 
 # Networking
 tokio = { version = "1.28.0", features = ["full"] }
-kad = "0.3.1"  # Similar to kademlia
+kad = "0.3.1"
 
 # Database
 diesel = { version = "2.0.3", features = ["sqlite"] }
@@ -17,6 +17,7 @@ diesel = { version = "2.0.3", features = ["sqlite"] }
 tokio-test = "0.4.2"
 
 # JSON handling
+serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.96"
 
 # Additional utilities
@@ -34,14 +35,57 @@ pnet = "0.33.0"
 reqwest = { version = "0.11.18", features = ["json"] }
 
 # Additional common libraries
-scraper = "0.16.0"  # Similar to beautifulsoup4
-plotters = "0.3.4"  # Similar to matplotlib
+scraper = "0.16.0"
+plotters = "0.3.4"
 
 # User management
-# Add any specific dependencies required by user_management here
-# For example:
-# bcrypt = "0.13.0"
-# jsonwebtoken = "8.3.0"
+bcrypt = "0.13.0"
+jsonwebtoken = "8.3.0"
+
+# STX Support (latest versions as of 2023)
+clarity-repl = "1.0.1"
+stacks-core = "2.1.0"
+stacks-rpc-client = "1.0.0"
+stacks-transactions = "2.1.0"
+stacks-common = "2.1.0"
+
+# DLC Support
+rust-dlc = "0.4.1"
+
+# Lightning Support
+rust-lightning = "0.0.116"
+lightning-invoice = "0.24.0"
+lightning-net-tokio = "0.0.116"
+lightning-persister = "0.0.116"
+
+# Bitcoin Support
+rust-bitcoin = "0.30.0"
+bitcoincore-rpc = "0.16.0"
+bitcoin-bech32 = "0.12.1"
+bitcoin-wallet = "1.1.0"
+
+# Libp2p Support
+libp2p = { version = "0.51.3", features = ["full"] }
+
+# Web5 Support
+web5 = "0.1.0"
+web5-credentials = "0.1.0"
 
 [dev-dependencies]
 criterion = "0.4.0"  # For benchmarking
+
+[build-dependencies]
+neon-build = "0.10.1"
+
+[dependencies.neon]
+version = "0.10.1"
+default-features = false
+features = ["napi-6"]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[features]
+default = ["std"]
+std = []

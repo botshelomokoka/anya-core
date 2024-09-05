@@ -1,8 +1,8 @@
 //! This module handles the governance aspects of the Anya DAO, including voting and proposal management.
 
-use anya_core::network::{bitcoin_client, rsk_client};
+use anya_core::network::{bitcoin_client, rsk_client, stx_client};
 use anya_core::utils::helpers;
-use anya_core::constants::ANYA_TOKEN_CONTRACT_ADDRESS;
+use anya_core::constants::{ANYA_TOKEN_CONTRACT_ADDRESS, ANYA_STX_TOKEN_CONTRACT};
 use crate::dao::proposal::{create_proposal, is_proposal_valid};
 use crate::dao::membership_management::is_member;
 use crate::dao::executor::execute_proposal;
@@ -10,9 +10,46 @@ use crate::dao::executor::execute_proposal;
 use web5::{Web5, Protocol};
 use web5::did::DID;
 use web5::dwn::{DwnApi, RecordQuery};
+use web5_api::{Web5Api, CredentialsApi};
+use web5_credentials::{Credential, VerifiableCredential};
 use anyhow::{Result, anyhow};
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
+use std::str::FromStr;
+use stacks_common::types::StacksAddress;
+use stacks_transactions::{
+    AccountTransactionEffects, AssetIdentifier, PostConditionMode,
+    StacksTransaction, TransactionVersion, TransactionPayload, TransactionSigner,
+    StacksPublicKey, SingleSigSpendingCondition, TransactionAnchor,
+    contract_call::ContractCall, post_condition::PostCondition,
+};
+use clarity_repl::clarity::{ClarityInstance, ClarityContract, Value as ClarityValue};
+use dlc::{DlcParty, Offer, Accept, Sign, Oracle, Contract};
+use lightning::{
+    chain::chaininterface::ConfirmationTarget,
+    ln::channelmanager::{ChannelManager, ChannelManagerReadArgs},
+    util::config::UserConfig,
+};
+use bitcoin::{
+    Address, Transaction as BtcTransaction, TxIn, TxOut, OutPoint,
+    Script, Network, SigHashType, PublicKey, PrivateKey,
+    secp256k1::Secp256k1, hashes::Hash,
+};
+use libp2p::{
+    core::upgrade,
+    floodsub::{Floodsub, FloodsubEvent, Topic},
+    identity,
+    mdns::{Mdns, MdnsEvent},
+    noise,
+    swarm::{NetworkBehaviourEventProcess, Swarm, SwarmBuilder},
+    tcp::TokioTcpConfig,
+    NetworkBehaviour, PeerId, Transport,
+};
+use std::sync::{Arc, Mutex};
+use tokio::sync::mpsc;
+use chrono::{Utc, DateTime};
+use pyo3::prelude::*;
+use pyo3::types::{IntoPyDict, PyModule};
 
 lazy_static! {
     static ref W5: Web5 = Web5::connect(Some(Protocol::Rsk), None).unwrap();
@@ -112,21 +149,65 @@ async fn submit_proposal(proposer: &str, title: &str, description: &str, options
         return Err(anyhow!("Invalid proposal"));
     }
 
-    let op_return_data = helpers::encode_proposal_data(&proposal)?;
-    let tx = bitcoin_client::create_op_return_transaction(&op_return_data, proposer)?;
-    let txid = bitcoin_client::broadcast_transaction(&tx)?;
-
-    store_proposal(&proposal, &txid).await?;
-
-    Ok(txid)
+    match chain {
+        "bitcoin" => {
+            let op_return_data = helpers::encode_proposal_data(&proposal)?;
+            let tx = bitcoin_client::create_op_return_transaction(&op_return_data, proposer)?;
+            let txid = bitcoin_client::broadcast_transaction(&tx)?;
+            store_proposal(&proposal, &txid).await?;
+            Ok(txid)
+        },
+        "rsk" => {
+            // Implement RSK proposal submission using Web3.js
+            let web3 = Web3::new(HttpProvider::new("https://public-node.rsk.co"));
+            let contract = Contract::from_json(
+                web3.eth(),
+                Address::from_str(ANYA_TOKEN_CONTRACT_ADDRESS)?,
+                include_bytes!("../../contracts/AnyaDAO.json"),
+            )?;
+            
+            let accounts = web3.eth().accounts().await?;
+            let tx_object = contract
+                .call("submitProposal", (title, description, options, start_time, end_time), accounts[0], Options::default())
+                .await?;
+            
+            let tx_receipt = web3.eth().send_transaction(tx_object).await?;
+            let txid = tx_receipt.transaction_hash;
+            
+            store_proposal(&proposal, &txid.to_string()).await?;
+            Ok(txid.to_string())
+        },
+        "stx" => {
+            Python::with_gil(|py| {
+                let stacks_sdk = PyModule::import(py, "stacks_sdk")?;
+                let contract_client = stacks_sdk.getattr("ContractClient")?;
+                
+                let client = contract_client.call1((ANYA_STX_TOKEN_CONTRACT,))?;
+                let tx_options = [("senderKey", proposer)].into_py_dict(py);
+                
+                let result = client.call_method(
+                    "submit_proposal",
+                    (title, description, options, start_time.unwrap_or(0), end_time.unwrap_or(0)),
+                    Some(tx_options),
+                )?;
+                
+                let txid = result.getattr("tx_id")?.extract::<String>()?;
+                store_proposal(&proposal, &txid).await?;
+                Ok(txid)
+            })
+        },
+        _ => Err(anyhow!("Unsupported chain")),
+    }
 }
 
 async fn get_proposals() -> Result<Vec<Proposal>> {
     let bitcoin_proposals = get_proposals_from_bitcoin().await?;
     let rsk_proposals = get_proposals_from_rsk().await?;
+    let stx_proposals = get_proposals_from_stx().await?;
 
     let mut all_proposals = bitcoin_proposals;
     all_proposals.extend(rsk_proposals);
+    all_proposals.extend(stx_proposals);
     
     Ok(all_proposals.into_iter().filter(|p| p.status == ProposalStatus::Active).collect())
 }
@@ -157,6 +238,19 @@ async fn get_proposals_from_rsk() -> Result<Vec<Proposal>> {
         .collect()
 }
 
+async fn get_proposals_from_stx() -> Result<Vec<Proposal>> {
+    Python::with_gil(|py| {
+        let stacks_sdk = PyModule::import(py, "stacks_sdk")?;
+        let contract_client = stacks_sdk.getattr("ContractClient")?;
+        
+        let client = contract_client.call1((ANYA_STX_TOKEN_CONTRACT,))?;
+        let result = client.call_method("get_all_proposals", (), None)?;
+        
+        let proposals: Vec<Proposal> = result.extract()?;
+        Ok(proposals)
+    })
+}
+
 async fn vote_on_proposal(proposal_id: &str, vote_option: &str, voter_address: &str, amount: u64) -> Result<String> {
     if !is_member(voter_address).await? {
         return Err(anyhow!("Only DAO members can vote"));
@@ -171,15 +265,53 @@ async fn vote_on_proposal(proposal_id: &str, vote_option: &str, voter_address: &
         return Err(anyhow!("Invalid vote option"));
     }
 
-    // Cast vote on the appropriate chain
-    if proposal.chain == "bitcoin" {
-        let vote_data = helpers::encode_vote_data(proposal_id, vote_option, amount)?;
-        let tx = bitcoin_client::create_op_return_transaction(&vote_data, voter_address)?;
-        let txid = bitcoin_client::broadcast_transaction(&tx)?;
-        record_vote(proposal_id, voter_address, vote_option, amount, &txid).await?;
-        Ok(txid)
-    } else {
-        Err(anyhow!("Voting on RSK chain not implemented"))
+    match proposal.chain.as_str() {
+        "bitcoin" => {
+            let vote_data = helpers::encode_vote_data(proposal_id, vote_option, amount)?;
+            let tx = bitcoin_client::create_op_return_transaction(&vote_data, voter_address)?;
+            let txid = bitcoin_client::broadcast_transaction(&tx)?;
+            record_vote(proposal_id, voter_address, vote_option, amount, &txid).await?;
+            Ok(txid)
+        },
+        "rsk" => {
+            let web3 = Web3::new(HttpProvider::new("https://public-node.rsk.co"));
+            let contract = Contract::from_json(
+                web3.eth(),
+                Address::from_str(ANYA_TOKEN_CONTRACT_ADDRESS)?,
+                include_bytes!("../../contracts/AnyaDAO.json"),
+            )?;
+            
+            let accounts = web3.eth().accounts().await?;
+            let tx_object = contract
+                .call("vote", (proposal_id, vote_option, amount), accounts[0], Options::default())
+                .await?;
+            
+            let tx_receipt = web3.eth().send_transaction(tx_object).await?;
+            let txid = tx_receipt.transaction_hash;
+            
+            record_vote(proposal_id, voter_address, vote_option, amount, &txid.to_string()).await?;
+            Ok(txid.to_string())
+        },
+        "stx" => {
+            Python::with_gil(|py| {
+                let stacks_sdk = PyModule::import(py, "stacks_sdk")?;
+                let contract_client = stacks_sdk.getattr("ContractClient")?;
+                
+                let client = contract_client.call1((ANYA_STX_TOKEN_CONTRACT,))?;
+                let tx_options = [("senderKey", voter_address)].into_py_dict(py);
+                
+                let result = client.call_method(
+                    "vote",
+                    (proposal_id, vote_option, amount),
+                    Some(tx_options),
+                )?;
+                
+                let txid = result.getattr("tx_id")?.extract::<String>()?;
+                record_vote(proposal_id, voter_address, vote_option, amount, &txid).await?;
+                Ok(txid)
+            })
+        },
+        _ => Err(anyhow!("Unsupported chain")),
     }
 }
 
@@ -209,4 +341,62 @@ struct Vote {
     option: String,
     amount: u64,
     txid: String,
+}
+
+// P2P network setup for proposal and vote propagation
+async fn setup_p2p_network() -> Result<(PeerId, Swarm<MyBehaviour>)> {
+    let id_keys = identity::Keypair::generate_ed25519();
+    let peer_id = PeerId::from(id_keys.public());
+    let transport = TokioTcpConfig::new()
+        .upgrade(upgrade::Version::V1)
+        .authenticate(noise::NoiseConfig::xx(id_keys).into_authenticated())
+        .multiplex(libp2p::yamux::YamuxConfig::default())
+        .boxed();
+
+    let mut behaviour = MyBehaviour {
+        floodsub: Floodsub::new(peer_id),
+        mdns: Mdns::new(Default::default()).await?,
+    };
+
+    let mut swarm = SwarmBuilder::new(transport, behaviour, peer_id)
+        .executor(Box::new(|fut| {
+            tokio::spawn(fut);
+        }))
+        .build();
+
+    Ok((peer_id, swarm))
+}
+
+#[derive(NetworkBehaviour)]
+struct MyBehaviour {
+    floodsub: Floodsub,
+    mdns: Mdns,
+}
+
+// Implement NetworkBehaviourEventProcess for MyBehaviour
+impl NetworkBehaviourEventProcess<FloodsubEvent> for MyBehaviour {
+    fn inject_event(&mut self, event: FloodsubEvent) {
+        if let FloodsubEvent::Message(message) = event {
+            // Handle incoming messages (proposals, votes)
+        }
+    }
+}
+
+impl NetworkBehaviourEventProcess<MdnsEvent> for MyBehaviour {
+    fn inject_event(&mut self, event: MdnsEvent) {
+        match event {
+            MdnsEvent::Discovered(list) => {
+                for (peer, _) in list {
+                    self.floodsub.add_node_to_partial_view(peer);
+                }
+            }
+            MdnsEvent::Expired(list) => {
+                for (peer, _) in list {
+                    if !self.mdns.has_node(&peer) {
+                        self.floodsub.remove_node_from_partial_view(&peer);
+                    }
+                }
+            }
+        }
+    }
 }

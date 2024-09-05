@@ -1,28 +1,67 @@
-// Check if python-dotenv is installed and install if not
-use std::process::Command;
+# This is a .env file, so we'll use environment variable syntax
 
-fn check_and_install_dotenv() {
-    let output = Command::new("pip")
-        .args(&["show", "python-dotenv"])
-        .output()
-        .expect("Failed to execute pip command");
+# Stacks (STX) configuration
+STX_NETWORK=mainnet
+STX_API_URL=https://stacks-node-api.mainnet.stacks.co
+STX_EXPLORER_URL=https://explorer.stacks.co
 
-    if !output.status.success() {
-        println!("Installing python-dotenv...");
-        let install = Command::new("pip")
-            .args(&["install", "python-dotenv"])
-            .output()
-            .expect("Failed to install python-dotenv");
+# Web5 configuration
+WEB5_DID_METHOD=key
+WEB5_CREDENTIAL_ISSUER=did:example:123456789abcdefghi
 
-        if install.status.success() {
-            println!("python-dotenv installed successfully");
-        } else {
-            eprintln!("Failed to install python-dotenv");
-        }
-    } else {
-        println!("python-dotenv is already installed");
-    }
+# Rust-DLC configuration
+DLC_NETWORK=testnet
+DLC_ORACLE_URL=https://example-oracle.com
+
+# Lightning Network configuration
+LIGHTNING_NETWORK=testnet
+LIGHTNING_NODE_URI=03xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@xxx.xxx.xxx.xxx:9735
+
+# Bitcoin configuration
+BITCOIN_NETWORK=testnet
+BITCOIN_RPC_URL=http://localhost:18332
+BITCOIN_RPC_USER=rpcuser
+BITCOIN_RPC_PASSWORD=rpcpassword
+
+# libp2p configuration
+LIBP2P_LISTEN_ADDRESS=/ip4/0.0.0.0/tcp/4001
+LIBP2P_BOOTSTRAP_PEERS=/ip4/104.131.131.82/tcp/4001/p2p/QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ
+
+# Python dotenv configuration
+PYTHON_DOTENV_OVERRIDE=true
+
+# Function to load and validate environment variables
+load_and_validate_env() {
+    # Check if python-dotenv is installed
+    if ! pip show python-dotenv > /dev/null 2>&1; then
+        echo "Installing python-dotenv..."
+        pip install python-dotenv
+    fi
+
+    # Load environment variables
+    set -a
+    source .env
+    set +a
+
+    # Validate required variables
+    required_vars=(
+        "STX_NETWORK" "STX_API_URL" "STX_EXPLORER_URL"
+        "WEB5_DID_METHOD" "WEB5_CREDENTIAL_ISSUER"
+        "DLC_NETWORK" "DLC_ORACLE_URL"
+        "LIGHTNING_NETWORK" "LIGHTNING_NODE_URI"
+        "BITCOIN_NETWORK" "BITCOIN_RPC_URL" "BITCOIN_RPC_USER" "BITCOIN_RPC_PASSWORD"
+        "LIBP2P_LISTEN_ADDRESS" "LIBP2P_BOOTSTRAP_PEERS"
+    )
+
+    for var in "${required_vars[@]}"; do
+        if [ -z "${!var}" ]; then
+            echo "Error: $var is not set in the .env file"
+            exit 1
+        fi
+    done
+
+    echo "Environment variables loaded and validated successfully"
 }
 
-// Call the function
-check_and_install_dotenv();
+# Call the function to load and validate environment variables
+load_and_validate_env

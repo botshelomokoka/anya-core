@@ -14,8 +14,33 @@ use rand::Rng;
 use async_trait::async_trait;
 use tokio::time::{Duration, sleep};
 
+// Additional imports for full support
+use stacks_common::types::{StacksAddress, StacksPublicKey};
+use stacks_transactions::{TransactionSigner, TransactionVersion, PostConditionMode, StacksTransaction};
+use rust_dlc::{Oracle, Contract, Outcome, DlcParty, OracleInfo, ContractDescriptor, PayoutFunction};
+use rust_lightning::ln::channelmanager::{ChannelManager, ChannelManagerReadArgs};
+use rust_lightning::ln::peer_handler::{PeerManager, MessageHandler};
+use rust_lightning::routing::router::Router;
+use rust_lightning::util::events::EventHandler;
+use rust_lightning::util::config::UserConfig;
+use rust_lightning::util::logger::Logger;
+use rust_lightning::util::persist::Persister;
+use rust_bitcoin::blockdata::transaction::Transaction as BitcoinTransaction;
+use rust_bitcoin::network::constants::Network as BitcoinNetwork;
+use libp2p::{PeerId, Swarm, Transport, identity};
+use libp2p::core::upgrade;
+use libp2p::tcp::TokioTcpConfig;
+use libp2p::mplex::MplexConfig;
+use libp2p::noise::{Keypair, NoiseConfig, X25519Spec};
+use web5::did::{DID, DIDDocument};
+use web5::dwn::{DataModel, Message};
+
 use crate::wallet::Wallet;
 use crate::network::bitcoin_client::BitcoinClient;
+use crate::network::stacks_client::StacksClient;
+use crate::network::dlc_client::DlcClient;
+use crate::network::lightning_client::LightningClient;
+use crate::network::web5_client::Web5Client;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Utxo {
@@ -39,6 +64,11 @@ pub trait CoinJoinProtocol {
     async fn find_available_coordinator(&self) -> Result<CoinJoinCoordinator, Box<dyn Error>>;
     fn sign_coinjoin_transaction(&self, wallet: &Wallet, psbt: PartiallySignedTransaction) -> Result<Transaction, Box<dyn Error>>;
     async fn broadcast_transaction(&self, bitcoin_client: &BitcoinClient, signed_tx: &Transaction) -> Result<String, Box<dyn Error>>;
+    async fn create_stacks_transaction(&self, stacks_client: &StacksClient, wallet: &Wallet) -> Result<StacksTransaction, Box<dyn Error>>;
+    async fn create_dlc_contract(&self, dlc_client: &DlcClient, wallet: &Wallet, oracle: &Oracle) -> Result<Contract, Box<dyn Error>>;
+    async fn open_lightning_channel(&self, lightning_client: &LightningClient, wallet: &Wallet, peer_id: PeerId, capacity: u64) -> Result<(), Box<dyn Error>>;
+    async fn create_web5_did(&self, web5_client: &Web5Client) -> Result<DID, Box<dyn Error>>;
+    async fn setup_libp2p_node(&self) -> Result<Swarm<MplexConfig>, Box<dyn Error>>;
 }
 
 pub struct AnyCoinJoin;
@@ -119,6 +149,78 @@ impl CoinJoinProtocol for AnyCoinJoin {
         let txid = bitcoin_client.broadcast_transaction(signed_tx).await?;
         Ok(txid)
     }
+
+    async fn create_stacks_transaction(&self, stacks_client: &StacksClient, wallet: &Wallet) -> Result<StacksTransaction, Box<dyn Error>> {
+        let sender_address = wallet.get_stacks_address()?;
+        let nonce = stacks_client.get_nonce(&sender_address).await?;
+        let fee = stacks_client.estimate_fee().await?;
+
+        let tx = StacksTransaction::new(
+            TransactionVersion::Testnet,
+            wallet.get_stacks_auth()?,
+            TransactionPayload::TokenTransfer(
+                recipient.into(),
+                amount,
+                TokenTransferMemo::from_bytes(&[])?,
+            ),
+        );
+
+        let signed_tx = wallet.sign_stacks_transaction(tx)?;
+        Ok(signed_tx)
+    }
+
+    async fn create_dlc_contract(&self, dlc_client: &DlcClient, wallet: &Wallet, oracle: &Oracle) -> Result<Contract, Box<dyn Error>> {
+        let outcomes = vec![
+            Outcome::new("Outcome A", 100),
+            Outcome::new("Outcome B", 200),
+        ];
+
+        let contract_descriptor = ContractDescriptor::new(
+            oracle.clone(),
+            outcomes,
+            PayoutFunction::Winner,
+        );
+
+        let contract = dlc_client.create_contract(contract_descriptor, wallet.get_dlc_public_key()?)?;
+        Ok(contract)
+    }
+
+    async fn open_lightning_channel(&self, lightning_client: &LightningClient, wallet: &Wallet, peer_id: PeerId, capacity: u64) -> Result<(), Box<dyn Error>> {
+        let channel_manager = lightning_client.get_channel_manager()?;
+        let peer_manager = lightning_client.get_peer_manager()?;
+
+        let channel_params = ChannelParameters {
+            peer_id,
+            capacity,
+            push_msat: None,
+            channel_config: None,
+        };
+
+        channel_manager.create_channel(channel_params, &peer_manager)?;
+        Ok(())
+    }
+
+    async fn create_web5_did(&self, web5_client: &Web5Client) -> Result<DID, Box<dyn Error>> {
+        let did = web5_client.create_did().await?;
+        Ok(did)
+    }
+
+    async fn setup_libp2p_node(&self) -> Result<Swarm<MplexConfig>, Box<dyn Error>> {
+        let local_key = identity::Keypair::generate_ed25519();
+        let local_peer_id = PeerId::from(local_key.public());
+
+        let transport = TokioTcpConfig::new()
+            .upgrade(upgrade::Version::V1)
+            .authenticate(NoiseConfig::xx(local_key).into_authenticated())
+            .multiplex(MplexConfig::new())
+            .boxed();
+
+        let behaviour = MyBehaviour::default();
+
+        let mut swarm = Swarm::new(transport, behaviour, local_peer_id);
+
+        Ok(swarm)
+    }
 }
 
 impl CoinJoinCoordinator {
@@ -156,4 +258,55 @@ impl CoinJoinCoordinator {
 
         Err("Timeout waiting for CoinJoin transaction".into())
     }
+}
+
+// Additional helper functions for Stacks, DLC, Lightning, Web5, and libp2p integration
+
+fn create_stacks_public_key(wallet: &Wallet) -> Result<StacksPublicKey, Box<dyn Error>> {
+    wallet.get_stacks_public_key()
+}
+
+fn create_dlc_oracle() -> Result<Oracle, Box<dyn Error>> {
+    let oracle_public_key = secp256k1::PublicKey::from_secret_key(&secp256k1::Secp256k1::new(), &oracle_secret_key);
+    let oracle = Oracle::new(oracle_public_key, "Example Oracle".to_string());
+    Ok(oracle)
+}
+
+fn setup_lightning_node(wallet: &Wallet) -> Result<ChannelManager, Box<dyn Error>> {
+    let network = BitcoinNetwork::Testnet;
+    let logger = Arc::new(SimpleLogger::new());
+    let persister = Arc::new(DummyPersister);
+    let fee_estimator = Arc::new(ConstantFeeEstimator::new(253));
+    let chain_monitor = Arc::new(ChainMonitor::new(None, &filter, &logger));
+    let keys_manager = Arc::new(KeysManager::new(&[0; 32], network.into(), 42));
+
+    let config = UserConfig::default();
+    let channel_manager = ChannelManager::new(
+        fee_estimator,
+        &chain_monitor,
+        &logger,
+        &keys_manager,
+        config,
+        &network,
+        persister,
+    )?;
+
+    Ok(channel_manager)
+}
+
+fn create_libp2p_swarm(wallet: &Wallet) -> Result<Swarm<MplexConfig>, Box<dyn Error>> {
+    let local_key = identity::Keypair::generate_ed25519();
+    let local_peer_id = PeerId::from(local_key.public());
+
+    let transport = TokioTcpConfig::new()
+        .upgrade(upgrade::Version::V1)
+        .authenticate(NoiseConfig::xx(local_key).into_authenticated())
+        .multiplex(MplexConfig::new())
+        .boxed();
+
+    let behaviour = MyBehaviour::default();
+
+    let swarm = Swarm::new(transport, behaviour, local_peer_id);
+
+    Ok(swarm)
 }

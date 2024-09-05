@@ -10,23 +10,74 @@ env/
 # Build artifacts
 dist/
 build/
+target/
 
 # IDE/editor specific files
 .vscode/
 .idea/
+*.swp
+*.swo
 
 # System-specific files
 .DS_Store
+Thumbs.db
 
-# Sensitive information (replace placeholders with actual file names if applicable)
+# Sensitive information
 *.key
 *.pem
-wallet_data.json  # Or your actual wallet data storage file
+wallet_data.json
+.env
 
 # Log files
 *.log
 
-# Potential future additions based on specific libraries and tools:
-# - Taproot asset specific files/folders
-# - Lightning Network specific files/folders
-# - RSK specific files/folders
+# Rust-specific
+Cargo.lock
+**/*.rs.bk
+
+# STX-specific
+.stacks-chain/
+.stacks-testnet/
+
+# Web5-specific
+.web5/
+
+# DLC-specific
+.dlc/
+
+# Lightning Network-specific
+.lnd/
+*.macaroon
+
+# Bitcoin-specific
+.bitcoin/
+
+# libp2p-specific
+.libp2p/
+
+# Dependency directories
+node_modules/
+
+# Compiled files
+*.rlib
+*.so
+*.dylib
+*.dll
+
+# Database files
+*.db
+*.sqlite
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# OS generated files
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
