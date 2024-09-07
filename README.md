@@ -27,18 +27,20 @@ Technical Architecture
 * User interface with open-source development and customizable dashboards.
 
 Implementation Strategy
+
 * Phased approach with initial focus on foundation, intelligence expansion, privacy and scalability, ecosystem growth, and autonomous operations.
 
 Open Source Integration
-* Utilizes various open-source libraries and frameworks for Bitcoin Core, Lightning Network, Web5, DLCs, CoinJoin,zero-knowledge proofs, federated learning, DAO governance, homomorphic encryption, Stacks integration, and P2P networking.
+
+* Utilizes various open-source libraries and frameworks for Bitcoin Core, Lightning Network, Web5, DLCs, CoinJoin, zero-knowledge proofs, federated learning, DAO governance, homomorphic encryption, Stacks integration, and P2P networking.
 
 Challenges and Mitigations
+
 * Addresses security, privacy, regulatory compliance, user experience, and scalability challenges with appropriate measures.
 
 Future Roadmap
 
 * Focuses on advanced privacy features, interoperability, AI advancements, regulatory technology, and decentralized finance on Bitcoin.
-
 
 ## Anya Core System
 
