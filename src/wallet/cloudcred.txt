@@ -1,0 +1,3 @@
+Gcloud cred
+
+gcloud compute ssh anya-core-instance --zone=us-central1-a
