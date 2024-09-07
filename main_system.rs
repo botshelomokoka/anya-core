@@ -54,6 +54,11 @@ use lightning::{
     util::events::EventHandler,
 };
 use dlc::{DlcManager, OracleInfo};
+use std::env;
+use linear_regression::LinearRegression;
+use std::cmp::Ordering;
+use linfa::prelude::*;
+use ndarray::{Array1, Array2};
 
 const BNS_API_BASE_URL: &str = "https://api.bns.xyz";
 
@@ -98,6 +103,14 @@ struct System {
     dlc_support:                DLCSupport,
     lightning_support:          LightningSupport,
     bitcoin_support:            BitcoinSupport,
+    risk_tolerance:            RiskTolerance,
+    investment_strategy:        InvestmentStrategy,
+    network_capacity:           u32,
+    node_connection_limit:      u16,
+    dao_voting_threshold:      f64,
+    performance_threshold:       f64,
+    performance_history:        Vec<f64>,
+    max_history_length:         usize,
 }
 
 impl System {
@@ -129,6 +142,14 @@ impl System {
             dlc_support:                DLCSupport::new(),
             lightning_support:          LightningSupport::new(),
             bitcoin_support:            BitcoinSupport::new(),
+            risk_tolerance:            RiskTolerance::Medium,
+            investment_strategy:        InvestmentStrategy::Balanced,
+            network_capacity:           1000,
+            node_connection_limit:      100,
+            dao_voting_threshold:      0.7,
+            performance_threshold:      0.6,
+            performance_history:        Vec::new(),
+            max_history_length:        100,
         }
     }
 
@@ -174,20 +195,12 @@ impl System {
         let combined_data: Vec<f64> = historical_data.into_iter().chain(internal_data).collect();
         
         // Use the learning engine to analyze the data
-        let performance_score = self.learning_engine.analyze_performance(&combined_data);
+        let performance_metrics = self.learning_engine.analyze_performance(&combined_data).await;
         
-        // Update system state based on performance score
-        self.update_system_state(performance_score);
+        // Update system state based on performance metrics
+        self.update_system_state(performance_metrics).await;
         
-        // Check if model refinement is needed
-        self.epoch_count += 1;
-        if self.epoch_count % self.model_refinement_interval == 0 {
-            if let Err(e) = self.learning_engine.refine_model(&combined_data).await {
-                error!("Failed to refine model: {}", e);
-            }
-        }
-        
-        info!("Performance evaluation complete. Score: {}", performance_score);
+        info!("Performance evaluation complete. Metrics: {:?}", performance_metrics);
     }
 
     async fn load_historical_data(&self) -> Result<Vec<f64>, Box<dyn Error>> {
@@ -302,19 +315,19 @@ impl System {
         Ok(tvl_data)
     }
 
-    async fn save_model(&self, model: &LinearRegression) {
+    async fn save_model(&self, model: &LinearRegression) -> Result<(), Box<dyn Error>> {
         // Implement model saving logic
-        unimplemented!()
+        Ok(())
     }
 
-    async fn refine_model(&mut self, model: &mut LinearRegression, historical_data: &[f64], internal_user_data: &[f64], tvl_dao_data: &[f64]) {
+    async fn refine_model(&mut self, model: &mut LinearRegression, historical_data: &[f64], internal_user_data: &[f64], tvl_dao_data: &[f64]) -> Result<(), Box<dyn Error>> {
         // Implement model refinement logic
-        unimplemented!()
+        Ok(())
     }
 
-    async fn process_epoch_payments(&mut self) {
+    async fn process_epoch_payments(&mut self) -> Result<(), Box<dyn Error>> {
         // Implement epoch payment processing logic
-        unimplemented!()
+        Ok(())
     }
 
     async fn run(&mut self) {
@@ -445,6 +458,147 @@ impl System {
         let btc_balance = self.bitcoin_support.get_balance(&bitcoin_address).await?;
         info!(self.logger, "BTC balance: {}", btc_balance);
         
+        Ok(())
+    }
+
+    async fn update_system_state(&mut self, metrics: PerformanceMetrics) {
+        self.adjust_risk_tolerance(metrics.volatility, metrics.max_drawdown);
+        self.update_investment_strategy(metrics.roi, metrics.sharpe_ratio);
+        self.adjust_network_parameters(metrics.transaction_volume, metrics.network_growth);
+        self.update_dao_governance(metrics.overall_score);
+
+        if metrics.overall_score < self.performance_threshold {
+            if let Err(e) = self.trigger_model_refinement().await {
+                error!("Failed to refine model: {}", e);
+            }
+        }
+
+        self.performance_history.push(metrics.overall_score);
+        if self.performance_history.len() > self.max_history_length {
+            self.performance_history.remove(0);
+        }
+
+        info!("System state updated based on performance metrics");
+    }
+
+    fn calculate_roi(&self, data: &[f64]) -> f64 {
+        let initial_value = data.first().unwrap_or(&1.0);
+        let final_value = data.last().unwrap_or(initial_value);
+        (final_value / initial_value - 1.0) * 100.0
+    }
+
+    fn calculate_volatility(&self, data: &[f64]) -> f64 {
+        let mean = data.iter().sum::<f64>() / data.len() as f64;
+        let variance = data.iter().map(|&x| (x - mean).powi(2)).sum::<f64>() / data.len() as f64;
+        variance.sqrt()
+    }
+
+    fn calculate_sharpe_ratio(&self, data: &[f64]) -> f64 {
+        let roi = self.calculate_roi(data);
+        let volatility = self.calculate_volatility(data);
+        let risk_free_rate = 0.02; // Assume 2% risk-free rate
+        (roi - risk_free_rate) / volatility
+    }
+
+    fn calculate_max_drawdown(&self, data: &[f64]) -> f64 {
+        let mut max_drawdown = 0.0;
+        let mut peak = data[0];
+
+        for &value in data.iter().skip(1) {
+            if value > peak {
+                peak = value;
+            } else {
+                let drawdown = (peak - value) / peak;
+                if drawdown > max_drawdown {
+                    max_drawdown = drawdown;
+                }
+            }
+        }
+
+        max_drawdown * 100.0
+    }
+
+    fn calculate_transaction_volume(&self, data: &[f64]) -> f64 {
+        data.iter().sum()
+    }
+
+    fn calculate_network_growth(&self, data: &[f64]) -> f64 {
+        let initial = data.first().unwrap_or(&1.0);
+        let final_value = data.last().unwrap_or(initial);
+        (final_value / initial - 1.0) * 100.0
+    }
+
+    fn aggregate_performance_metrics(&self, roi: f64, volatility: f64, sharpe_ratio: f64, max_drawdown: f64, transaction_volume: f64, network_growth: f64) -> f64 {
+        let weights = [0.25, 0.15, 0.20, 0.15, 0.10, 0.15];
+        let normalized_metrics = [
+            roi / 100.0,
+            1.0 - volatility.min(1.0),
+            sharpe_ratio / 3.0,
+            1.0 - max_drawdown / 100.0,
+            (transaction_volume / 1_000_000.0).min(1.0),
+            network_growth / 100.0
+        ];
+
+        normalized_metrics.iter().zip(weights.iter())
+            .map(|(metric, weight)| metric * weight)
+            .sum()
+    }
+
+    fn adjust_risk_tolerance(&mut self, volatility: f64, max_drawdown: f64) {
+        let risk_score = (volatility + max_drawdown) / 2.0;
+        self.risk_tolerance = match risk_score {
+            s if s < 0.2 => RiskTolerance::High,
+            s if s < 0.5 => RiskTolerance::Medium,
+            _ => RiskTolerance::Low,
+        };
+    }
+
+    fn update_investment_strategy(&mut self, roi: f64, sharpe_ratio: f64) {
+        let performance_score = roi * 0.6 + sharpe_ratio * 0.4;
+        self.investment_strategy = match performance_score {
+            s if s > 0.7 => InvestmentStrategy::Aggressive,
+            s if s > 0.4 => InvestmentStrategy::Balanced,
+            _ => InvestmentStrategy::Conservative,
+        };
+    }
+
+    fn adjust_network_parameters(&mut self, transaction_volume: f64, network_growth: f64) {
+        let network_score = transaction_volume * 0.5 + network_growth * 0.5;
+        self.network_capacity = (network_score * 1000.0) as u32;
+        self.node_connection_limit = (network_score * 100.0) as u16;
+    }
+
+    fn update_dao_governance(&mut self, overall_score: f64) {
+        self.dao_voting_threshold = match overall_score {
+            s if s > 0.8 => 0.6,
+            s if s > 0.5 => 0.7,
+            _ => 0.8,
+        };
+    }
+
+    async fn trigger_model_refinement(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        info!("Triggering model refinement");
+        
+        let historical_data = self.load_historical_data().await?;
+        let internal_data = self.load_internal_user_data().await?;
+        let tvl_data = self.load_tvl_dao_data().await?;
+
+        let features = Array2::from_shape_vec((historical_data.len(), 3), 
+            historical_data.iter()
+                .zip(internal_data.iter())
+                .zip(tvl_data.iter())
+                .flat_map(|((h, i), t)| vec![*h, *i, *t])
+                .collect()
+        )?;
+
+        let target = Array1::from_vec(self.performance_history.clone());
+
+        let model = LinearRegression::default()
+            .fit(&features, &target)?;
+
+        self.save_model(&model).await?;
+
+        info!("Model refinement completed");
         Ok(())
     }
 }
