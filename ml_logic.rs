@@ -85,6 +85,9 @@ use libp2p::{
     swarm::SwarmEvent,
 };
 
+use ed25519_dalek::{Keypair, Signer, Verifier, PublicKey, Signature};
+use rand::rngs::OsRng;
+
 #[derive(Serialize, Deserialize)]
 struct InternalData {
     performance_metrics: HashMap<String, f64>,
@@ -229,7 +232,7 @@ impl LearningEngine {
         if self.verify_improvements(&clone_dir, &internal_data).await? {
             let simulation_result = self.simulation_environment.run_simulation(&clone_dir).await?;
             if simulation_result.is_ok() {
-                let zk_proof = self.generate_zk_proof(&clone_dir)?;
+                let zk_proof = self.sign_changes(&clone_dir)?;
                 let stx_verification = self.verify_stx_contracts(&clone_dir)?;
                 let dlc_verification = self.verify_dlc_contracts(&clone_dir)?;
                 let lightning_verification = self.verify_lightning_integration(&clone_dir)?;
@@ -342,13 +345,29 @@ impl LearningEngine {
         }
     }
 
-    fn generate_zk_proof(&self, clone_dir: &str) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
-        // Generate a ZK proof for the changes
-        // This is a placeholder implementation
-        let mut rng = thread_rng();
-        let circuit = // Create circuit based on changes in clone_dir
-        let proof = Groth16::<Bls12_381>::prove(&self.zk_proving_key, circuit, &mut rng)?;
-        Ok(proof.to_bytes())
+    fn sign_changes(&self, clone_dir: &str) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+        let mut csprng = OsRng{};
+        let keypair: Keypair = Keypair::generate(&mut csprng);
+        
+        // Generate a hash of the changes
+        let changes_hash = self.hash_directory(clone_dir)?;
+        
+        // Sign the hash
+        let signature: Signature = keypair.sign(&changes_hash);
+        
+        Ok(signature.to_bytes().to_vec())
+    }
+
+    fn verify_signature(&self, public_key: &PublicKey, signature: &[u8], clone_dir: &str) -> Result<bool, Box<dyn std::error::Error>> {
+        let changes_hash = self.hash_directory(clone_dir)?;
+        let signature = Signature::from_bytes(signature)?;
+        Ok(public_key.verify(&changes_hash, &signature).is_ok())
+    }
+
+    fn hash_directory(&self, dir: &str) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+        // Implement directory hashing logic
+        // This is a placeholder
+        Ok(vec![0u8; 32])
     }
 
     fn verify_stx_contracts(&self, clone_dir: &str) -> Result<String, Box<dyn std::error::Error>> {

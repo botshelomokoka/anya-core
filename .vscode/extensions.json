@@ -1,6 +1,7 @@
 {
     "recommendations": [
         "ms-python.python",
-        "zhang-renyang.claude-vscode"
+        "zhang-renyang.claude-vscode",
+        "askcodi.askcodi-autocomplete"
     ]
 }
