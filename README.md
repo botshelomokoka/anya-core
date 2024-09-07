@@ -4,47 +4,31 @@
 
 Anya is a revolutionary platform designed to provide advanced Bitcoin intelligence and connectivity across all Bitcoin layers. Leveraging cutting-edge machine learning techniques, Anya offers unparalleled security, efficiency, and user experience while maintaining a strong focus on privacy, low fees, and sustainable growth.
 
-Key Features
+## Key Features
 
-* Autonomous ML Engine: Handles system operations and decision-making.
-* Code Assimilation: Automatically scans and integrates new code.
-* Web5 Integration: Decentralized identity and data management.
-* Discreet Log Contracts (DLCs): Supports creating and managing DLCs.
-* Privacy Enhancements: CoinJoin, zero-knowledge proofs, homomorphic encryption.
-* Multi-Layer Bitcoin Support: Seamless integration across all Bitcoin layers.
-* DAO Governance: ML-managed proposal generation and execution.
-* Developer Ecosystem: Open API, automated code review, bounty system.
-* Stacks Integration: Full support for Stacks (STX).
+- Autonomous ML Engine: Handles system operations and decision-making.
+- Code Assimilation: Automatically scans and integrates new code and Bitcoin Improvement Proposals (BIPs).
+- Web5 Integration: Decentralized identity and data management.
+- Discreet Log Contracts (DLCs): Supports creating and managing DLCs.
+- Privacy Enhancements: CoinJoin, zero-knowledge proofs, homomorphic encryption.
+- Multi-Layer Bitcoin Support: Seamless integration across all Bitcoin layers.
+- DAO Governance: ML-managed proposal generation and execution.
+- Developer Ecosystem: Open API, automated code review, bounty system.
+- Stacks Integration: Full support for Stacks (STX).
+- Lightning Network Support: Integration with the Lightning Network for fast, low-cost transactions.
+- Libp2p Integration: Peer-to-peer networking capabilities.
 
-Technical Architecture
+## Technical Architecture
 
-* Modular design with separate components.
-* Decentralized node network.
-* Client-side processing for enhanced privacy.
-* ML infrastructure for distributed training and privacy-preserving techniques.
-* Data management with local storage and decentralized options.
-* Security measures including client-side encryption, trustless verification, multi-signature schemes, and ML-driven threat detection.
-* User interface with open-source development and customizable dashboards.
+- Modular design with separate components.
+- Decentralized node network using Kademlia DHT.
+- Client-side processing for enhanced privacy.
+- ML infrastructure for distributed training and privacy-preserving techniques.
+- Data management with local storage and decentralized options.
+- Security measures including client-side encryption, trustless verification, multi-signature schemes, and ML-driven threat detection.
+- User interface with open-source development and customizable dashboards.
 
-Implementation Strategy
-
-* Phased approach with initial focus on foundation, intelligence expansion, privacy and scalability, ecosystem growth, and autonomous operations.
-
-Open Source Integration
-
-* Utilizes various open-source libraries and frameworks for Bitcoin Core, Lightning Network, Web5, DLCs, CoinJoin, zero-knowledge proofs, federated learning, DAO governance, homomorphic encryption, Stacks integration, and P2P networking.
-
-Challenges and Mitigations
-
-* Addresses security, privacy, regulatory compliance, user experience, and scalability challenges with appropriate measures.
-
-Future Roadmap
-
-* Focuses on advanced privacy features, interoperability, AI advancements, regulatory technology, and decentralized finance on Bitcoin.
-
-## Anya Core System
-
-### Project Structure
+## Project Structure
 
 anya-core/
 ├── Cargo.toml
@@ -52,14 +36,14 @@ anya-core/
 ├── .gitignore
 ├── README.md
 ├── src/
-│   ├── main.rs
+│   ├── main_system.rs
+│   ├── network_discovery.rs
 │   ├── user_management.rs
 │   ├── stx_support.rs
 │   ├── bitcoin_support.rs
 │   ├── lightning_support.rs
 │   ├── dlc_support.rs
 │   ├── kademlia.rs
-│   ├── main_system.rs
 │   ├── setup_project.rs
 │   ├── setup_check.rs
 │   └── ml_logic/
@@ -94,87 +78,64 @@ anya-core/
    sudo apt-get install libssl-dev pkg-config
    ```
 
-3. Set up the Stacks blockchain locally:
-   Follow the instructions in the Stacks documentation to set up a local Stacks blockchain for development.
-
+3. Set up the Stacks blockchain locally (follow Stacks documentation).
 4. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-repo/anya-core.git
-   cd anya-core
+   git clone https://github.com/botshelomokoka/anya-core-main.git
+   cd anya-core-main
    ```
 
 5. Build the project:
-
-```bash
-cargo build
-```
-
-## Running the System
-
-To run the Anya Core System: cargo run
-
-## Running Tests
-
-To run the tests for the Anya Core System:
-
-1. Navigate to the project directory:
-
-   ```bash
-   cd anya-core
-   ```
-
-2. Run the tests:
-
-   ```bash
-   cargo test
-   ```
-
-## Contributing
-
-We welcome contributions to the Anya Core System! Please read our [CONTRIBUTING.md](docs/CONTRIBUTING.md) file for guidelines on how to contribute to the project, our code of conduct, and the process for submitting pull requests.
-
-## Debugging
-
-Use the rust-lldb debugger to debug the Anya Core System:
-
-rust-lldb target/debug/anya-core
-
-## Deployment
-
-1. Build the release version:
 
    ```bash
    cargo build --release
    ```
 
-2. Deploy the binary to your server:
+## Running the Full System
+
+To run the complete Anya Core System:
+
+1. Ensure all dependencies are installed and configured correctly.
+2. Start the Stacks blockchain node (if not already running).
+3. Initialize the Bitcoin node:
 
    ```bash
-   scp target/release/anya-core user@your-server:/path/to/deployment
+   bitcoind -daemon
    ```
 
-3. Set up environment variables on the server:
+4. Start the Lightning Network daemon:
 
    ```bash
-   export ANYA_DB_URL=your_database_url
-   export ANYA_API_KEY=your_api_key
+   lnd
    ```
 
-4. Run the system:
+5. Run the main Anya system:
 
    ```bash
-   ./anya-core
+   cargo run --bin anya-core
    ```
 
-## License
+6. Initialize the network discovery module:
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+   ```bash
+   cargo run --bin network_discovery
+   ```
 
-## Acknowledgments
+7. Start the Web5 integration:
 
-* Rust community
-* Stacks blockchain
-* Bitcoin Core developers
+   ```bash
+   cargo run --bin web5_integration
+   ```
 
-This README includes more detailed installation instructions, running tests, debugging, and deployment information. It also references the project structure and links to important documents like the contributing guide and license file.
+8. Launch the user management interface:
+
+   ```bash
+   cargo run --bin user_management
+   ```
+
+9. For development and debugging, you can use the provided VS Code launch configurations in `.vscode/launch.json`.
+
+## Testing
+
+Run the complete test suite:
