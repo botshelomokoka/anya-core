@@ -12,14 +12,12 @@ use async_trait::async_trait;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-// ZK-related imports
 use ark_ff::Field;
 use ark_ec::PairingEngine;
 use ark_groth16::{Groth16, ProvingKey, VerifyingKey};
 use ark_bls12_381::Bls12_381;
 use ark_std::rand::thread_rng;
 
-// STX-related imports
 use clarity_repl::clarity::{ClarityInstance, types::QualifiedContractIdentifier};
 use stacks_common::types::StacksEpochId;
 use stacks_common::util::hash::Sha256Sum;
@@ -28,18 +26,15 @@ use stacks_transactions::{
     transaction::Transaction as StacksTransaction,
 };
 use stacks_common::types::chainstate::{StacksAddress, StacksBlockId};
-use stacks_common::types::StacksPublicKey;
-use stacks_common::types::StacksPrivateKey;
+use stacks_common::types::{StacksPublicKey, StacksPrivateKey};
 use stacks_rpc_client::StacksRpcClient;
 
-// DLC-related imports
 use dlc::{DlcParty, Oracle, Announcement, Contract, Outcome};
 use dlc_messages::{AcceptDlc, OfferDlc, SignDlc};
 use dlc::secp_utils::{PublicKey as DlcPublicKey, SecretKey as DlcSecretKey};
 use dlc::channel::{Channel, ChannelId};
 use dlc::contract::Contract as DlcContract;
 
-// Lightning-related imports
 use lightning::ln::channelmanager::{ChannelManager, ChannelManagerReadArgs};
 use lightning::ln::peer_handler::{PeerManager, MessageHandler};
 use lightning::util::events::Event;
@@ -50,7 +45,6 @@ use lightning::chain::keysinterface::KeysManager;
 use lightning::util::logger::Logger;
 use lightning::ln::channelmanager::ChainParameters;
 
-// Bitcoin-related imports
 use bitcoin::blockdata::block::Block;
 use bitcoin::blockdata::transaction::Transaction as BitcoinTransaction;
 use bitcoin::network::message::NetworkMessage;
@@ -59,7 +53,6 @@ use bitcoin::util::address::Address as BitcoinAddress;
 use bitcoin::hashes::Hash;
 use bitcoin::blockdata::script::Script;
 
-// Libp2p-related imports
 use libp2p::{
     core::upgrade,
     floodsub::{Floodsub, FloodsubEvent, Topic},
@@ -73,23 +66,31 @@ use libp2p::{
 use libp2p::core::multiaddr::MultiAddr;
 use libp2p::kad::{Kademlia, KademliaEvent, store::MemoryStore};
 
-// Web5-related imports
 use web5::{
     did::{DID, KeyMethod},
     dids::methods::key::DIDKey,
     credentials::{Credential, CredentialSubject, CredentialStatus},
 };
 
+use crate::user_management::UserManagement;
+use crate::state_management::Node;
+use crate::ml_logic::MLLogic;
+use crate::stx_support::STXSupport;
+use crate::dlc_support::DLCSupport;
+use crate::lightning_support::LightningSupport;
+use crate::bitcoin_support::BitcoinSupport;
+use crate::web5_support::Web5Support;
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
-struct NodeState {
-    dao_progress: f64,
-    network_state: HashMap<String, serde_json::Value>,
-    user_data: HashMap<String, serde_json::Value>,
-    zk_proof: Option<Vec<u8>>,
-    stx_balance: u64,
-    dlc_contracts: Vec<DlcContract>,
-    lightning_channels: Vec<ChannelManager>,
-    web5_credentials: Vec<Credential>,
+pub struct NodeState {
+    pub dao_progress: f64,
+    pub network_state: HashMap<String, serde_json::Value>,
+    pub user_data: HashMap<String, serde_json::Value>,
+    pub zk_proof: Option<Vec<u8>>,
+    pub stx_balance: u64,
+    pub dlc_contracts: Vec<DlcContract>,
+    pub lightning_channels: Vec<ChannelManager>,
+    pub web5_credentials: Vec<Credential>,
 }
 
 impl Default for NodeState {
@@ -109,18 +110,17 @@ impl Default for NodeState {
 
 #[derive(NetworkBehaviour)]
 #[behaviour(event_process = true)]
-struct NodeBehaviour {
-    floodsub: Floodsub,
-    mdns: Mdns,
-    kademlia: Kademlia<MemoryStore>,
+pub struct NodeBehaviour {
+    pub floodsub: Floodsub,
+    pub mdns: Mdns,
+    pub kademlia: Kademlia<MemoryStore>,
 }
 
-struct Node {
+pub struct NetworkDiscovery {
     state: Arc<Mutex<NodeState>>,
     federated_nodes: Arc<Mutex<Vec<String>>>,
     private_key: PrivateKey,
     public_key: PublicKey,
-    network_discovery: NetworkDiscovery,
     zk_proving_key: ProvingKey<Bls12_381>,
     zk_verifying_key: VerifyingKey<Bls12_381>,
     clarity_instance: ClarityInstance,
@@ -133,10 +133,17 @@ struct Node {
     dlc_public_key: DlcPublicKey,
     stx_rpc_client: StacksRpcClient,
     web5_did: DIDKey,
+    user_management: UserManagement,
+    ml_logic: MLLogic,
+    stx_support: STXSupport,
+    dlc_support: DLCSupport,
+    lightning_support: LightningSupport,
+    bitcoin_support: BitcoinSupport,
+    web5_support: Web5Support,
 }
 
-impl Node {
-    async fn new() -> Self {
+impl NetworkDiscovery {
+    pub async fn new() -> Self {
         let secp = Secp256k1::new();
         let private_key = PrivateKey::new(&secp, &mut rand::thread_rng());
         let public_key = PublicKey::from_private_key(&secp, &private_key);
@@ -183,7 +190,7 @@ impl Node {
             .multiplex(libp2p::yamux::YamuxConfig::default())
             .boxed();
 
-        let mut behaviour = NodeBehaviour {
+        let behaviour = NodeBehaviour {
             floodsub: Floodsub::new(local_peer_id),
             mdns: Mdns::new(Default::default()).await.unwrap(),
             kademlia: Kademlia::new(local_peer_id, MemoryStore::new(local_peer_id)),
@@ -205,12 +212,11 @@ impl Node {
 
         let web5_did = DIDKey::generate(KeyMethod::Ed25519).unwrap();
 
-        Node {
+        NetworkDiscovery {
             state: Arc::new(Mutex::new(NodeState::default())),
             federated_nodes: Arc::new(Mutex::new(Vec::new())),
             private_key,
             public_key,
-            network_discovery: NetworkDiscovery::new().await,
             zk_proving_key,
             zk_verifying_key,
             clarity_instance,
@@ -223,78 +229,54 @@ impl Node {
             dlc_public_key,
             stx_rpc_client,
             web5_did,
+            user_management: UserManagement::new(),
+            ml_logic: MLLogic::new(),
+            stx_support: STXSupport::new(),
+            dlc_support: DLCSupport::new(),
+            lightning_support: LightningSupport::new(),
+            bitcoin_support: BitcoinSupport::new(),
+            web5_support: Web5Support::new(),
         }
     }
 
-    // ... (other methods remain the same)
-
-    async fn handle_stx_operations(&mut self) {
+    pub async fn handle_stx_operations(&mut self) {
         loop {
-            // Example: Execute a Clarity smart contract
             let contract_id = QualifiedContractIdentifier::parse("ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.my-contract").unwrap();
             let function_name = "my-function";
-            let args = vec![]; // Add function arguments if needed
+            let args = vec![];
 
             match self.clarity_instance.execute_contract(&contract_id, function_name, &args, None) {
                 Ok(result) => {
                     info!("Executed Clarity contract: {:?}", result);
-                    // Update state based on contract execution result
                     let mut state = self.state.lock().await;
-                    // Update state...
+                    // Update state based on contract execution result
                 },
                 Err(e) => error!("Failed to execute Clarity contract: {:?}", e),
             }
 
-            // Example: Create and broadcast a STX transaction
-            let tx = StacksTransaction::new(
-                TransactionVersion::Testnet,
+            let tx = self.stx_support.create_transaction(
                 self.stx_public_key.clone(),
-                0, // nonce
-                0, // fee
-                PostConditionMode::Allow,
-                TransactionPayload::TokenTransfer {
-                    recipient: StacksAddress::from_public_keys(0, &vec![self.stx_public_key.clone()]),
-                    amount: 100, // amount in microSTX
-                    memo: vec![],
-                },
+                StacksAddress::from_public_keys(0, &vec![self.stx_public_key.clone()]),
+                100,
             );
 
-            // Sign the transaction
-            let signer = StacksTransactionSigner::new(&tx);
-            let signed_tx = signer.sign_origin(&self.stx_private_key).unwrap();
-
-            // Broadcast the transaction
-            match self.stx_rpc_client.broadcast_transaction(&signed_tx).await {
+            match self.stx_support.broadcast_transaction(&tx).await {
                 Ok(tx_id) => info!("Broadcasted STX transaction: {:?}", tx_id),
                 Err(e) => error!("Failed to broadcast STX transaction: {:?}", e),
             }
 
-            tokio::time::sleep(Duration::from_secs(60)).await; // Wait before next operation
+            tokio::time::sleep(Duration::from_secs(60)).await;
         }
     }
 
-    async fn handle_dlc_operations(&mut self) {
+    pub async fn handle_dlc_operations(&mut self) {
         loop {
-            // Example: Create a new DLC contract
-            let oracle = Oracle::new(self.dlc_public_key.clone(), /* other oracle parameters */);
-            let announcement = Announcement::new(/* announcement parameters */);
-            let outcomes = vec![Outcome::new(/* outcome parameters */)];
-
-            let contract = DlcContract::new(
+            let contract = self.dlc_support.create_contract(
                 self.dlc_public_key.clone(),
-                /* counterparty public key */,
-                oracle,
-                announcement,
-                outcomes,
                 /* other contract parameters */
             );
 
-            // Offer the contract
-            let offer = OfferDlc::new(contract.clone(), /* offer parameters */);
-            // Send offer to counterparty...
-
-            // Handle incoming DLC messages (simplified)
-            match /* receive DLC message */ {
+            match self.dlc_support.handle_dlc_message(/* receive DLC message */).await {
                 Ok(AcceptDlc { .. }) => {
                     // Handle contract acceptance
                 },
@@ -304,49 +286,39 @@ impl Node {
                 Err(e) => error!("Error in DLC operation: {:?}", e),
             }
 
-            // Update state with new DLC contract
             let mut state = self.state.lock().await;
             state.dlc_contracts.push(contract);
 
-            tokio::time::sleep(Duration::from_secs(60)).await; // Wait before next operation
+            tokio::time::sleep(Duration::from_secs(60)).await;
         }
     }
 
-    async fn handle_lightning_operations(&mut self) {
+    pub async fn handle_lightning_operations(&mut self) {
         loop {
-            // Process any pending events
             if let Some(event) = self.channel_manager.get_and_clear_pending_events().pop() {
-                match event {
-                    Event::FundingGenerationReady { temporary_channel_id, counterparty_node_id, channel_value_satoshis, output_script, .. } => {
-                        // Handle channel funding
-                        info!("Funding generation ready for channel {}", temporary_channel_id);
-                        // Create funding transaction...
-                    },
-                    Event::PaymentReceived { payment_hash, amount_msat, .. } => {
-                        // Handle incoming payment
-                        info!("Received payment of {} msat with hash {}", amount_msat, payment_hash);
-                    },
-                    // Handle other event types...
-                    _ => {},
-                }
+                self.lightning_support.handle_event(event).await;
             }
 
-            // Example: Open a new Lightning channel
             let counterparty_node_id = PublicKey::from_slice(&[/* node id bytes */]).unwrap();
-            match self.channel_manager.create_channel(counterparty_node_id, 100000, 1000, 42, None) {
+            match self.lightning_support.create_channel(
+                &mut self.channel_manager,
+                counterparty_node_id,
+                100000,
+                1000,
+                42,
+            ).await {
                 Ok(_) => info!("Initiated new Lightning channel"),
                 Err(e) => error!("Failed to create Lightning channel: {:?}", e),
             }
 
-            // Update state with Lightning channel information
             let mut state = self.state.lock().await;
-            // Update state.lightning_channels...
+            // Update state based on Lightning operations
 
-            tokio::time::sleep(Duration::from_secs(30)).await; // Wait before next operation
+            tokio::time::sleep(Duration::from_secs(30)).await;
         }
     }
 
-    async fn handle_libp2p_events(&mut self) {
+    pub async fn handle_libp2p_events(&mut self) {
         loop {
             match self.swarm.select_next_some().await {
                 SwarmEvent::NewListenAddr { address, .. } => {
@@ -354,7 +326,7 @@ impl Node {
                 },
                 SwarmEvent::Behaviour(NodeBehaviourEvent::Floodsub(FloodsubEvent::Message(message))) => {
                     println!("Received message: {:?}", message);
-                    // Handle received message
+                    // Process the received message
                 },
                 SwarmEvent::Behaviour(NodeBehaviourEvent::Mdns(MdnsEvent::Discovered(list))) => {
                     for (peer_id, _multiaddr) in list {
@@ -365,11 +337,12 @@ impl Node {
                     match result {
                         QueryResult::GetClosestPeers(Ok(ok)) => {
                             // Handle closest peers
+                            self.handle_closest_peers(ok).await;
                         }
                         QueryResult::GetProviders(Ok(ok)) => {
                             // Handle providers
+                            self.handle_providers(ok).await;
                         }
-                        // Handle other query results...
                         _ => {}
                     }
                 },
@@ -378,8 +351,6 @@ impl Node {
         }
     }
 }
-
-// ... (NetworkDiscovery and main function remain the same)
 
 fn dummy_circuit() -> impl ark_relations::r1cs::ConstraintSynthesizer<ark_bls12_381::Fr> {
     struct DummyCircuit;
