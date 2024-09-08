@@ -72,6 +72,8 @@ thiserror = "1.0.40"
 anyhow = "1.0.71"
 walkdir = "2.3"
 sha2 = "0.10"
+bitcoin = "0.29"
+bitcoin-fee-estimation = "0.2"
 
 [dev-dependencies]
 criterion = "0.4.0"

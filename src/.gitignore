@@ -2,6 +2,10 @@
 target/
 **/*.rs.bk
 Cargo.lock
+# Rust-specific
+target/
+**/*.rs.bk
+Cargo.lock
 
 # Build artifacts
 dist/
@@ -26,7 +30,7 @@ wallet_data.json
 # Log files
 *.log
 
-# Network-specific
+# STX-specific
 .stacks-chain/
 .stacks-testnet/
 .web5/
@@ -51,6 +55,12 @@ wallet_data.json
 *.bak
 *~
 
+# OS generated files
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
 # Dependency directories
 node_modules/
 
@@ -60,10 +70,6 @@ anya-cli/target/
 anya-gui/target/
 anya-node/target/
 anya-wallet/target/
-.anya-temp/
-anya-logs/
-anya-data/
-anya-backups/
 
 # Documentation
 docs/_build/
@@ -74,11 +80,20 @@ coverage/
 # Benchmark results
 benchmarks/results/
 
-# Generated files
+# Generated protobuf files
 **/*.pb.rs
 
 # Local configuration files
 config.local.toml
 
-# Project-specific
-# (node_modules/ already included above)
+# Temporary Anya files
+.anya-temp/
+
+# Anya logs
+anya-logs/
+
+# Anya data
+anya-data/
+
+# Anya backups
+anya-backups/
