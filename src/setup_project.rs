@@ -118,18 +118,18 @@ impl ProjectSetup {
         ANYA_LOGO_SMALL
     }
 
-    pub fn render_logo_ui(&self, ui: &mut Ui) {
-        let logo_rect = Rect::from_min_size(
-            ui.max_rect().right_top() - Vec2::new(60.0, 0.0),
-            Vec2::new(60.0, 40.0)
+    pub fn render_logo_ui(&self, ui: &mut egui::Ui) {
+        let logo_rect = egui::Rect::from_min_size(
+            ui.max_rect().right_top() - egui::Vec2::new(60.0, 0.0),
+            egui::Vec2::new(60.0, 40.0)
         );
 
         ui.painter().text(
             logo_rect.center(),
-            Align2::CENTER_CENTER,
+            egui::Align2::CENTER_CENTER,
             self.get_operational_logo(),
             egui::TextStyle::Monospace.resolve(ui.style()),
-            Color32::WHITE,
+            egui::Color32::WHITE,
         );
     }
 
