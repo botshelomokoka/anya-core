@@ -53,6 +53,7 @@ use crate::dlc_support::DLCSupport;
 use crate::lightning_support::LightningSupport;
 use crate::bitcoin_support::BitcoinSupport;
 use crate::web5_support::Web5Support;
+use crate::libp2p_support::Libp2pSupport;
 
 const ANYA_LOGO_LARGE: &str = r#"
     /\      _   _  __   __    _    
@@ -84,28 +85,30 @@ pub struct ProjectSetup {
     lightning_support:  LightningSupport,
     bitcoin_support:    BitcoinSupport,
     web5_support:       Web5Support,
+    libp2p_support:    Libp2pSupport,
 }
 
 impl ProjectSetup {
-    pub fn new(user_type: UserType, user_data: HashMap<String, String>) -> Self {
+    pub fn new(user_type: UserType, user_data: HashMap<String, String>) -> Result<Self, Box<dyn Error>> {
         let logger = slog::Logger::root(slog::Discard, slog::o!());
         
-        Self {
+        Ok(Self {
             logger,
             user_type,
             user_data,
             project_name:       String::from("anya-core"),
-            user_management:    UserManagement::new(),
+            user_management:    UserManagement::new()?,
             node:               Node::new(),
             network_discovery:  NetworkDiscovery::new(),
             main_system:        MainSystem::new(),
             ml_logic:           MLLogic::new(),
-            stx_support:        STXSupport::new(),
-            dlc_support:        DLCSupport::new(),
-            lightning_support:  LightningSupport::new(),
-            bitcoin_support:    BitcoinSupport::new(),
-            web5_support:       Web5Support::new(),
-        }
+            stx_support:        STXSupport::new()?,
+            dlc_support:        DLCSupport::new()?,
+            lightning_support:  LightningSupport::new()?,
+            bitcoin_support:    BitcoinSupport::new()?,
+            web5_support:       Web5Support::new()?,
+            libp2p_support:    Libp2pSupport::new()?,
+        })
     }
 
     pub fn display_loading_screen(&self) {
@@ -153,6 +156,7 @@ impl ProjectSetup {
         self.setup_lightning_support().await?;
         self.setup_bitcoin_support().await?;
         self.setup_web5_support().await?;
+        self.setup_libp2p_support().await?;
         Ok(())
     }
 
@@ -386,6 +390,28 @@ impl ProjectSetup {
         let bitcoin_address = BitcoinAddress::from_str(&self.user_data["bitcoin_address"])?;
         Ok(())
     }
+
+    async fn setup_web5_support(&mut self) -> Result<(), Box<dyn Error>> {
+        info!(self.logger, "Setting up Web5 support");
+        self.web5_support.initialize().await?;
+        self.web5_support.setup_wallet().await?;
+        self.web5_support.connect_to_network().await?;
+
+        // Implement Web5 setup logic here
+
+        Ok(())
+    }
+
+    async fn setup_libp2p_support(&mut self) -> Result<(), Box<dyn Error>> {
+        info!(self.logger, "Setting up libp2p support");
+        self.libp2p_support.initialize().await?;
+        self.libp2p_support.setup_wallet().await?;
+        self.libp2p_support.connect_to_network().await?;
+
+        // Implement libp2p setup logic here
+
+        Ok(())
+    }
 }
 
 #[tokio::main]
@@ -394,7 +420,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let user_type = UserType::Normal;  // Or determine this dynamically
     let user_data = HashMap::new();  // Fill this with necessary user data
-    let mut project_setup = ProjectSetup::new(user_type, user_data);
+    let mut project_setup = ProjectSetup::new(user_type, user_data)?;
     
     if !project_setup.check_common_environment() {
         project_setup.setup_common_environment()?;
@@ -423,114 +449,28 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     Ok(())
 }
-use std::collections::HashMap;
-use std::error::Error;
-use std::fs;
-use std::path::Path;
-use std::str::FromStr;
-use log::{info, error};
-use dotenv::dotenv;
-use serde_json;
-use tokio;
-use kademlia::Server as KademliaServer;
-use stacks_core::{
-    StacksAddress,
-    StacksPublicKey,
-    StacksPrivateKey,
-    StacksTransaction,
-    StacksNetwork,
-    StacksEpochId,
-};
-use clarity_repl::clarity::types::QualifiedContractIdentifier;
-use stacks_rpc_client::{
-    StacksRpcClient,
-    PoxInfo,
-    AccountBalanceResponse,
-    TransactionStatus,
-};
-use bitcoin::{Network as BitcoinNetwork, Address as BitcoinAddress};
-use lightning::{
-    chain::keysinterface::KeysManager,
-    ln::channelmanager::ChannelManager,
-    util::config::UserConfig,
-};
-use dlc::{DlcManager, OracleInfo, Contract as DlcContract};
-use libp2p::{
-    identity,
-    PeerId,
-    Swarm,
-    NetworkBehaviour,
-    Transport,
-    core::upgrade,
-    tcp::TokioTcpConfig,
-    mplex,
-    yamux,
-    noise,
-};
-
-use crate::user_management::{UserManagement, UserType};
-use crate::state_management::Node;
-use crate::network_discovery::NetworkDiscovery;
-use crate::main_system::MainSystem;
-use crate::ml_logic::MLLogic;
-use crate::stx_support::STXSupport;
-use crate::dlc_support::DLCSupport;
-use crate::lightning_support::LightningSupport;
-use crate::bitcoin_support::BitcoinSupport;
-use crate::web5_support::Web5Support;
-
-const ANYA_LOGO_LARGE: &str = r#"
-    /\      _   _  __   __    _    
-   /  \    | \ | | \ \ / /   / \   
-  / /\ \   |  \| |  \ V /   / _ \  
- / ____ \  | |\  |   | |   / ___ \ 
-/_/    \_\ |_| \_|   |_|  /_/   \_\
-         ANYA CORE
-"#;
-
-const ANYA_LOGO_SMALL: &str = r#"
- /\
-/\/\
-ANYA
-"#;
-
-pub struct ProjectSetup {
-    logger:             slog::Logger,
-    user_type:          UserType,
-    user_data:          HashMap<String, String>,
-    project_name:       String,
-    user_management:    UserManagement,
-    node:               Node,
-    network_discovery:  NetworkDiscovery,
-    main_system:        MainSystem,
-    ml_logic:           MLLogic,
-    stx_support:        STXSupport,
-    dlc_support:        DLCSupport,
-    lightning_support:  LightningSupport,
-    bitcoin_support:    BitcoinSupport,
-    web5_support:       Web5Support,
-}
 
 impl ProjectSetup {
-    pub fn new(user_type: UserType, user_data: HashMap<String, String>) -> Self {
+    pub fn new(user_type: UserType, user_data: HashMap<String, String>) -> Result<Self, Box<dyn Error>> {
         let logger = slog::Logger::root(slog::Discard, slog::o!());
         
-        Self {
+        Ok(Self {
             logger,
             user_type,
             user_data,
             project_name:       String::from("anya-core"),
-            user_management:    UserManagement::new(),
+            user_management:    UserManagement::new()?,
             node:               Node::new(),
             network_discovery:  NetworkDiscovery::new(),
             main_system:        MainSystem::new(),
             ml_logic:           MLLogic::new(),
-            stx_support:        STXSupport::new(),
-            dlc_support:        DLCSupport::new(),
-            lightning_support:  LightningSupport::new(),
-            bitcoin_support:    BitcoinSupport::new(),
-            web5_support:       Web5Support::new(),
-        }
+            stx_support:        STXSupport::new()?,
+            dlc_support:        DLCSupport::new()?,
+            lightning_support:  LightningSupport::new()?,
+            bitcoin_support:    BitcoinSupport::new()?,
+            web5_support:       Web5Support::new()?,
+            libp2p_support:    Libp2pSupport::new()?,
+        })
     }
 
     pub fn display_loading_screen(&self) {
@@ -578,6 +518,7 @@ impl ProjectSetup {
         self.setup_lightning_support().await?;
         self.setup_bitcoin_support().await?;
         self.setup_web5_support().await?;
+        self.setup_libp2p_support().await?;
         Ok(())
     }
 
@@ -811,6 +752,28 @@ impl ProjectSetup {
         let bitcoin_address = BitcoinAddress::from_str(&self.user_data["bitcoin_address"])?;
         Ok(())
     }
+
+    async fn setup_web5_support(&mut self) -> Result<(), Box<dyn Error>> {
+        info!(self.logger, "Setting up Web5 support");
+        self.web5_support.initialize().await?;
+        self.web5_support.setup_wallet().await?;
+        self.web5_support.connect_to_network().await?;
+
+        // Implement Web5 setup logic here
+
+        Ok(())
+    }
+
+    async fn setup_libp2p_support(&mut self) -> Result<(), Box<dyn Error>> {
+        info!(self.logger, "Setting up libp2p support");
+        self.libp2p_support.initialize().await?;
+        self.libp2p_support.setup_wallet().await?;
+        self.libp2p_support.connect_to_network().await?;
+
+        // Implement libp2p setup logic here
+
+        Ok(())
+    }
 }
 
 #[tokio::main]
@@ -819,7 +782,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let user_type = UserType::Normal;  // Or determine this dynamically
     let user_data = HashMap::new();  // Fill this with necessary user data
-    let mut project_setup = ProjectSetup::new(user_type, user_data);
+    let mut project_setup = ProjectSetup::new(user_type, user_data)?;
     
     if !project_setup.check_common_environment() {
         project_setup.setup_common_environment()?;
