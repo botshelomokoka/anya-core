@@ -2,78 +2,44 @@
 name = "anya-core"
 version = "0.1.0"
 edition = "2021"
+authors = ["Anya Core Contributors"]
+description = "A decentralized AI assistant framework"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/anya-core/anya-core"
 
-[[bin]]
-name = "anya-core"
-path = "src/main_system.rs"
+[workspace]
+members = [
+    "anya-core",
+    "anya-network",
+    "anya-ai",
+    "anya-cli"
+]
 
 [dependencies]
-anyhow = "1.0.71"
-async-trait = "0.1.68"
-bcrypt = "0.13.0"
-bitcoin-bech32 = "0.12.1"
-bitcoin-wallet = "1.1.0"
-bitcoincore-rpc = "0.16.0"
-chrono = "0.4.24"
-cid = "0.8"
-clarity-repl = "1.0.1"
-config = "0.13"
-diesel = { version = "2.0.3", features = ["sqlite"] }
-dotenv = "0.15.0"
-env_logger = "0.10.0"
-futures = "0.3.28"
-ipfs-api-backend-hyper = "0.6"
-jsonwebtoken = "8.3.0"
-kad = "0.3.1"
-libipld = "0.14"
-libp2p = { version = "0.51.3", features = ["full"] }
-lightning-invoice = "0.24.0"
-lightning-net-tokio = "0.0.116"
-lightning-persister = "0.0.116"
-linfa = { version = "0.6.1", features = ["linear"] }
-log = "0.4.17"
-ndarray = "0.15.6"
-neon = { version = "0.10.1", default-features = false, features = ["napi-6"] }
-plotters = "0.3.4"
-pnet = "0.33.0"
-rand = "0.8.5"
-reqwest = { version = "0.11.18", features = ["json"] }
-rust-bitcoin = "0.30.0"
-rust-crypto = "0.2.36"
-rust-dlc = "0.4.1"
-rust-lightning = "0.0.116"
-schnorr = "0.2.0"
-scraper = "0.16.0"
-secp256k1 = { version = "0.20", features = ["rand-std", "schnorr"] }
+tokio = { version = "1.0", features = ["full"] }
+slog = "2.7.0"
+slog-term = "2.9.0"
+config = "0.13.1"
+thiserror = "1.0"
+log = "0.4"
+env_logger = "0.9"
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.96"
-sha2 = "0.10"
-stacks-common = "2.1.0"
-stacks-core = "2.1.0"
-stacks-rpc-client = "1.0.0"
-stacks-transactions = "2.1.0"
-tensorflow = "0.17.0"
-thiserror = "1.0.40"
-tokio = { version = "1.28.0", features = ["full"] }
-tonic = "0.8.3"
-uuid = { version = "1.3.3", features = ["v4"] }
-walkdir = "2.3"
-web5 = "0.1.0"
-web5-credentials = "0.1.0"
+serde_json = "1.0"
+libp2p = "0.50"
+ipfs-api = "0.17"
+bulletproofs = "4.0"
+seal = "0.1"
+yew = "0.19"
+clap = "3.2"
+
+# Open-source alternatives for blockchain and networking
+bitcoin = "0.29"
+lightning = "0.0.112"
+clarity-repl = "0.3"
 
 [dev-dependencies]
-criterion = "0.4.0"
-mockall = "0.11.3"
-tempfile = "3.2.0"
-tokio-test = "0.4.2"
+criterion = "0.4"
 
-[build-dependencies]
-neon-build = "0.10.1"
-
-[package.metadata.docs.rs]
-all-features = true
-rustdoc-args = ["--cfg", "docsrs"]
-
-[features]
-default = ["std"]
-std = []
+[[bench]]
+name = "core_benchmarks"
+harness = false
