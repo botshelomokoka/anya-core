@@ -97,3 +97,15 @@ impl EnhancedFederatedLearning {
         self.fl.aggregate(models);
     }
 }
+
+pub struct BitcoinFederatedLearning {
+    // ... existing fields
+
+    pub async fn train_fee_estimation_model(&mut self, local_mempool_data: Vec<Transaction>) {
+        // Implement federated learning for better fee estimation
+    }
+
+    pub async fn train_lightning_path_finding(&mut self, local_channel_data: Vec<ChannelInfo>) {
+        // Implement federated learning for optimized Lightning Network routing
+    }
+}
