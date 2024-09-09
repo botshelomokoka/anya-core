@@ -41,11 +41,22 @@ impl AnyaConfig {
     }
 }
 
+// Core modules (open source)
+pub mod bitcoin_core;
+pub mod lightning;
+pub mod dlc;
+pub mod ml_logic;
+
+// Enterprise modules (API access)
+#[cfg(feature = "enterprise")]
+pub mod advanced_analytics;
+#[cfg(feature = "enterprise")]
+pub mod high_volume_trading;
+
 // Add more modules as needed
 pub mod user_management;
 pub mod network_discovery;
 pub mod blockchain;
-pub mod ml_logic;
 pub mod identity;
 pub mod data_storage;
 pub mod smart_contracts;

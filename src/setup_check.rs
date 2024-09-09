@@ -12,6 +12,10 @@ use crate::lightning_support::LightningSupport;
 use crate::bitcoin_support::BitcoinSupport;
 use crate::web5_support::Web5Support;
 use crate::libp2p_support::Libp2pSupport;
+use crate::unified_network::UnifiedNetworkManager;
+use crate::cross_chain::CrossChainManager;
+use crate::ml_logic::federated_learning::CrossNetworkFederatedLearning;
+use crate::interoperability::InteroperabilityProtocol;
 use stacks_core::{
     StacksAddress, StacksPublicKey, StacksPrivateKey, StacksTransaction, StacksNetwork, StacksEpochId,
     clarity::types::QualifiedContractIdentifier,
@@ -255,6 +259,18 @@ pub async fn check_and_fix_setup(user_type: UserType, user_data: HashMap<String,
     let remote_addr = "/ip4/104.131.131.82/tcp/4001".parse()?;
     swarm.dial(remote_addr)?;
     info!("Dialed remote peer: {}", remote_peer_id);
+
+    // Check and setup unified network
+    let unified_network = UnifiedNetworkManager::new().await?;
+
+    // Check and setup cross-chain
+    let cross_chain = CrossChainManager::new(unified_network.clone()).await;
+
+    // Check and setup federated learning
+    let federated_learning = CrossNetworkFederatedLearning::new(Config::default(), unified_network.clone()).await;
+
+    // Check and setup interoperability
+    let interoperability = InteroperabilityProtocol::new(unified_network).await;
 
     info!("Setup check and fix completed successfully");
     Ok(())
