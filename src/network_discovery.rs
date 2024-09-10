@@ -63,7 +63,7 @@ use libp2p::{
     tcp::TokioTcpConfig,
     NetworkBehaviour, PeerId, Transport,
 };
-use libp2p::core::multiaddr::MultiAddr;
+use libp2p::core::multiaddr::Multiaddr;
 use libp2p::kad::{Kademlia, KademliaEvent, store::MemoryStore};
 
 use web5::{
