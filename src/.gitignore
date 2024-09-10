@@ -1,16 +1,11 @@
-# Python-related
-__pycache__/
-*.py[cod]
-*$py.class
-
-# Virtual environments
-venv/
-env/
+# Rust-specific
+target/
+**/*.rs.bk
+Cargo.lock
 
 # Build artifacts
 dist/
 build/
-target/
 
 # IDE/editor specific files
 .vscode/
@@ -30,10 +25,6 @@ wallet_data.json
 
 # Log files
 *.log
-
-# Rust-specific
-Cargo.lock
-**/*.rs.bk
 
 # STX-specific
 .stacks-chain/
@@ -55,9 +46,6 @@ Cargo.lock
 # libp2p-specific
 .libp2p/
 
-# Dependency directories
-node_modules/
-
 # Compiled files
 *.rlib
 *.so
@@ -71,13 +59,52 @@ node_modules/
 # Temporary files
 *.tmp
 *.bak
-*.swp
 *~
 
 # OS generated files
-.DS_Store?
 ._*
 .Spotlight-V100
 .Trashes
 ehthumbs.db
-Thumbs.db
+
+<<<<<<< HEAD
+# Dependency directories
+node_modules/
+
+# Anya-specific
+anya-core/target/
+anya-cli/target/
+anya-gui/target/
+anya-node/target/
+anya-wallet/target/
+
+# Documentation
+docs/_build/
+
+# Test coverage
+coverage/
+
+# Benchmark results
+benchmarks/results/
+
+# Generated protobuf files
+**/*.pb.rs
+
+# Local configuration files
+config.local.toml
+
+# Temporary Anya files
+.anya-temp/
+
+# Anya logs
+anya-logs/
+
+# Anya data
+anya-data/
+
+# Anya backups
+anya-backups/
+=======
+# Project-specific
+node_modules/
+>>>>>>> b706d7c49205d3634e6b11d0309d8911a18a435c

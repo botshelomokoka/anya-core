@@ -1,83 +1,31 @@
-# Anya: Advanced ML-Driven Decentralized Bitcoin Intelligence Platform
+# Anya Core
 
-## Summary
+Anya Core is an open-source decentralized AI assistant framework leveraging blockchain technologies, federated learning, and advanced cryptography, implemented entirely in Rust.
 
-Anya is a revolutionary platform designed to provide advanced Bitcoin intelligence and connectivity across all Bitcoin layers. Leveraging cutting-edge machine learning techniques, Anya offers unparalleled security, efficiency, and user experience while maintaining a strong focus on privacy, low fees, and sustainable growth.
+## Features
 
-## Key Features
-
-- Autonomous ML Engine: Handles system operations and decision-making.
-- Code Assimilation: Automatically scans and integrates new code and Bitcoin Improvement Proposals (BIPs).
-- Web5 Integration: Decentralized identity and data management.
-- Discreet Log Contracts (DLCs): Supports creating and managing DLCs.
-- Privacy Enhancements: CoinJoin, zero-knowledge proofs, homomorphic encryption.
-- Multi-Layer Bitcoin Support: Seamless integration across all Bitcoin layers.
-- DAO Governance: ML-managed proposal generation and execution.
-- Developer Ecosystem: Open API, automated code review, bounty system.
-- Stacks Integration: Full support for Stacks (STX).
-- Lightning Network Support: Integration with the Lightning Network for fast, low-cost transactions.
-- Libp2p Integration: Peer-to-peer networking capabilities.
-
-## Technical Architecture
-
-- Modular design with separate components.
-- Decentralized node network using Kademlia DHT.
-- Client-side processing for enhanced privacy.
-- ML infrastructure for distributed training and privacy-preserving techniques.
-- Data management with local storage and decentralized options.
-- Security measures including client-side encryption, trustless verification, multi-signature schemes, and ML-driven threat detection.
-- User interface with open-source development and customizable dashboards.
+- Decentralized user management
+- Multi-blockchain support (Bitcoin, Lightning Network, Stacks, DLC)
+- Federated learning with advanced ML models
+- Peer-to-peer networking using libp2p
+- ML models for cryptocurrency analysis and prediction
+- Integration with multiple blockchain technologies
 
 ## Project Structure
 
-anya-core/
-├── Cargo.toml
-├── Cargo.lock
-├── .gitignore
-├── README.md
-├── src/
-│   ├── main_system.rs
-│   ├── network_discovery.rs
-│   ├── user_management.rs
-│   ├── stx_support.rs
-│   ├── bitcoin_support.rs
-│   ├── lightning_support.rs
-│   ├── dlc_support.rs
-│   ├── kademlia.rs
-│   ├── setup_project.rs
-│   ├── setup_check.rs
-│   └── ml_logic/
-│       ├── mod.rs
-│       ├── federated_learning.rs
-│       └── system_evaluation.rs
-├── tests/
-│   ├── integration_tests.rs
-│   └── unit_tests/
-│       ├── user_management_tests.rs
-│       ├── blockchain_integration_tests.rs
-│       └── ml_logic_tests.rs
-├── docs/
-│   ├── API.md
-│   └── CONTRIBUTING.md
-└── scripts/
-    ├── setup.sh
-    └── run_tests.sh
+[Project structure details]
 
-## Installation
+## Getting Started
 
-1. Install Rust and Cargo:
+[Instructions for building and running the project]
 
-   ```bash
-   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-   ```
+## Contributing
 
-2. Install additional dependencies:
+[Contribution guidelines]
 
-   ```bash
-   sudo apt-get update
-   sudo apt-get install libssl-dev pkg-config
-   ```
+## License
 
+<<<<<<< HEAD
 3. Set up the Stacks blockchain locally (follow Stacks documentation).
 4. Clone the repository:
 
@@ -189,3 +137,6 @@ If you encounter any issues or have questions, please open an issue on GitHub or
 ---
 
 Feel free to ask if you need further assistance or have any specific questions about the platform
+=======
+This project is licensed under MIT OR Apache-2.0.
+>>>>>>> f959f86c6b13fa23d19557dd0c6c38a4308daf57
