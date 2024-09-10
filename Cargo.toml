@@ -2,20 +2,32 @@
 name = "anya-core"
 version = "0.1.0"
 edition = "2021"
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+authors = ["Anya Core Contributors"]
+description = "A decentralized AI assistant framework (Open Source Edition)"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/anya-core/anya-core"
 
-[[bin]]
-name = "anya-core"
-path = "src/main_system.rs"
+[workspace]
+members = [
+    "anya-core",
+    "anya-network",
+    "anya-ai",
+    "anya-cli"
+]
 
 [dependencies]
-dotenv = "0.15.0"
-rust-crypto = "0.2.36"
-tonic = "0.8.3"
-tokio = { version = "1.28.0", features = ["full"] }
-kad = "0.3.1"
-diesel = { version = "2.0.3", features = ["sqlite"] }
+tokio = { version = "1.28", features = ["full"] }
+slog = "2.7"
+slog-term = "2.9"
+config = "0.11"
+thiserror = "1.0"
+log = "0.4"
+env_logger = "0.10"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+<<<<<<< HEAD
 rand = "0.8.5"
 ndarray = "0.15.6"
 linfa = { version = "0.6.1", features = ["linear"] }
@@ -37,11 +49,61 @@ lightning-invoice = "0.24.0"
 lightning-net-tokio = "0.0.116"
 lightning-persister = "0.0.116"
 rust-bitcoin = "0.30.0"
+=======
+libp2p = "0.51"
+ipfs-api = "0.17"
+yew = "0.20"
+clap = { version = "4.3", features = ["derive"] }
+bitcoin = "0.30"
+bitcoincore-rpc = "0.16"
+lightning = "0.0.116"
+lightning-invoice = "0.24"
+rust-dlc = "0.4"
+clarity-repl = "1.0"
+stacks-rpc-client = "1.0"
+ndarray = "0.15"
+chrono = "0.4"
+ta = "0.5"
+statrs = "0.16"
+linfa = "0.6"
+linfa-linear = "0.6"
+ring = "0.16"
+bitcoin = { version = "0.30", features = ["rand"] }
+
+[dev-dependencies]
+criterion = "0.5"
+mockall = "0.11"
+proptest = "1.0"
+
+[[bench]]
+name = "core_benchmarks"
+harness = false
+=======
+authors = ["botshelomokoka@gmail.com"]
+description = "Bitcoin-centric AI assistant framework"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+=======
+authors = ["botshelomokoka@gmail.com"]
+description = "Bitcoin-centric AI assistant framework"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+>>>>>>> Stashed changes
+# Blockchain
+bitcoin = "0.29.2"
+>>>>>>> f959f86c6b13fa23d19557dd0c6c38a4308daf57
 bitcoincore-rpc = "0.16.0"
-bitcoin-bech32 = "0.12.1"
-bitcoin-wallet = "1.1.0"
-libp2p = { version = "0.51.3", features = ["full"] }
+lightning = "0.0.116"
+stacks-core = "2.1.0"
+rust-dlc = "0.4.1"
+
+# Identity
+did-key = "0.1"
+verifiable-credentials = "0.1"
 web5 = "0.1.0"
+<<<<<<< HEAD
 web5-credentials = "0.1.0"
 neon = { version = "0.10.1", default-features = false, features = ["napi-6"] }
 log = "0.4"
@@ -55,21 +117,64 @@ thiserror = "1.0"
 anyhow = "1.0.71"
 walkdir = "2.3"
 sha2 = "0.10"
+=======
+
+# Networking
+libp2p = "0.51"
+
+# Smart Contracts
+clarity-repl = "1.0.1"
+wasmer = "2.3"
+
+# Federated Learning
+openfl = "0.1"
+
+# Privacy
+bulletproofs = "4.0"
+
+# UI
+yew = "0.19"
+clap = "3.2"
+
+# Utility
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+log = "0.4"
+env_logger = "0.10.0"
+thiserror = "1.0"
+
+# New dependencies
+reqwest = { version = "0.11", features = ["json"] }
+chrono = { version = "0.4", features = ["serde"] }
+rust_decimal = { version = "1.25", features = ["serde"] }
+>>>>>>> f959f86c6b13fa23d19557dd0c6c38a4308daf57
 
 [dev-dependencies]
 criterion = "0.4.0"
 tokio-test = "0.4.2"
 mockall = "0.11.3"
-tempfile = "3.2.0"
-tokio = { version = "1.0", features = ["full", "test-util"] }
-
-[build-dependencies]
-neon-build = "0.10.1"
-
-[package.metadata.docs.rs]
-all-features = true
-rustdoc-args = ["--cfg", "docsrs"]
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 
 [features]
 default = ["std"]
 std = []
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+=======
+enterprise = ["advanced_analytics", "high_volume_trading"]
+advanced_analytics = []
+high_volume_trading = []
+>>>>>>> Stashed changes
+=======
+enterprise = ["advanced_analytics", "high_volume_trading"]
+advanced_analytics = []
+high_volume_trading = []
+>>>>>>> Stashed changes

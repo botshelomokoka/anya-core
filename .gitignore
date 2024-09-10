@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 # Rust-specific
+=======
+# Rust-specific ignores
+>>>>>>> f959f86c6b13fa23d19557dd0c6c38a4308daf57
 /target
 **/*.rs.bk
 Cargo.lock
 
+<<<<<<< HEAD
 # Build artifacts
 /dist
 /build
@@ -55,8 +60,142 @@ wallet_data.json
 # Database files
 *.db
 *.sqlite
+=======
+# Ignore all files and directories in the project root
+/*
+
+# But don't ignore these specific directories and files
+!/src/
+!/Cargo.toml
+!/README.md
+!/LICENSE
+
+# Ignore common build and IDE-specific files
+*.class                 # Java class files
+*.log                   # Log files
+*.ctxt                  # BlueJ files
+.mtj.tmp/               # Mobile Tools for Java (J2ME)
+*.jar                   # JAR files
+*.war                   # WAR files
+*.nar                   # NAR files
+*.ear                   # EAR files
+*.zip                   # ZIP files
+*.tar.gz                # Compressed tar files
+*.rar                   # RAR files
+
+# Virtual machine crash logs
+hs_err_pid*
+replay_pid*
+
+# IDE-specific files
+.idea/                  # IntelliJ IDEA
+*.iml                   # IntelliJ IDEA module files
+.vscode/                # Visual Studio Code
+*.swp                   # Vim swap files
+*~                      # Temporary files
+
+# Build directories
+target/                 # Maven build directory
+build/                  # Gradle build directory
+
+# Dependency directories
+node_modules/           # Node.js dependencies
+jspm_packages/          # JSPM packages
+
+# Logs
+logs/                   # Log directory
+*.log                   # Log files
+npm-debug.log*          # npm debug logs
+yarn-debug.log*         # Yarn debug logs
+yarn-error.log*         # Yarn error logs
+
+# OS generated files
+.DS_Store               # macOS
+.DS_Store?              # macOS
+._*                     # macOS
+.Spotlight-V100         # macOS
+.Trashes                # macOS
+ehthumbs.db             # Windows
+Thumbs.db               # Windows
+
+# Temporary files
+*.tmp                   # Temporary files
+*.bak                   # Backup files
+*.swp                   # Vim swap files
+*~.nib                  # Interface Builder temporary files
+
+# Rust
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+/build/
+
+# Logs
+*.log
+
+# Dependencies
+/node_modules/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Testing
+/coverage/
+
+# Documentation
+/docs/
+>>>>>>> f959f86c6b13fa23d19557dd0c6c38a4308daf57
 
 # Temporary files
 *.tmp
 *.bak
+<<<<<<< HEAD
 *~
+=======
+*.swp
+*~.nib
+
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+.env
+=======
+=======
+>>>>>>> Stashed changes
+# Specific to Anya Core
+/data/
+/config/local.toml
+
+# Cargo
+Cargo.lock
+target/
+
+# Generated files
+*.generated.*
+
+# Debug files
+*.debug
+
+# Profiling files
+*.prof
+
+# Backup files
+*.bak
+*.backup
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
+>>>>>>> f959f86c6b13fa23d19557dd0c6c38a4308daf57
