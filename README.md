@@ -139,3 +139,53 @@ To run the complete Anya Core System:
 ## Testing
 
 Run the complete test suite:
+
+Run the complete test suite:
+
+1. **Unit Tests**: To run the unit tests, use the following command:
+
+   ```bash
+   cargo test --lib
+   ```
+
+2. **Integration Tests**: To run the integration tests, use the following command:
+
+   ```bash
+   cargo test --test integration_tests
+   ```
+
+3. **Specific Test Modules**: You can also run specific test modules. For example, to run the user management tests:
+
+   ```bash
+   cargo test --test user_management_tests
+   ```
+
+4. **Continuous Integration**: Ensure that all tests pass in your CI pipeline by integrating the test commands into your CI configuration file (e.g., `.github/workflows/ci.yml` for GitHub Actions).
+
+## Contribution Guidelines
+
+We welcome contributions from the community! To contribute to Anya, please follow these steps:
+
+1. **Fork the Repository**: Create a fork of the repository on GitHub.
+2. **Create a Branch**: Create a new branch for your feature or bugfix.
+3. **Make Changes**: Implement your changes in the new branch.
+4. **Run Tests**: Ensure all tests pass by running the test suite.
+5. **Submit a Pull Request**: Open a pull request with a clear description of your changes.
+
+For more detailed guidelines, please refer to the `CONTRIBUTING.md` file in the `docs/` directory.
+
+## Documentation
+
+Comprehensive documentation is available in the `docs/` directory. Key documents include:
+
+- **API.md**: Detailed API documentation.
+- **CONTRIBUTING.md**: Guidelines for contributing to the project.
+- **README.md**: Overview and setup instructions.
+
+## Support
+
+If you encounter any issues or have questions, please open an issue on GitHub or contact the maintainers directly.
+
+---
+
+Feel free to ask if you need further assistance or have any specific questions about the platform
