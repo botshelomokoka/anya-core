@@ -2,14 +2,15 @@
 
 ## Current Status
 
-- Basic project structure implemented
+- Project structure implemented with Rust
+- Separated open-source (anya-core) and enterprise (anya-enterprise) features
 - User management system in place
-- STX, DLC, Lightning, and Bitcoin support integrated
-- Kademlia-based network discovery implemented
-- Federated learning module added
-- Basic CLI and testing infrastructure set up
+- Basic Bitcoin, Lightning Network, and Stacks support integrated
+- Kademlia-based network discovery implemented in Rust using libp2p
+- Basic federated learning module implemented
+- Basic CLI infrastructure set up
 
-## Rewrite to Open Standards
+## Rewrite to Open Standards (anya-core)
 
 ### 1. Architecture
 
@@ -31,11 +32,16 @@
 - Enhance Stacks blockchain support using the Stacks blockchain API
 - Improve DLC support using the latest Rust DLC library
 
-### 4. Federated Learning
+### 4. Federated Learning and AI
 
-- Enhance the Federated Learning implementation based on the OpenFL framework
-- Implement differential privacy techniques using the OpenDP library
-- Implement secure aggregation using the SPDZ protocol
+- Implemented Federated Learning with self-research capabilities
+- Implemented dimensional analysis for weight, time, fees, and security
+- Implemented internal AI engine with model aggregation and optimization
+- TODO: Implement differential privacy techniques using the OpenDP library
+- TODO: Implement secure aggregation using the SPDZ protocol
+- TODO: Implement advanced aggregation algorithms
+- TODO: Integrate with external AI services for enhanced functionality
+- TODO: Implement natural language processing capabilities
 
 ### 5. Identity and Authentication
 
@@ -73,6 +79,44 @@
 - Enhance CLI implementation using the clap crate for Rust
 - Develop mobile applications using React Native with Rust bindings
 
+## New Features and Integrations
+
+### 11. Bitcoin Wallet Integration
+
+- Implement standard Bitcoin RPC interface
+- Create wallet connection module supporting various wallet types
+- Ensure secure communication between wallets and Anya Core
+
+### 12. ML Feature Access API
+
+- Develop RESTful API for accessing ML features
+- Implement authentication and authorization for API access
+- Create documentation for API usage
+
+### 13. Fee Structure and Payments
+
+- Implement subscription-based model for continuous access
+- Develop per-transaction fee system for pay-as-you-go usage
+- Integrate with Bitcoin Lightning Network for micro-payments
+
+### 14. Advanced ML Intelligence Services
+
+- Expand ML models to include:
+  - Bitcoin price prediction
+  - Transaction volume forecasting
+  - Risk assessment for transactions and investments
+  - Anomaly detection in the Bitcoin network
+  - Optimal fee estimation
+- Implement explainable AI features for model interpretability
+
+## Enterprise Features (anya-enterprise)
+
+- Implement advanced ML models for Bitcoin price prediction, transaction volume forecasting, and risk assessment
+- Develop advanced analytics features
+- Implement high-volume trading capabilities
+- Integrate with additional blockchain platforms (Cosmos, Polkadot)
+- Implement advanced security features (zero-knowledge proofs, homomorphic encryption)
+
 ## Future Plans
 
 1. Enhance federated learning capabilities
@@ -102,8 +146,11 @@
 
 ## Ongoing Tasks
 
-- Continuous integration and testing improvements
-- Regular security audits and updates
-- Community engagement and open-source contribution management
-- Compliance with relevant standards and regulations
-- Regular benchmarking and performance optimization
+- Expand test coverage for both core and enterprise modules
+- Implement differential privacy in the core federated learning module
+- Develop documentation for both open-source and enterprise features
+- Create separate CLI and web interfaces for core and enterprise editions
+
+## Future Plans
+
+(Keep the existing future plans, but remove any Python-specific references)
