@@ -107,8 +107,11 @@ Thumbs.db
 *~.nib
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 .env
 =======
+=======
+>>>>>>> Stashed changes
 # Specific to Anya Core
 /data/
 /config/local.toml
@@ -129,4 +132,7 @@ target/
 # Backup files
 *.bak
 *.backup
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
