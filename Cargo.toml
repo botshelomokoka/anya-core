@@ -3,6 +3,7 @@ name = "anya-core"
 version = "0.1.0"
 edition = "2021"
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 authors = ["Anya Core Contributors"]
 description = "A decentralized AI assistant framework (Open Source Edition)"
 license = "MIT OR Apache-2.0"
@@ -60,6 +61,13 @@ description = "Bitcoin-centric AI assistant framework"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
+=======
+authors = ["botshelomokoka@gmail.com"]
+description = "Bitcoin-centric AI assistant framework"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+>>>>>>> Stashed changes
 # Blockchain
 bitcoin = "0.29.2"
 bitcoincore-rpc = "0.16.0"
@@ -106,16 +114,25 @@ rust_decimal = { version = "1.25", features = ["serde"] }
 criterion = "0.4.0"
 tokio-test = "0.4.2"
 mockall = "0.11.3"
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 [features]
 default = ["std"]
 std = []
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
 [package.metadata.docs.rs]
 all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
+=======
+enterprise = ["advanced_analytics", "high_volume_trading"]
+advanced_analytics = []
+high_volume_trading = []
+>>>>>>> Stashed changes
 =======
 enterprise = ["advanced_analytics", "high_volume_trading"]
 advanced_analytics = []
