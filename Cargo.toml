@@ -1,11 +1,11 @@
 [package]
-name = "anya-core"
-version = "0.1.0"
-edition = "2021"
-authors = ["Anya Core Contributors"]
+name        = "anya-core"
+version     = "0.1.0"
+edition     = "2021"
+authors     = ["Anya Core Contributors"]
 description = "A decentralized AI assistant framework"
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/anya-core/anya-core"
+license     = "MIT OR Apache-2.0"
+repository  = "https://github.com/anya-core/anya-core"
 
 [workspace]
 members = [
@@ -16,38 +16,38 @@ members = [
 ]
 
 [dependencies]
-tokio = { version = "1.0", features = ["full"] }
-slog = "2.7.0"
-slog-term = "2.9.0"
-config = "0.13.1"
-thiserror = "1.0"
-log = "0.4"
-env_logger = "0.9"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-libp2p = "0.50"
-ipfs-api = "0.17"
+tokio        = { version = "1.0", features = ["full"] }
+slog         = "2.7.0"
+slog-term    = "2.9.0"
+config       = "0.13.1"
+thiserror    = "1.0"
+log          = "0.4"
+env_logger   = "0.9"
+serde        = { version = "1.0", features = ["derive"] }
+serde_json   = "1.0"
+libp2p       = "0.50"
+ipfs-api     = "0.17"
 bulletproofs = "4.0"
-seal = "0.1"
-yew = "0.19"
-clap = "3.2"
+seal         = "0.1"
+yew          = "0.19"
+clap         = "3.2"
 # Open-source alternatives for blockchain and networking
-bitcoin = "0.29"
-lightning = "0.0.112"
+bitcoin      = "0.29"
+lightning    = "0.0.112"
 clarity-repl = "0.3"
 # Add new dependencies as needed
-interledger = "0.5"
-cosmos-sdk = "0.1"
+interledger  = "0.5"
+cosmos-sdk   = "0.1"
 polkadot-api = "0.1"
 
 [dev-dependencies]
 criterion = "0.4"
 
 [[bench]]
-name = "core_benchmarks"
+name    = "core_benchmarks"
 harness = false
 
 [features]
-default = ["std"]
-std = []
+default    = ["std"]
+std        = []
 enterprise = ["advanced-analytics", "high-volume-trading"]
