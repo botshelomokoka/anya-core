@@ -6,12 +6,16 @@ use std::path::Path;
 use std::str::FromStr;
 use crate::user_management::UserType;
 use crate::setup_project::ProjectSetup;
-use crate::zk_utils::ZKSetup;
 use crate::stx_support::STXSupport;
 use crate::dlc_support::DLCSupport;
 use crate::lightning_support::LightningSupport;
 use crate::bitcoin_support::BitcoinSupport;
 use crate::web5_support::Web5Support;
+use crate::libp2p_support::Libp2pSupport;
+use crate::unified_network::UnifiedNetworkManager;
+use crate::cross_chain::CrossChainManager;
+use crate::ml_logic::federated_learning::CrossNetworkFederatedLearning;
+use crate::interoperability::InteroperabilityProtocol;
 use stacks_core::{
     StacksAddress, StacksPublicKey, StacksPrivateKey, StacksTransaction, StacksNetwork, StacksEpochId,
     clarity::types::QualifiedContractIdentifier,
@@ -78,7 +82,7 @@ pub async fn check_and_fix_setup(user_type: UserType, user_data: HashMap<String,
         return Ok(());
     }
 
-    let mut project_setup = ProjectSetup::new(user_type, user_data.clone());
+    let mut project_setup = ProjectSetup::new(user_type, user_data.clone())?;
 
     if !project_setup.check_common_environment() {
         warn!("Common environment setup incomplete. Fixing...");
@@ -106,14 +110,8 @@ pub async fn check_and_fix_setup(user_type: UserType, user_data: HashMap<String,
         },
     }
 
-    let mut zk_setup = ZKSetup::new(user_type, user_data.clone());
-    if !zk_setup.check_zk_environment() {
-        warn!("ZK environment setup incomplete. Fixing...");
-        zk_setup.setup_zk_environment()?;
-    }
-
-    // STX Support
-    let mut stx_support = STXSupport::new(user_type, user_data.clone());
+    // Check and setup STX support
+    let mut stx_support = STXSupport::new()?;
     if !stx_support.check_stx_environment() {
         warn!("STX environment setup incomplete. Fixing...");
         stx_support.setup_stx_environment()?;
@@ -141,8 +139,8 @@ pub async fn check_and_fix_setup(user_type: UserType, user_data: HashMap<String,
         info!("Current reward slot holders: {:?}", reward_slots);
     }
 
-    // DLC Support
-    let mut dlc_support = DLCSupport::new(user_type, user_data.clone());
+    // Check and setup DLC support
+    let mut dlc_support = DLCSupport::new()?;
     if !dlc_support.check_dlc_environment() {
         warn!("DLC environment setup incomplete. Fixing...");
         dlc_support.setup_dlc_environment()?;
@@ -161,8 +159,8 @@ pub async fn check_and_fix_setup(user_type: UserType, user_data: HashMap<String,
     let contract = dlc_support.accept_dlc_offer(&offer)?;
     info!("DLC contract created: {:?}", contract);
 
-    // Lightning Support
-    let mut lightning_support = LightningSupport::new(user_type, user_data.clone());
+    // Check and setup Lightning support
+    let mut lightning_support = LightningSupport::new()?;
     if !lightning_support.check_lightning_environment() {
         warn!("Lightning environment setup incomplete. Fixing...");
         lightning_support.setup_lightning_environment()?;
@@ -187,8 +185,8 @@ pub async fn check_and_fix_setup(user_type: UserType, user_data: HashMap<String,
     let channel_open_result = lightning_support.open_channel(&channel_manager, node_pubkey, channel_value_satoshis, push_msat).await?;
     info!("Lightning channel opened: {:?}", channel_open_result);
 
-    // Bitcoin Support
-    let mut bitcoin_support = BitcoinSupport::new(user_type, user_data.clone());
+    // Check and setup Bitcoin support
+    let mut bitcoin_support = BitcoinSupport::new()?;
     if !bitcoin_support.check_bitcoin_environment() {
         warn!("Bitcoin environment setup incomplete. Fixing...");
         bitcoin_support.setup_bitcoin_environment()?;
@@ -204,8 +202,8 @@ pub async fn check_and_fix_setup(user_type: UserType, user_data: HashMap<String,
     let tx_id = bitcoin_support.send_bitcoin(&bitcoin_address, &recipient_address, amount_satoshis).await?;
     info!("Bitcoin transaction sent. Transaction ID: {}", tx_id);
 
-    // Web5 Support
-    let mut web5_support = Web5Support::new(user_type, user_data.clone());
+    // Check and setup Web5 support
+    let mut web5_support = Web5Support::new()?;
     if !web5_support.check_web5_environment() {
         warn!("Web5 environment setup incomplete. Fixing...");
         web5_support.setup_web5_environment()?;
@@ -226,7 +224,13 @@ pub async fn check_and_fix_setup(user_type: UserType, user_data: HashMap<String,
     );
     info!("Created credential: {:?}", credential);
 
-    // Libp2p Support
+    // Check and setup libp2p support
+    let mut libp2p_support = Libp2pSupport::new()?;
+    if !libp2p_support.check_libp2p_environment() {
+        warn!("libp2p environment setup incomplete. Fixing...");
+        libp2p_support.setup_libp2p_environment()?;
+    }
+
     let id_keys = identity::Keypair::generate_ed25519();
     let peer_id = PeerId::from(id_keys.public());
     info!("Local peer id: {:?}", peer_id);
@@ -255,6 +259,18 @@ pub async fn check_and_fix_setup(user_type: UserType, user_data: HashMap<String,
     let remote_addr = "/ip4/104.131.131.82/tcp/4001".parse()?;
     swarm.dial(remote_addr)?;
     info!("Dialed remote peer: {}", remote_peer_id);
+
+    // Check and setup unified network
+    let unified_network = UnifiedNetworkManager::new().await?;
+
+    // Check and setup cross-chain
+    let cross_chain = CrossChainManager::new(unified_network.clone()).await;
+
+    // Check and setup federated learning
+    let federated_learning = CrossNetworkFederatedLearning::new(Config::default(), unified_network.clone()).await;
+
+    // Check and setup interoperability
+    let interoperability = InteroperabilityProtocol::new(unified_network).await;
 
     info!("Setup check and fix completed successfully");
     Ok(())

@@ -67,6 +67,7 @@ wallet_data.json
 .Trashes
 ehthumbs.db
 
+<<<<<<< HEAD
 # Dependency directories
 node_modules/
 
@@ -103,3 +104,7 @@ anya-data/
 
 # Anya backups
 anya-backups/
+=======
+# Project-specific
+node_modules/
+>>>>>>> b706d7c49205d3634e6b11d0309d8911a18a435c

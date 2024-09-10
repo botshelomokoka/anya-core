@@ -1,5 +1,6 @@
 pub mod federated_learning;
 pub mod system_evaluation;
+<<<<<<< HEAD
 pub mod dao_rules;
 pub mod mlfee;
 pub mod model_evaluation;
@@ -22,3 +23,8 @@ pub mod peer_discovery;
 pub mod transaction_analysis;
 pub mod lightning_network_optimization;
 pub mod dlc_contract_evaluation;
+=======
+
+pub use federated_learning::FederatedLearning;
+pub use system_evaluation::SystemEvaluation;
+>>>>>>> b706d7c49205d3634e6b11d0309d8911a18a435c
