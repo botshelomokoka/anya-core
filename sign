@@ -209,4 +209,2128 @@ Date:   Mon Sep 9 08:23:40 2024 +0200
  [m
 [31m-[build-dependencies][m
 [31m-neon-build = "0.10.1"[m
-[32m+[m[32m# Open-
+[32m+[m[32m# Open-source alternatives for blockchain and networking[m
+[32m+[m[32mbitcoin = "0.29"[m
+[32m+[m[32mlightning = "0.0.112"[m
+[32m+[m[32mclarity-repl = "0.3"[m
+ [m
+[31m-[package.metadata.docs.rs][m
+[31m-all-features = true[m
+[31m-rustdoc-args = ["--cfg", "docsrs"][m
+[32m+[m[32m[dev-dependencies][m
+[32m+[m[32mcriterion = "0.4"[m
+ [m
+[31m-[features][m
+[31m-default = ["std"][m
+[31m-std = [][m
+[32m+[m[32m[[bench]][m
+[32m+[m[32mname = "core_benchmarks"[m
+[32m+[m[32mharness = false[m
+[1mdiff --git a/README.md b/README.md[m
+[1mindex 963f2ec..0d72b3f 100644[m
+[1m--- a/README.md[m
+[1m+++ b/README.md[m
+[36m@@ -1,141 +1,35 @@[m
+[31m-# Anya: Advanced ML-Driven Decentralized Bitcoin Intelligence Platform[m
+[32m+[m[32m# Anya Core[m
+ [m
+[31m-## Summary[m
+[32m+[m[32mAnya Core is a decentralized AI assistant framework leveraging blockchain technologies, federated learning, and advanced cryptography, now with enhanced open standards support.[m
+ [m
+[31m-Anya is a revolutionary platform designed to provide advanced Bitcoin intelligence and connectivity across all Bitcoin layers. Leveraging cutting-edge machine learning techniques, Anya offers unparalleled security, efficiency, and user experience while maintaining a strong focus on privacy, low fees, and sustainable growth.[m
+[32m+[m[32m## Features[m
+ [m
+[31m-## Key Features[m
+[32m+[m[32m- Decentralized user management with DIDs and Verifiable Credentials (W3C standards)[m
+[32m+[m[32m- Multi-blockchain support (Bitcoin, Lightning Network, Stacks, IBC, Cosmos, Polkadot)[m
+[32m+[m[32m- Advanced federated learning with differential privacy (OpenFL, OpenDP)[m
+[32m+[m[32m- Peer-to-peer networking using libp2p and IPFS[m
+[32m+[m[32m- Smart contract support with Clarity and WebAssembly[m
+[32m+[m[32m- Cross-chain interoperability (IBC, Cosmos SDK, Polkadot XCMP)[m
+[32m+[m[32m- Enhanced privacy and security measures (Zero-knowledge proofs, Homomorphic encryption, Secure multi-party computation)[m
+[32m+[m[32m- Web, CLI, and mobile interfaces[m
+ [m
+[31m-- Autonomous ML Engine: Handles system operations and decision-making.[m
+[31m-- Code Assimilation: Automatically scans and integrates new code and Bitcoin Improvement Proposals (BIPs).[m
+[31m-- Web5 Integration: Decentralized identity and data management.[m
+[31m-- Discreet Log Contracts (DLCs): Supports creating and managing DLCs.[m
+[31m-- Privacy Enhancements: CoinJoin, zero-knowledge proofs, homomorphic encryption.[m
+[31m-- Multi-Layer Bitcoin Support: Seamless integration across all Bitcoin layers.[m
+[31m-- DAO Governance: ML-managed proposal generation and execution.[m
+[31m-- Developer Ecosystem: Open API, automated code review, bounty system.[m
+[31m-- Stacks Integration: Full support for Stacks (STX).[m
+[31m-- Lightning Network Support: Integration with the Lightning Network for fast, low-cost transactions.[m
+[31m-- Libp2p Integration: Peer-to-peer networking capabilities.[m
+[32m+[m[32m## Getting Started[m
+ [m
+[31m-## Technical Architecture[m
+[32m+[m[32m... (update installation and usage instructions)[m
+ [m
+[31m-- Modular design with separate components.[m
+[31m-- Decentralized node network using Kademlia DHT.[m
+[31m-- Client-side processing for enhanced privacy.[m
+[31m-- ML infrastructure for distributed training and privacy-preserving techniques.[m
+[31m-- Data management with local storage and decentralized options.[m
+[31m-- Security measures including client-side encryption, trustless verification, multi-signature schemes, and ML-driven threat detection.[m
+[31m-- User interface with open-source development and customizable dashboards.[m
+[32m+[m[32m## Contributing[m
+ [m
+[31m-## Project Structure[m
+[32m+[m[32m... (update contributing guidelines)[m
+ [m
+[31m-anya-core/[m
+[31m-├── Cargo.toml[m
+[31m-├── Cargo.lock[m
+[31m-├── .gitignore[m
+[31m-├── README.md[m
+[31m-├── src/[m
+[31m-│   ├── main_system.rs[m
+[31m-│   ├── network_discovery.rs[m
+[31m-│   ├── user_management.rs[m
+[31m-│   ├── stx_support.rs[m
+[31m-│   ├── bitcoin_support.rs[m
+[31m-│   ├── lightning_support.rs[m
+[31m-│   ├── dlc_support.rs[m
+[31m-│   ├── kademlia.rs[m
+[31m-│   ├── setup_project.rs[m
+[31m-│   ├── setup_check.rs[m
+[31m-│   └── ml_logic/[m
+[31m-│       ├── mod.rs[m
+[31m-│       ├── federated_learning.rs[m
+[31m-│       └── system_evaluation.rs[m
+[31m-├── tests/[m
+[31m-│   ├── integration_tests.rs[m
+[31m-│   └── unit_tests/[m
+[31m-│       ├── user_management_tests.rs[m
+[31m-│       ├── blockchain_integration_tests.rs[m
+[31m-│       └── ml_logic_tests.rs[m
+[31m-├── docs/[m
+[31m-│   ├── API.md[m
+[31m-│   └── CONTRIBUTING.md[m
+[31m-└── scripts/[m
+[31m-    ├── setup.sh[m
+[31m-    └── run_tests.sh[m
+[32m+[m[32m## License[m
+ [m
+[31m-## Installation[m
+[32m+[m[32mThis project is licensed under either of[m
+ [m
+[31m-1. Install Rust and Cargo:[m
+[32m+[m[32m * Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)[m
+[32m+[m[32m * MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)[m
+ [m
+[31m-   ```bash[m
+[31m-   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh[m
+[31m-   ```[m
+[32m+[m[32mat your option.[m
+ [m
+[31m-2. Install additional dependencies:[m
+[32m+[m[32m## Acknowledgments[m
+ [m
+[31m-   ```bash[m
+[31m-   sudo apt-get update[m
+[31m-   sudo apt-get install libssl-dev pkg-config[m
+[31m-   ```[m
+[31m-[m
+[31m-3. Set up the Stacks blockchain locally (follow Stacks documentation).[m
+[31m-4. Clone the repository:[m
+[31m-[m
+[31m-   ```bash[m
+[31m-   git clone https://github.com/botshelomokoka/anya-core-main.git[m
+[31m-   cd anya-core-main[m
+[31m-   ```[m
+[31m-[m
+[31m-5. Build the project:[m
+[31m-[m
+[31m-   ```bash[m
+[31m-   cargo build --release[m
+[31m-   ```[m
+[31m-[m
+[31m-## Running the Full System[m
+[31m-[m
+[31m-To run the complete Anya Core System:[m
+[31m-[m
+[31m-1. Ensure all dependencies are installed and configured correctly.[m
+[31m-2. Start the Stacks blockchain node (if not already running).[m
+[31m-3. Initialize the Bitcoin node:[m
+[31m-[m
+[31m-   ```bash[m
+[31m-   bitcoind -daemon[m
+[31m-   ```[m
+[31m-[m
+[31m-4. Start the Lightning Network daemon:[m
+[31m-[m
+[31m-   ```bash[m
+[31m-   lnd[m
+[31m-   ```[m
+[31m-[m
+[31m-5. Run the main Anya system:[m
+[31m-[m
+[31m-   ```bash[m
+[31m-   cargo run --bin anya-core[m
+[31m-   ```[m
+[31m-[m
+[31m-6. Initialize the network discovery module:[m
+[31m-[m
+[31m-   ```bash[m
+[31m-   cargo run --bin network_discovery[m
+[31m-   ```[m
+[31m-[m
+[31m-7. Start the Web5 integration:[m
+[31m-[m
+[31m-   ```bash[m
+[31m-   cargo run --bin web5_integration[m
+[31m-   ```[m
+[31m-[m
+[31m-8. Launch the user management interface:[m
+[31m-[m
+[31m-   ```bash[m
+[31m-   cargo run --bin user_management[m
+[31m-   ```[m
+[31m-[m
+[31m-9. For development and debugging, you can use the provided VS Code launch configurations in `.vscode/launch.json`.[m
+[31m-[m
+[31m-## Testing[m
+[31m-[m
+[31m-Run the complete test suite:[m
+[32m+[m[32m[List any acknowledgments or credits here][m
+[1mdiff --git a/Rewriteplan.md b/Rewriteplan.md[m
+[1mnew file mode 100644[m
+[1mindex 0000000..dd3e07c[m
+[1m--- /dev/null[m
+[1m+++ b/Rewriteplan.md[m
+[36m@@ -0,0 +1,109 @@[m
+[32m+[m[32m# Anya Core Project Rewrite Plan[m
+[32m+[m
+[32m+[m[32m## Current Status[m
+[32m+[m
+[32m+[m[32m- Basic project structure implemented[m
+[32m+[m[32m- User management system in place[m
+[32m+[m[32m- STX, DLC, Lightning, and Bitcoin support integrated[m
+[32m+[m[32m- Kademlia-based network discovery implemented[m
+[32m+[m[32m- Federated learning module added[m
+[32m+[m[32m- Basic CLI and testing infrastructure set up[m
+[32m+[m
+[32m+[m[32m## Rewrite to Open Standards[m
+[32m+[m
+[32m+[m[32m### 1. Architecture[m
+[32m+[m
+[32m+[m[32m- Implement a modular, plugin-based architecture for easy extension and customization[m
+[32m+[m[32m- Use the Rust-based Hexagonal Architecture pattern for better separation of concerns[m
+[32m+[m[32m- Implement a standardized API layer using OpenAPI 3.0 specifications[m
+[32m+[m
+[32m+[m[32m### 2. Networking and P2P[m
+[32m+[m
+[32m+[m[32m- Fully implement libp2p for all peer-to-peer communications (partially implemented)[m
+[32m+[m[32m- Use the Noise Protocol Framework for end-to-end encryption[m
+[32m+[m[32m- Enhance Kademlia DHT implementation for peer discovery and routing[m
+[32m+[m[32m- Support IPFS for decentralized content addressing and distribution[m
+[32m+[m
+[32m+[m[32m### 3. Blockchain Integrations[m
+[32m+[m
+[32m+[m[32m- Enhance Bitcoin support using the Bitcoin Core RPC interface[m
+[32m+[m[32m- Improve Lightning Network integration using the LND gRPC API[m
+[32m+[m[32m- Enhance Stacks blockchain support using the Stacks blockchain API[m
+[32m+[m[32m- Improve DLC support using the latest Rust DLC library[m
+[32m+[m
+[32m+[m[32m### 4. Federated Learning[m
+[32m+[m
+[32m+[m[32m- Enhance the Federated Learning implementation based on the OpenFL framework[m
+[32m+[m[32m- Implement differential privacy techniques using the OpenDP library[m
+[32m+[m[32m- Implement secure aggregation using the SPDZ protocol[m
+[32m+[m
+[32m+[m[32m### 5. Identity and Authentication[m
+[32m+[m
+[32m+[m[32m- Implement decentralized identifiers (DIDs) using the W3C DID specification[m
+[32m+[m[32m- Use Verifiable Credentials for user authentication and authorization[m
+[32m+[m[32m- Implement the Web Authentication (WebAuthn) standard for secure authentication[m
+[32m+[m
+[32m+[m[32m### 6. Data Storage and Management[m
+[32m+[m
+[32m+[m[32m- Integrate IPFS for decentralized data storage[m
+[32m+[m[32m- Implement OrbitDB for peer-to-peer databases[m
+[32m+[m[32m- Use the InterPlanetary Linked Data (IPLD) format for data representation[m
+[32m+[m
+[32m+[m[32m### 7. Smart Contracts and Programmability[m
+[32m+[m
+[32m+[m[32m- Enhance support for Clarity smart contracts on the Stacks blockchain[m
+[32m+[m[32m- Integrate WebAssembly (Wasm) for portable, efficient smart contract execution[m
+[32m+[m[32m- Implement the InterPlanetary Actor System (IPAS) for distributed computation[m
+[32m+[m
+[32m+[m[32m### 8. Interoperability[m
+[32m+[m
+[32m+[m[32m- Implement the InterBlockchain Communication (IBC) protocol for cross-chain interactions[m
+[32m+[m[32m- Integrate Cosmos SDK for building application-specific blockchains[m
+[32m+[m[32m- Implement Polkadot's XCMP (Cross-Chain Message Passing) for parachain communication[m
+[32m+[m
+[32m+[m[32m### 9. Privacy and Security[m
+[32m+[m
+[32m+[m[32m- Implement zero-knowledge proofs using the bulletproofs library[m
+[32m+[m[32m- Integrate homomorphic encryption techniques from the SEAL library[m
+[32m+[m[32m- Implement secure multi-party computation (MPC) using the MP-SPDZ framework[m
+[32m+[m
+[32m+[m[32m### 10. User Interface[m
+[32m+[m
+[32m+[m[32m- Develop a web-based interface using WebAssembly and the Yew framework[m
+[32m+[m[32m- Enhance CLI implementation using the clap crate for Rust[m
+[32m+[m[32m- Develop mobile applications using React Native with Rust bindings[m
+[32m+[m
+[32m+[m[32m## Future Plans[m
+[32m+[m
+[32m+[m[32m1. Enhance federated learning capabilities[m
+[32m+[m[32m   - Implement more advanced aggregation algorithms[m
+[32m+[m[32m   - Improve differential privacy support[m
+[32m+[m[32m2. Improve network discovery and peer-to-peer communication[m
+[32m+[m[32m   - Implement NAT traversal techniques[m
+[32m+[m[32m   - Enhance peer reputation system[m
+[32m+[m[32m3. Expand blockchain integrations[m
+[32m+[m[32m   - Add support for more Layer 2 solutions[m
+[32m+[m[32m   - Implement cross-chain atomic swaps[m
+[32m+[m[32m4. Enhance security measures[m
+[32m+[m[32m   - Implement end-to-end encryption for all communications[m
+[32m+[m[32m   - Improve secure multi-party computation support[m
+[32m+[m[32m5. Improve user interface and experience[m
+[32m+[m[32m   - Develop a web-based dashboard for system monitoring[m
+[32m+[m[32m   - Create mobile applications for easy access[m
+[32m+[m[32m6. Implement advanced AI features[m
+[32m+[m[32m   - Add natural language processing capabilities[m
+[32m+[m[32m   - Integrate with external AI services for enhanced functionality[m
+[32m+[m[32m7. Optimize performance and scalability[m
+[32m+[m[32m   - Implement sharding for improved data management[m
+[32m+[m[32m   - Optimize consensus algorithms for faster transaction processing[m
+[32m+[m[32m8. Expand developer tools and documentation[m
+[32m+[m[32m   - Create comprehensive API documentation[m
+[32m+[m[32m   - Develop SDKs for multiple programming languages[m
+[32m+[m
+[32m+[m[32m## Ongoing Tasks[m
+[32m+[m
+[32m+[m[32m- Continuous integration and testing improvements[m
+[32m+[m[32m- Regular security audits and updates[m
+[32m+[m[32m- Community engagement and open-source contribution management[m
+[32m+[m[32m- Compliance with relevant standards and regulations[m
+[32m+[m[32m- Regular benchmarking and performance optimization[m
+[1mdiff --git a/anya-core b/anya-core[m
+[1mindex f52fdb9..177ac5b 160000[m
+[1m--- a/anya-core[m
+[1m+++ b/anya-core[m
+[36m@@ -1 +1 @@[m
+[31m-Subproject commit f52fdb9befdae65b46b71e433413a3a73f7855d1[m
+[32m+[m[32mSubproject commit 177ac5bcc5795b1f168952fd07668bd24436b3f2[m
+[1mdiff --git a/network_discovery.py b/network_discovery.py[m
+[1mnew file mode 100644[m
+[1mindex 0000000..4f5c53b[m
+[1m--- /dev/null[m
+[1m+++ b/network_discovery.py[m
+[36m@@ -0,0 +1,37 @@[m
+[32m+[m[32mimport asyncio[m
+[32m+[m[32mfrom libp2p import ([m
+[32m+[m[32m    new_node,[m
+[32m+[m[32m    PeerID,[m
+[32m+[m[32m    multiaddr,[m
+[32m+[m[32m)[m
+[32m+[m[32mfrom libp2p.crypto.keys import KeyPair[m
+[32m+[m[32mfrom libp2p.network.swarm import Swarm[m
+[32m+[m[32mfrom libp2p.security.secio import SecioTransport[m
+[32m+[m[32mfrom libp2p.stream_muxer.mplex import MPLEXMuxer[m
+[32m+[m[32mfrom libp2p.transport.tcp import TCP[m
+[32m+[m
+[32m+[m[32masync def discover_network():[m
+[32m+[m[32m    # Create a random PeerID[m
+[32m+[m[32m    key_pair = KeyPair.generate('ed25519')[m
+[32m+[m[32m    peer_id = PeerID.from_public_key(key_pair.public_key)[m
+[32m+[m[32m    print(f"Local peer id: {peer_id}")[m
+[32m+[m
+[32m+[m[32m    # Create a new libp2p node[m
+[32m+[m[32m    node = await new_node([m
+[32m+[m[32m        transport_opt=[TCP()],[m
+[32m+[m[32m        muxer_opt=[MPLEXMuxer()],[m
+[32m+[m[32m        sec_opt=[SecioTransport(key_pair)],[m
+[32m+[m[32m        peer_id=peer_id,[m
+[32m+[m[32m    )[m
+[32m+[m
+[32m+[m[32m    # Listen on all interfaces and whatever port the OS assigns[m
+[32m+[m[32m    await node.get_network().listen(multiaddr.Multiaddr("/ip4/0.0.0.0/tcp/0"))[m
+[32m+[m
+[32m+[m[32m    print(f"Node listening on {node.get_addrs()}")[m
+[32m+[m
+[32m+[m[32m    # Kick it off[m
+[32m+[m[32m    while True:[m
+[32m+[m[32m        await asyncio.sleep(1)  # Add a small delay to prevent busy-waiting[m
+[32m+[m
+[32m+[m[32mif __name__ == "__main__":[m
+[32m+[m[32m    asyncio.run(discover_network())[m
+[1mdiff --git a/scripts/run_tests.sh b/scripts/run_tests.sh[m
+[1mindex 67ab85c..e3ed362 100644[m
+[1m--- a/scripts/run_tests.sh[m
+[1m+++ b/scripts/run_tests.sh[m
+[36m@@ -11,7 +11,7 @@[m [mcargo test --lib[m
+ [m
+ # Run integration tests[m
+ echo "Running integration tests..."[m
+[31m-cargo test --test integration_tests[m
+[32m+[m[32mcargo test --test '*'[m
+ [m
+ # Run specific module tests[m
+ echo "Running user management tests..."[m
+[36m@@ -21,8 +21,18 @@[m [mcargo test --test blockchain_integration_tests[m
+ echo "Running ML logic tests..."[m
+ cargo test --test ml_logic_tests[m
+ [m
+[32m+[m[32m# Run new test categories[m
+[32m+[m[32mecho "Running blockchain interoperability tests..."[m
+[32m+[m[32mcargo test --test blockchain_interoperability[m
+[32m+[m[32mecho "Running privacy and security tests..."[m
+[32m+[m[32mcargo test --test privacy_and_security[m
+[32m+[m[32mecho "Running smart contracts tests..."[m
+[32m+[m[32mcargo test --test smart_contracts[m
+[32m+[m[32mecho "Running user interface tests..."[m
+[32m+[m[32mcargo test --test user_interface[m
+[32m+[m
+ # Run code formatting check[m
+[31m-echo "Checking code formatting..."[m
+[32m+[m[32mecho "Running code formatting check..."[m
+ cargo fmt -- --check[m
+ [m
+ # Run linter[m
+[36m@@ -41,4 +51,22 @@[m [mcargo outdated[m
+ echo "Running code coverage..."[m
+ cargo tarpaulin --ignore-tests[m
+ [m
+[31m-echo "All tests and checks completed."[m
+[32m+[m[32m# Run benchmarks[m
+[32m+[m[32mecho "Running benchmarks..."[m
+[32m+[m[32mcargo bench[m
+[32m+[m
+[32m+[m[32m# New module tests[m
+[32m+[m[32mecho "Running identity tests..."[m
+[32m+[m[32mcargo test --test identity_tests[m
+[32m+[m[32mecho "Running data storage tests..."[m
+[32m+[m[32mcargo test --test data_storage_tests[m
+[32m+[m[32mecho "Running smart contracts tests..."[m
+[32m+[m[32mcargo test --test smart_contracts_tests[m
+[32m+[m[32mecho "Running interoperability tests..."[m
+[32m+[m[32mcargo test --test interoperability_tests[m
+[32m+[m[32mecho "Running privacy tests..."[m
+[32m+[m[32mcargo test --test privacy_tests[m
+[32m+[m[32mecho "Running UI tests..."[m
+[32m+[m[32mcargo test --test ui_tests[m
+[32m+[m
+[32m+[m[32mecho "All tests completed successfully!"[m
+[1mdiff --git a/scripts/setup.sh b/scripts/setup.sh[m
+[1mindex 6662aef..b03a170 100644[m
+[1m--- a/scripts/setup.sh[m
+[1m+++ b/scripts/setup.sh[m
+[36m@@ -1,42 +1,97 @@[m
+[31m-#!/bin/bash[m
+[32m+[m[32m#!/usr/bin/env bash[m
+[32m+[m
+[32m+[m[32mset -euo pipefail[m
+ [m
+ # Setup script for Anya Core project[m
+ [m
+[31m-# Update system packages[m
+[31m-echo "Updating system packages..."[m
+[31m-sudo apt-get update[m
+[31m-sudo apt-get upgrade -y[m
+[32m+[m[32mCONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/anya-core"[m
+[32m+[m[32mCONFIG_FILE="$CONFIG_DIR/config"[m
+[32m+[m[32mLOG_FILE="$CONFIG_DIR/setup.log"[m
+[32m+[m
+[32m+[m[32m# Ensure config directory exists[m
+[32m+[m[32mmkdir -p "$CONFIG_DIR"[m
+[32m+[m
+[32m+[m[32m# Function to log messages[m
+[32m+[m[32mlog() {[m
+[32m+[m[32m    echo "[$(date +'%Y-%m-%d %H:%M:%S')] $*" | tee -a "$LOG_FILE"[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m# Function to check if a command exists[m
+[32m+[m[32mcommand_exists() {[m
+[32m+[m[32m    command -v "$1" >/dev/null 2>&1[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m# Function to save configuration[m
+[32m+[m[32msave_config() {[m
+[32m+[m[32m    cat > "$CONFIG_FILE" <<EOF[m
+[32m+[m[32mUSER_ROLE=$USER_ROLE[m
+[32m+[m[32mENVIRONMENT=$ENVIRONMENT[m
+[32m+[m[32mEOF[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m# Function to load configuration[m
+[32m+[m[32mload_config() {[m
+[32m+[m[32m    if [ -f "$CONFIG_FILE" ]; then[m
+[32m+[m[32m        # shellcheck source=/dev/null[m
+[32m+[m[32m        source "$CONFIG_FILE"[m
+[32m+[m[32m    fi[m
+[32m+[m[32m}[m
+ [m
+[31m-# Install required dependencies[m
+[31m-echo "Installing required dependencies..."[m
+[31m-sudo apt-get install -y build-essential curl libssl-dev pkg-config[m
+[32m+[m[32m# Load existing configuration if available[m
+[32m+[m[32mload_config[m
+ [m
+[31m-# Install Rust[m
+[31m-echo "Installing Rust..."[m
+[31m-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y[m
+[31m-source $HOME/.cargo/env[m
+[32m+[m[32m# Determine user role if not already set[m
+[32m+[m[32mif [ -z "${USER_ROLE:-}" ]; then[m
+[32m+[m[32m    log "Select your user role:"[m
+[32m+[m[32m    select USER_ROLE in "developer" "user" "owner"; do[m
+[32m+[m[32m        case $USER_ROLE in[m
+[32m+[m[32m            developer|user|owner) break ;;[m
+[32m+[m[32m            *) log "Invalid selection. Please try again." ;;[m
+[32m+[m[32m        esac[m
+[32m+[m[32m    done[m
+[32m+[m[32mfi[m
+ [m
+[31m-# Clone the repository[m
+[31m-echo "Cloning the Anya Core repository..."[m
+[31m-git clone https://github.com/botshelomokoka/anya-core.git[m
+[31m-cd anya-core[m
+[32m+[m[32m# Determine environment if not already set[m
+[32m+[m[32mif [ -z "${ENVIRONMENT:-}" ]; then[m
+[32m+[m[32m    if [ "$USER_ROLE" = "user" ]; then[m
+[32m+[m[32m        ENVIRONMENT="live"[m
+[32m+[m[32m    elif [ "$USER_ROLE" = "owner" ]; then[m
+[32m+[m[32m        ENVIRONMENT="all"[m
+[32m+[m[32m    else[m
+[32m+[m[32m        log "Select environment:"[m
+[32m+[m[32m        select ENVIRONMENT in "testnet" "live"; do[m
+[32m+[m[32m            case $ENVIRONMENT in[m
+[32m+[m[32m                testnet|live) break ;;[m
+[32m+[m[32m                *) log "Invalid selection. Please try again." ;;[m
+[32m+[m[32m            esac[m
+[32m+[m[32m        done[m
+[32m+[m[32m    fi[m
+[32m+[m[32mfi[m
+[32m+[m
+[32m+[m[32m# Save configuration[m
+[32m+[m[32msave_config[m
+[32m+[m
+[32m+[m[32mlog "Setting up for $USER_ROLE in $ENVIRONMENT environment"[m
+[32m+[m
+[32m+[m[32m# Install Rust if not already installed[m
+[32m+[m[32mif ! command -v rustc &> /dev/null[m
+[32m+[m[32mthen[m
+[32m+[m[32m    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh[m
+[32m+[m[32m    source $HOME/.cargo/env[m
+[32m+[m[32mfi[m
+[32m+[m
+[32m+[m[32m# Install system dependencies[m
+[32m+[m[32msudo apt-get update[m
+[32m+[m[32msudo apt-get install -y build-essential pkg-config libssl-dev[m
+ [m
+ # Build the project[m
+[31m-echo "Building the project..."[m
+ cargo build --release[m
+ [m
+ # Set up environment variables[m
+[31m-echo "Setting up environment variables..."[m
+[31m-cp .env.example .env[m
+[31m-# TODO: Prompt user to fill in necessary values in .env file[m
+[31m-[m
+[31m-# Set up database[m
+[31m-echo "Setting up database..."[m
+[31m-# TODO: Add database setup commands[m
+[32m+[m[32mecho "export ANYA_LOG_LEVEL=info" >> ~/.bashrc[m
+[32m+[m[32mecho "export ANYA_NETWORK_TYPE=testnet" >> ~/.bashrc[m
+ [m
+[31m-# Install additional tools[m
+[31m-echo "Installing additional tools..."[m
+[31m-cargo install cargo-watch[m
+[31m-cargo install cargo-audit[m
+[32m+[m[32m# Source the updated bashrc[m
+[32m+[m[32msource ~/.bashrc[m
+ [m
+[31m-echo "Setup complete! You can now run the project using 'cargo run'"[m
+\ No newline at end of file[m
+[32m+[m[32mecho "Anya Core setup complete!"[m
+\ No newline at end of file[m
+[1mdiff --git a/src/dlc_support.rs b/src/dlc_support.rs[m
+[1mindex 045342f..c7c50e4 100644[m
+[1m--- a/src/dlc_support.rs[m
+[1m+++ b/src/dlc_support.rs[m
+[36m@@ -3,23 +3,19 @@[m [muse std::sync::Arc;[m
+ use tokio::sync::Mutex;[m
+ use log::{info, error};[m
+ use dlc::{DlcManager, OracleInfo, Offer, Contract, Outcome};[m
+[31m-use bitcoin::{Network as BitcoinNetwork, Address as BitcoinAddress, Transaction};[m
+[31m-use lightning::util::config::UserConfig;[m
+[31m-use crate::bitcoin_support::BitcoinSupport;[m
+[32m+[m[32muse bitcoin::Network;[m
+ [m
+ pub struct DLCSupport {[m
+     dlc_manager: Arc<Mutex<DlcManager>>,[m
+[31m-    bitcoin_support: Arc<BitcoinSupport>,[m
+[31m-    network: BitcoinNetwork,[m
+[32m+[m[32m    network: Network,[m
+ }[m
+ [m
+ impl DLCSupport {[m
+[31m-    pub async fn new(bitcoin_support: Arc<BitcoinSupport>, network: BitcoinNetwork) -> Result<Self, Box<dyn Error>> {[m
+[32m+[m[32m    pub async fn new(network: Network) -> Result<Self, Box<dyn Error>> {[m
+         let dlc_manager = Arc::new(Mutex::new(DlcManager::new(network)));[m
+         [m
+         Ok(DLCSupport {[m
+             dlc_manager,[m
+[31m-            bitcoin_support,[m
+             network,[m
+         })[m
+     }[m
+[36m@@ -36,20 +32,20 @@[m [mimpl DLCSupport {[m
+         Ok(contract)[m
+     }[m
+ [m
+[31m-    pub async fn sign_contract(&self, contract: Contract) -> Result<Transaction, Box<dyn Error>> {[m
+[31m-        let signed_tx = self.dlc_manager.lock().await.sign_contract(contract)?;[m
+[32m+[m[32m    pub async fn sign_contract(&self, contract: Contract) -> Result<(), Box<dyn Error>> {[m
+[32m+[m[32m        self.dlc_manager.lock().await.sign_contract(contract)?;[m
+         info!("Signed DLC contract");[m
+[31m-        Ok(signed_tx)[m
+[32m+[m[32m        Ok(())[m
+     }[m
+ [m
+[31m-    pub async fn execute_contract(&self, contract: Contract, outcome: Outcome) -> Result<Transaction, Box<dyn Error>> {[m
+[31m-        let execution_tx = self.dlc_manager.lock().await.execute_contract(contract, outcome)?;[m
+[32m+[m[32m    pub async fn execute_contract(&self, contract: Contract, outcome: Outcome) -> Result<(), Box<dyn Error>> {[m
+[32m+[m[32m        self.dlc_manager.lock().await.execute_contract(contract, outcome)?;[m
+         info!("Executed DLC contract");[m
+[31m-        Ok(execution_tx)[m
+[32m+[m[32m        Ok(())[m
+     }[m
+ [m
+[31m-    pub async fn get_contract_status(&self, contract_id: &str) -> Result<String, Box<dyn Error>> {[m
+[31m-        let status = self.dlc_manager.lock().await.get_contract_status(contract_id)?;[m
+[31m-        Ok(status)[m
+[32m+[m[32m    pub async fn update(&mut self) -> Result<(), Box<dyn Error>> {[m
+[32m+[m[32m        // Implement state update logic[m
+[32m+[m[32m        Ok(())[m
+     }[m
+ }[m
+[1mdiff --git a/src/kademlia.rs b/src/kademlia.rs[m
+[1mindex d900e56..e3bf4c3 100644[m
+[1m--- a/src/kademlia.rs[m
+[1m+++ b/src/kademlia.rs[m
+[36m@@ -1,18 +1,11 @@[m
+ use std::error::Error;[m
+[31m-use std::time::Duration;[m
+ use libp2p::{[m
+     core::upgrade,[m
+     futures::StreamExt,[m
+[31m-    kad::{[m
+[31m-        Kademlia, KademliaConfig, KademliaEvent, QueryResult, Record, RecordStore,[m
+[31m-        store::MemoryStore,[m
+[31m-    },[m
+[31m-    mplex, noise,[m
+[31m-    swarm::{Swarm, SwarmBuilder},[m
+[31m-    tcp::TokioTcpConfig,[m
+[31m-    Transport,[m
+[32m+[m[32m    kad::{Kademlia, KademliaEvent, QueryResult, Record, store::MemoryStore},[m
+[32m+[m[32m    swarm::{Swarm, SwarmEvent},[m
+[32m+[m[32m    identity, PeerId, Multiaddr,[m
+ };[m
+[31m-use tokio::time::timeout;[m
+ use log::{info, error};[m
+ [m
+ pub struct KademliaServer {[m
+[36m@@ -23,29 +16,17 @@[m [mimpl KademliaServer {[m
+     pub async fn new() -> Result<Self, Box<dyn Error>> {[m
+         let local_key = identity::Keypair::generate_ed25519();[m
+         let local_peer_id = PeerId::from(local_key.public());[m
+[32m+[m[32m        let store = MemoryStore::new(local_peer_id.clone());[m
+[32m+[m[32m        let behaviour = Kademlia::new(local_peer_id.clone(), store);[m
+[32m+[m[32m        let transport = libp2p::development_transport(local_key).await?;[m
+[32m+[m[32m        let swarm = Swarm::new(transport, behaviour, local_peer_id);[m
+ [m
+[31m-        let transport = TokioTcpConfig::new()[m
+[31m-            .nodelay(true)[m
+[31m-            .upgrade(upgrade::Version::V1)[m
+[31m-            .authenticate(noise::NoiseConfig::xx(local_key).into_authenticated())[m
+[31m-            .multiplex(mplex::MplexConfig::new())[m
+[31m-            .boxed();[m
+[31m-[m
+[31m-        let store = MemoryStore::new(local_peer_id);[m
+[31m-        let kademlia = Kademlia::new(local_peer_id, store);[m
+[31m-[m
+[31m-        let mut swarm = SwarmBuilder::new(transport, kademlia, local_peer_id)[m
+[31m-            .executor(Box::new(|fut| {[m
+[31m-                tokio::spawn(fut);[m
+[31m-            }))[m
+[31m-            .build();[m
+[31m-[m
+[31m-        Ok(KademliaServer { swarm })[m
+[32m+[m[32m        Ok(Self { swarm })[m
+     }[m
+ [m
+[31m-    pub async fn start(&mut self, addr: &str) -> Result<(), Box<dyn Error>> {[m
+[31m-        self.swarm.listen_on(addr.parse()?)?;[m
+[31m-        info!("Kademlia server listening on {}", addr);[m
+[32m+[m[32m    pub async fn start(&mut self, addr: Multiaddr) -> Result<(), Box<dyn Error>> {[m
+[32m+[m[32m        self.swarm.listen_on(addr)?;[m
+[32m+[m[32m        info!("Kademlia server started on {:?}", addr);[m
+ [m
+         loop {[m
+             match self.swarm.next().await {[m
+[36m@@ -57,9 +38,9 @@[m [mimpl KademliaServer {[m
+         Ok(())[m
+     }[m
+ [m
+[31m-    async fn handle_event(&mut self, event: KademliaEvent) -> Result<(), Box<dyn Error>> {[m
+[32m+[m[32m    async fn handle_event(&mut self, event: SwarmEvent<KademliaEvent>) -> Result<(), Box<dyn Error>> {[m
+         match event {[m
+[31m-            KademliaEvent::OutboundQueryCompleted { result, .. } => {[m
+[32m+[m[32m            SwarmEvent::Behaviour(KademliaEvent::OutboundQueryCompleted { result, .. }) => {[m
+                 match result {[m
+                     QueryResult::GetRecord(Ok(ok)) => {[m
+                         for PeerRecord { record, .. } in ok.records {[m
+[36m@@ -69,9 +50,6 @@[m [mimpl KademliaServer {[m
+                     QueryResult::PutRecord(Ok(_)) => {[m
+                         info!("Successfully put record");[m
+                     }[m
+[31m-                    QueryResult::GetClosestPeers(Ok(ok)) => {[m
+[31m-                        info!("Got closest peers: {:?}", ok.peers);[m
+[31m-                    }[m
+                     _ => {}[m
+                 }[m
+             }[m
+[36m@@ -87,29 +65,14 @@[m [mimpl KademliaServer {[m
+             publisher: None,[m
+             expires: None,[m
+         };[m
+[31m-        let quorum = 1;[m
+[31m-        match timeout([m
+[31m-            Duration::from_secs(60),[m
+[31m-            self.swarm.behaviour_mut().put_record(record, quorum),[m
+[31m-        )[m
+[31m-        .await[m
+[31m-        {[m
+[31m-            Ok(_) => Ok(()),[m
+[31m-            Err(e) => Err(Box::new(e)),[m
+[31m-        }[m
+[32m+[m[32m        self.swarm.behaviour_mut().put_record(record, libp2p::kad::Quorum::One)?;[m
+[32m+[m[32m        Ok(())[m
+     }[m
+ [m
+[31m-    pub async fn get_record(&mut self, key: Vec<u8>) -> Result<Option<Vec<u8>>, Box<dyn Error>> {[m
+[31m-        let quorum = 1;[m
+[31m-        match timeout([m
+[31m-            Duration::from_secs(60),[m
+[31m-            self.swarm.behaviour_mut().get_record(&key, quorum),[m
+[31m-        )[m
+[31m-        .await[m
+[31m-        {[m
+[31m-            Ok(Ok(ok)) => Ok(ok.records.into_iter().next().map(|r| r.record.value)),[m
+[31m-            Ok(Err(e)) => Err(Box::new(e)),[m
+[31m-            Err(e) => Err(Box::new(e)),[m
+[31m-        }[m
+[32m+[m[32m    pub async fn get_record(&mut self, key: &[u8]) -> Result<Option<Vec<u8>>, Box<dyn Error>> {[m
+[32m+[m[32m        let (tx, rx) = tokio::sync::oneshot::channel();[m
+[32m+[m[32m        self.swarm.behaviour_mut().get_record(key, libp2p::kad::Quorum::One);[m
+[32m+[m[32m        // ... (implement logic to receive and return the record)[m
+[32m+[m[32m        Ok(None)[m
+     }[m
+ }[m
+[1mdiff --git a/src/lib.rs b/src/lib.rs[m
+[1mnew file mode 100644[m
+[1mindex 0000000..27eb429[m
+[1m--- /dev/null[m
+[1m+++ b/src/lib.rs[m
+[36m@@ -0,0 +1,95 @@[m
+[32m+[m[32m//! Anya Core: A decentralized AI assistant framework[m
+[32m+[m[32m//![m
+[32m+[m[32m//! This library provides the core functionality for the Anya project.[m
+[32m+[m
+[32m+[m[32m#![warn(missing_docs)][m
+[32m+[m[32m#![warn(clippy::all)][m
+[32m+[m
+[32m+[m[32muse slog::{info, o, Drain, Logger};[m
+[32m+[m[32muse std::sync::Mutex;[m
+[32m+[m[32muse config::{Config, ConfigError};[m
+[32m+[m
+[32m+[m[32m/// Initialize the logger for the Anya Core system[m
+[32m+[m[32mpub fn init_logger() -> Logger {[m
+[32m+[m[32m    let decorator = slog_term::TermDecorator::new().build();[m
+[32m+[m[32m    let drain = Mutex::new(slog_term::FullFormat::new(decorator).build()).fuse();[m
+[32m+[m[32m    let logger = Logger::root(drain, o!("version" => env!("CARGO_PKG_VERSION")));[m
+[32m+[m[32m    info!(logger, "Anya Core logger initialized");[m
+[32m+[m[32m    logger[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m/// Main configuration structure for Anya Core[m
+[32m+[m[32m#[derive(Debug, Clone)][m
+[32m+[m[32mpub struct AnyaConfig {[m
+[32m+[m[32m    pub log_level: String,[m
+[32m+[m[32m    pub api_key: String,[m
+[32m+[m[32m    pub network_type: String,[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mimpl AnyaConfig {[m
+[32m+[m[32m    /// Create a new AnyaConfig instance[m
+[32m+[m[32m    pub fn new() -> Result<Self, ConfigError> {[m
+[32m+[m[32m        let config = Config::builder()[m
+[32m+[m[32m            .add_source(config::Environment::with_prefix("ANYA"))[m
+[32m+[m[32m            .build()?;[m
+[32m+[m
+[32m+[m[32m        Ok(AnyaConfig {[m
+[32m+[m[32m            log_level: config.get_string("log_level").unwrap_or_else(|_| "info".to_string()),[m
+[32m+[m[32m            api_key: config.get_string("api_key").unwrap_or_default(),[m
+[32m+[m[32m            network_type: config.get_string("network_type").unwrap_or_else(|_| "testnet".to_string()),[m
+[32m+[m[32m        })[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m// Add more modules as needed[m
+[32m+[m[32mpub mod user_management;[m
+[32m+[m[32mpub mod network_discovery;[m
+[32m+[m[32mpub mod blockchain;[m
+[32m+[m[32mpub mod ml_logic;[m
+[32m+[m[32mpub mod identity;[m
+[32m+[m[32mpub mod data_storage;[m
+[32m+[m[32mpub mod smart_contracts;[m
+[32m+[m[32mpub mod interoperability;[m
+[32m+[m[32mpub mod privacy;[m
+[32m+[m[32mpub mod ui;[m
+[32m+[m
+[32m+[m[32m// Re-export important structs and functions[m
+[32m+[m[32mpub use user_management::UserManagement;[m
+[32m+[m[32mpub use network_discovery::NetworkDiscovery;[m
+[32m+[m[32mpub use blockchain::{BitcoinSupport, LightningSupport, StacksSupport, DLCSupport};[m
+[32m+[m[32mpub use ml_logic::FederatedLearning;[m
+[32m+[m[32mpub use identity::{DIDManager, VerifiableCredential};[m
+[32m+[m[32mpub use data_storage::{IPFSStorage, OrbitDB};[m
+[32m+[m[32mpub use smart_contracts::{ClarityContract, WasmContract};[m
+[32m+[m[32mpub use interoperability::{IBCProtocol, CosmosSDK, Polkadot};[m
+[32m+[m[32mpub use privacy::{ZeroKnowledgeProof, HomomorphicEncryption, SecureMultiPartyComputation};[m
+[32m+[m[32mpub use ui::{WebInterface, CLI, MobileApp};[m
+[32m+[m
+[32m+[m[32m// Re-export important structs and functions[m
+[32m+[m[32mpub use user_management::UserManagement;[m
+[32m+[m[32mpub use network_discovery::NetworkDiscovery;[m
+[32m+[m[32mpub use blockchain::{BitcoinSupport, LightningSupport, StacksSupport, DLCSupport};[m
+[32m+[m[32mpub use ml_logic::FederatedLearning;[m
+[32m+[m[32mpub use identity::{DIDManager, VerifiableCredential};[m
+[32m+[m[32mpub use data_storage::{IPFSStorage, OrbitDB};[m
+[32m+[m[32mpub use smart_contracts::{ClarityContract, WasmContract};[m
+[32m+[m[32mpub use interoperability::{IBCProtocol, CosmosSDK, Polkadot};[m
+[32m+[m[32mpub use privacy::{ZeroKnowledgeProof, HomomorphicEncryption, SecureMultiPartyComputation};[m
+[32m+[m[32mpub use ui::{WebInterface, CLI, MobileApp};[m
+[32m+[m
+[32m+[m[32m#[cfg(test)][m
+[32m+[m[32mmod tests {[m
+[32m+[m[32m    use super::*;[m
+[32m+[m
+[32m+[m[32m    #[test][m
+[32m+[m[32m    fn test_init_logger() {[m
+[32m+[m[32m        let logger = init_logger();[m
+[32m+[m[32m        info!(logger, "Test log message");[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    #[test][m
+[32m+[m[32m    fn test_anya_config() {[m
+[32m+[m[32m        let config = AnyaConfig::new().expect("Failed to create AnyaConfig");[m
+[32m+[m[32m        assert!(format!("{:?}", config).contains("AnyaConfig"));[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[1mdiff --git a/src/lightning_support.rs b/src/lightning_support.rs[m
+[1mindex 1d2c1d7..cc023d7 100644[m
+[1m--- a/src/lightning_support.rs[m
+[1m+++ b/src/lightning_support.rs[m
+[36m@@ -1,148 +1,54 @@[m
+ use std::sync::Arc;[m
+ use std::error::Error;[m
+[31m-use bitcoin::network::constants::Network as BitcoinNetwork;[m
+ use lightning::{[m
+[31m-    chain::keysinterface::KeysManager,[m
+[31m-    ln::{[m
+[31m-        channelmanager::{ChannelManager, ChannelManagerReadArgs},[m
+[31m-        peer_handler::{MessageHandler, PeerManager},[m
+[31m-        msgs::{ChannelMessageHandler, RoutingMessageHandler},[m
+[31m-    },[m
+[31m-    util::{[m
+[31m-        config::UserConfig,[m
+[31m-        events::Event,[m
+[31m-        logger::Logger,[m
+[31m-    },[m
+[31m-    routing::router::{Route, RouteHop},[m
+[32m+[m[32m    ln::channelmanager::{ChannelManager, ChannelManagerReadArgs},[m
+[32m+[m[32m    util::config::UserConfig,[m
+ };[m
+[31m-use lightning_invoice::Invoice;[m
+[31m-use tokio;[m
+[32m+[m[32muse bitcoin::network::constants::Network;[m
+ use log::{info, error};[m
+ [m
+[31m-use crate::bitcoin_support::BitcoinSupport;[m
+[31m-[m
+ pub struct LightningSupport {[m
+[31m-    network: BitcoinNetwork,[m
+[31m-    keys_manager: Arc<KeysManager>,[m
+     channel_manager: Arc<ChannelManager>,[m
+[31m-    peer_manager: Arc<PeerManager>,[m
+[31m-    bitcoin_support: Arc<BitcoinSupport>,[m
+[32m+[m[32m    network: Network,[m
+ }[m
+ [m
+ impl LightningSupport {[m
+[31m-    pub async fn new([m
+[31m-        network: BitcoinNetwork,[m
+[31m-        bitcoin_support: Arc<BitcoinSupport>,[m
+[31m-    ) -> Result<Self, Box<dyn Error>> {[m
+[32m+[m[32m    pub async fn new(network: Network) -> Result<Self, Box<dyn Error>> {[m
+         let seed = [0u8; 32]; // This should be securely generated and stored[m
+         let keys_manager = Arc::new(KeysManager::new(&seed, 0, 0));[m
+[31m-[m
+         let logger = Arc::new(Logger::new());[m
+         let user_config = UserConfig::default();[m
+ [m
+[31m-        let (channel_manager, _) = {[m
+[31m-            let chain_monitor = Arc::new(ChainMonitor::new(None, &filter, &logger));[m
+[31m-            let broadcaster = bitcoin_support.get_broadcaster();[m
+[31m-            let fee_estimator = bitcoin_support.get_fee_estimator();[m
+[31m-            let persister = YourPersisterImplementation::new();[m
+[31m-[m
+[31m-            let channel_manager = ChannelManager::new([m
+[31m-                fee_estimator,[m
+[31m-                chain_monitor.clone(),[m
+[31m-                broadcaster,[m
+[31m-                &logger,[m
+[31m-                &keys_manager,[m
+[31m-                user_config,[m
+[31m-                &network,[m
+[31m-            );[m
+[31m-[m
+[31m-            let read_args = ChannelManagerReadArgs::new([m
+[31m-                keys_manager.clone(),[m
+[31m-                fee_estimator,[m
+[31m-                chain_monitor,[m
+[31m-                broadcaster,[m
+[31m-                &logger,[m
+[31m-                user_config,[m
+[31m-                &network,[m
+[31m-            );[m
+[31m-[m
+[31m-            match <(ChannelManager, Option<ChannelMonitor>)>::read(&mut persister, read_args) {[m
+[31m-                Ok(res) => res,[m
+[31m-                Err(_) => (channel_manager, None),[m
+[31m-            }[m
+[31m-        };[m
+[31m-[m
+[31m-        let channel_manager = Arc::new(channel_manager);[m
+[31m-[m
+[31m-        let peer_manager = Arc::new(PeerManager::new([m
+[31m-            MessageHandler {[m
+[31m-                chan_handler: channel_manager.clone(),[m
+[31m-                route_handler: channel_manager.clone(),[m
+[31m-            },[m
+[31m-            keys_manager.get_node_secret(),[m
+[31m-            &logger,[m
+[32m+[m[32m        let channel_manager = Arc::new(ChannelManager::new([m
+[32m+[m[32m            // ... (initialize with appropriate parameters)[m
+         ));[m
+ [m
+         Ok(Self {[m
+[31m-            network,[m
+[31m-            keys_manager,[m
+             channel_manager,[m
+[31m-            peer_manager,[m
+[31m-            bitcoin_support,[m
+[32m+[m[32m            network,[m
+         })[m
+     }[m
+ [m
+[31m-    pub async fn create_invoice(&self, amount_msat: u64, description: &str) -> Result<Invoice, Box<dyn Error>> {[m
+[31m-        let currency = match self.network {[m
+[31m-            BitcoinNetwork::Bitcoin => Currency::Bitcoin,[m
+[31m-            BitcoinNetwork::Testnet => Currency::BitcoinTestnet,[m
+[31m-            _ => return Err("Unsupported network".into()),[m
+[31m-        };[m
+[31m-[m
+[31m-        let invoice = Invoice::new([m
+[31m-            currency,[m
+[31m-            amount_msat,[m
+[31m-            description,[m
+[31m-            None,[m
+[31m-            None,[m
+[31m-        )?;[m
+[31m-[m
+[31m-        info!("Created Lightning invoice: {}", invoice.to_string());[m
+[31m-        Ok(invoice)[m
+[31m-    }[m
+[31m-[m
+[31m-    pub async fn pay_invoice(&self, invoice: &Invoice) -> Result<(), Box<dyn Error>> {[m
+[31m-        let payment_hash = invoice.payment_hash();[m
+[31m-        let route = self.find_route(invoice.payee_pub_key(), invoice.amount_milli_satoshis().unwrap())?;[m
+[31m-[m
+[31m-        self.channel_manager.send_payment(&route, payment_hash)?;[m
+[31m-        info!("Payment sent for invoice: {}", invoice.to_string());[m
+[31m-        Ok(())[m
+[31m-    }[m
+[31m-[m
+     pub async fn open_channel(&self, node_pubkey: &[u8], channel_value_satoshis: u64) -> Result<(), Box<dyn Error>> {[m
+[31m-        let node_id = PublicKey::from_slice(node_pubkey)?;[m
+[31m-        self.channel_manager.create_channel(node_id, channel_value_satoshis, 0, 0, None)?;[m
+[31m-        info!("Channel opening initiated with node: {:?}", node_id);[m
+[32m+[m[32m        // Implement channel opening logic[m
+[32m+[m[32m        info!("Opening Lightning channel");[m
+         Ok(())[m
+     }[m
+ [m
+[31m-    pub async fn close_channel(&self, channel_id: &[u8]) -> Result<(), Box<dyn Error>> {[m
+[31m-        let channel_id = ChannelId::from_bytes(channel_id);[m
+[31m-        self.channel_manager.close_channel(&channel_id)?;[m
+[31m-        info!("Channel closure initiated for channel: {:?}", channel_id);[m
+[31m-        Ok(())[m
+[32m+[m[32m    pub async fn create_invoice(&self, amount_msat: u64, description: &str) -> Result<String, Box<dyn Error>> {[m
+[32m+[m[32m        // Implement invoice creation logic[m
+[32m+[m[32m        info!("Creating Lightning invoice");[m
+[32m+[m[32m        Ok("invoice_data".to_string())[m
+     }[m
+ [m
+[31m-    pub async fn get_node_info(&self) -> Result<String, Box<dyn Error>> {[m
+[31m-        let node_id = self.keys_manager.get_node_id();[m
+[31m-        let channels = self.channel_manager.list_channels();[m
+[31m-        let info = format!("Node ID: {:?}\nNumber of channels: {}", node_id, channels.len());[m
+[31m-        Ok(info)[m
+[32m+[m[32m    pub async fn pay_invoice(&self, invoice: &str) -> Result<(), Box<dyn Error>> {[m
+[32m+[m[32m        // Implement invoice payment logic[m
+[32m+[m[32m        info!("Paying Lightning invoice");[m
+[32m+[m[32m        Ok(())[m
+     }[m
+ [m
+[31m-    async fn find_route(&self, target: PublicKey, amount_msat: u64) -> Result<Route, Box<dyn Error>> {[m
+[31m-        // Implement route finding logic here[m
+[31m-        unimplemented!("Route finding not implemented")[m
+[32m+[m[32m    pub async fn update(&mut self) -> Result<(), Box<dyn Error>> {[m
+[32m+[m[32m        // Implement state update logic[m
+[32m+[m[32m        Ok(())[m
+     }[m
+ }[m
+[1mdiff --git a/src/ml_logic/federated_learning.rs b/src/ml_logic/federated_learning.rs[m
+[1mindex e69de29..d569546 100644[m
+[1m--- a/src/ml_logic/federated_learning.rs[m
+[1m+++ b/src/ml_logic/federated_learning.rs[m
+[36m@@ -0,0 +1,99 @@[m
+[32m+[m[32muse std::sync::Arc;[m
+[32m+[m[32muse tokio::sync::Mutex;[m
+[32m+[m[32muse serde::{Serialize, Deserialize};[m
+[32m+[m[32muse rand::Rng;[m
+[32m+[m[32muse log::{info, error};[m
+[32m+[m[32muse openfl::federated_learning::{FederatedLearning, Config};[m
+[32m+[m[32muse opendp::differential_privacy::{Mechanism, Gaussian};[m
+[32m+[m
+[32m+[m[32m#[derive(Clone, Serialize, Deserialize)][m
+[32m+[m[32mpub struct FederatedLearningConfig {[m
+[32m+[m[32m    pub num_rounds:     usize,[m
+[32m+[m[32m    pub local_epochs:   usize,[m
+[32m+[m[32m    pub learning_rate:  f32,[m
+[32m+[m[32m    pub batch_size:     usize,[m
+[32m+[m[32m    pub privacy_budget: f64,[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m#[derive(Clone, Serialize, Deserialize)][m
+[32m+[m[32mpub struct FederatedLearningModel {[m
+[32m+[m[32m    weights: Vec<f32>,[m
+[32m+[m[32m    config:  FederatedLearningConfig,[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mimpl FederatedLearningModel {[m
+[32m+[m[32m    pub fn new(config: FederatedLearningConfig) -> Self {[m
+[32m+[m[32m        let weights = vec![0.0; 100]; // Initialize with dummy weights[m
+[32m+[m[32m        FederatedLearningModel { weights, config }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    pub async fn train(&mut self, local_data: Arc<Mutex<Vec<f32>>>) {[m
+[32m+[m[32m        for _ in 0..self.config.local_epochs {[m
+[32m+[m[32m            let data = local_data.lock().await;[m
+[32m+[m[32m            // Simulated training logic[m
+[32m+[m[32m            for chunk in data.chunks(self.config.batch_size) {[m
+[32m+[m[32m                for weight in &mut self.weights {[m
+[32m+[m[32m                    *weight += self.config.learning_rate * chunk.iter().sum::<f32>();[m
+[32m+[m[32m                }[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m[32m        info!("Local training completed");[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    pub async fn aggregate(&mut self, other_models: &[FederatedLearningModel]) {[m
+[32m+[m[32m        let total_models = other_models.len() + 1;[m
+[32m+[m[32m        let mut aggregated_weights = vec![0.0; self.weights.len()];[m
+[32m+[m
+[32m+[m[32m        for model in other_models.iter().chain(std::iter::once(self)) {[m
+[32m+[m[32m            for (i, &weight) in model.weights.iter().enumerate() {[m
+[32m+[m[32m                aggregated_weights[i] += weight;[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        for weight in &mut aggregated_weights {[m
+[32m+[m[32m            *weight /= total_models as f32;[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        self.weights = aggregated_weights;[m
+[32m+[m[32m        info!("Model aggregation completed");[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mpub async fn secure_communication(model: &FederatedLearningModel) -> Result<Vec<u8>, Box<dyn std::error::Error>> {[m
+[32m+[m[32m    // Simulated secure serialization[m
+[32m+[m[32m    let serialized = bincode::serialize(model)?;[m
+[32m+[m[32m    Ok(serialized)[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mpub fn privacy_preserving_technique(data: &mut [f32], privacy_budget: f64) {[m
+[32m+[m[32m    let mut rng = rand::thread_rng();[m
+[32m+[m[32m    let noise_scale = 1.0 / privacy_budget;[m
+[32m+[m
+[32m+[m[32m    for value in data.iter_mut() {[m
+[32m+[m[32m        let noise = rng.sample(rand_distr::Normal::new(0.0, noise_scale).unwrap());[m
+[32m+[m[32m        *value += noise as f32;[m
+[32m+[m[32m    }[m
+[32m+[m[32m    info!("Applied differential privacy with budget: {}", privacy_budget);[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mpub struct EnhancedFederatedLearning {[m
+[32m+[m[32m    fl: FederatedLearning,[m
+[32m+[m[32m    dp_mechanism: Gaussian,[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mimpl EnhancedFederatedLearning {[m
+[32m+[m[32m    pub fn new(config: Config) -> Self {[m
+[32m+[m[32m        let fl = FederatedLearning::new(config);[m
+[32m+[m[32m        let dp_mechanism = Gaussian::new(1.0, 0.1); // Example parameters[m
+[32m+[m[32m        Self { fl, dp_mechanism }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    pub fn train(&mut self, data: &[f32]) {[m
+[32m+[m[32m        let noisy_data = self.dp_mechanism.add_noise(data);[m
+[32m+[m[32m        self.fl.train(&noisy_data);[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    pub fn aggregate(&mut self, models: Vec<&[f32]>) {[m
+[32m+[m[32m        self.fl.aggregate(models);[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[1mdiff --git a/src/ml_logic/mod.rs b/src/ml_logic/mod.rs[m
+[1mindex e69de29..c743d9d 100644[m
+[1m--- a/src/ml_logic/mod.rs[m
+[1m+++ b/src/ml_logic/mod.rs[m
+[36m@@ -0,0 +1,5 @@[m
+[32m+[m[32mpub mod federated_learning;[m
+[32m+[m[32mpub mod system_evaluation;[m
+[32m+[m
+[32m+[m[32mpub use federated_learning::FederatedLearning;[m
+[32m+[m[32mpub use system_evaluation::SystemEvaluation;[m
+[1mdiff --git a/src/network_discovery.rs b/src/network_discovery.rs[m
+[1mindex 23e115c..f056115 100644[m
+[1m--- a/src/network_discovery.rs[m
+[1m+++ b/src/network_discovery.rs[m
+[36m@@ -70,7 +70,7 @@[m [muse libp2p::{[m
+     tcp::TokioTcpConfig,[m
+     NetworkBehaviour, PeerId, Transport,[m
+ };[m
+[31m-use libp2p::core::multiaddr::MultiAddr;[m
+[32m+[m[32muse libp2p::core::multiaddr::Multiaddr;[m
+ use libp2p::kad::{Kademlia, KademliaEvent, store::MemoryStore};[m
+ [m
+ // Web5-related imports[m
+[1mdiff --git a/src/setup_check.rs b/src/setup_check.rs[m
+[1mindex b0c282a..fd0deed 100644[m
+[1m--- a/src/setup_check.rs[m
+[1m+++ b/src/setup_check.rs[m
+[36m@@ -6,12 +6,12 @@[m [muse std::path::Path;[m
+ use std::str::FromStr;[m
+ use crate::user_management::UserType;[m
+ use crate::setup_project::ProjectSetup;[m
+[31m-use crate::zk_utils::ZKSetup;[m
+ use crate::stx_support::STXSupport;[m
+ use crate::dlc_support::DLCSupport;[m
+ use crate::lightning_support::LightningSupport;[m
+ use crate::bitcoin_support::BitcoinSupport;[m
+ use crate::web5_support::Web5Support;[m
+[32m+[m[32muse crate::libp2p_support::Libp2pSupport;[m
+ use stacks_core::{[m
+     StacksAddress, StacksPublicKey, StacksPrivateKey, StacksTransaction, StacksNetwork, StacksEpochId,[m
+     clarity::types::QualifiedContractIdentifier,[m
+[36m@@ -78,7 +78,7 @@[m [mpub async fn check_and_fix_setup(user_type: UserType, user_data: HashMap<String,[m
+         return Ok(());[m
+     }[m
+ [m
+[31m-    let mut project_setup = ProjectSetup::new(user_type, user_data.clone());[m
+[32m+[m[32m    let mut project_setup = ProjectSetup::new(user_type, user_data.clone())?;[m
+ [m
+     if !project_setup.check_common_environment() {[m
+         warn!("Common environment setup incomplete. Fixing...");[m
+[36m@@ -106,14 +106,8 @@[m [mpub async fn check_and_fix_setup(user_type: UserType, user_data: HashMap<String,[m
+         },[m
+     }[m
+ [m
+[31m-    let mut zk_setup = ZKSetup::new(user_type, user_data.clone());[m
+[31m-    if !zk_setup.check_zk_environment() {[m
+[31m-        warn!("ZK environment setup incomplete. Fixing...");[m
+[31m-        zk_setup.setup_zk_environment()?;[m
+[31m-    }[m
+[31m-[m
+[31m-    // STX Support[m
+[31m-    let mut stx_support = STXSupport::new(user_type, user_data.clone());[m
+[32m+[m[32m    // Check and setup STX support[m
+[32m+[m[32m    let mut stx_support = STXSupport::new()?;[m
+     if !stx_support.check_stx_environment() {[m
+         warn!("STX environment setup incomplete. Fixing...");[m
+         stx_support.setup_stx_environment()?;[m
+[36m@@ -141,8 +135,8 @@[m [mpub async fn check_and_fix_setup(user_type: UserType, user_data: HashMap<String,[m
+         info!("Current reward slot holders: {:?}", reward_slots);[m
+     }[m
+ [m
+[31m-    // DLC Support[m
+[31m-    let mut dlc_support = DLCSupport::new(user_type, user_data.clone());[m
+[32m+[m[32m    // Check and setup DLC support[m
+[32m+[m[32m    let mut dlc_support = DLCSupport::new()?;[m
+     if !dlc_support.check_dlc_environment() {[m
+         warn!("DLC environment setup incomplete. Fixing...");[m
+         dlc_support.setup_dlc_environment()?;[m
+[36m@@ -161,8 +155,8 @@[m [mpub async fn check_and_fix_setup(user_type: UserType, user_data: HashMap<String,[m
+     let contract = dlc_support.accept_dlc_offer(&offer)?;[m
+     info!("DLC contract created: {:?}", contract);[m
+ [m
+[31m-    // Lightning Support[m
+[31m-    let mut lightning_support = LightningSupport::new(user_type, user_data.clone());[m
+[32m+[m[32m    // Check and setup Lightning support[m
+[32m+[m[32m    let mut lightning_support = LightningSupport::new()?;[m
+     if !lightning_support.check_lightning_environment() {[m
+         warn!("Lightning environment setup incomplete. Fixing...");[m
+         lightning_support.setup_lightning_environment()?;[m
+[36m@@ -187,8 +181,8 @@[m [mpub async fn check_and_fix_setup(user_type: UserType, user_data: HashMap<String,[m
+     let channel_open_result = lightning_support.open_channel(&channel_manager, node_pubkey, channel_value_satoshis, push_msat).await?;[m
+     info!("Lightning channel opened: {:?}", channel_open_result);[m
+ [m
+[31m-    // Bitcoin Support[m
+[31m-    let mut bitcoin_support = BitcoinSupport::new(user_type, user_data.clone());[m
+[32m+[m[32m    // Check and setup Bitcoin support[m
+[32m+[m[32m    let mut bitcoin_support = BitcoinSupport::new()?;[m
+     if !bitcoin_support.check_bitcoin_environment() {[m
+         warn!("Bitcoin environment setup incomplete. Fixing...");[m
+         bitcoin_support.setup_bitcoin_environment()?;[m
+[36m@@ -204,8 +198,8 @@[m [mpub async fn check_and_fix_setup(user_type: UserType, user_data: HashMap<String,[m
+     let tx_id = bitcoin_support.send_bitcoin(&bitcoin_address, &recipient_address, amount_satoshis).await?;[m
+     info!("Bitcoin transaction sent. Transaction ID: {}", tx_id);[m
+ [m
+[31m-    // Web5 Support[m
+[31m-    let mut web5_support = Web5Support::new(user_type, user_data.clone());[m
+[32m+[m[32m    // Check and setup Web5 support[m
+[32m+[m[32m    let mut web5_support = Web5Support::new()?;[m
+     if !web5_support.check_web5_environment() {[m
+         warn!("Web5 environment setup incomplete. Fixing...");[m
+         web5_support.setup_web5_environment()?;[m
+[36m@@ -226,7 +220,13 @@[m [mpub async fn check_and_fix_setup(user_type: UserType, user_data: HashMap<String,[m
+     );[m
+     info!("Created credential: {:?}", credential);[m
+ [m
+[31m-    // Libp2p Support[m
+[32m+[m[32m    // Check and setup libp2p support[m
+[32m+[m[32m    let mut libp2p_support = Libp2pSupport::new()?;[m
+[32m+[m[32m    if !libp2p_support.check_libp2p_environment() {[m
+[32m+[m[32m        warn!("libp2p environment setup incomplete. Fixing...");[m
+[32m+[m[32m        libp2p_support.setup_libp2p_environment()?;[m
+[32m+[m[32m    }[m
+[32m+[m
+     let id_keys = identity::Keypair::generate_ed25519();[m
+     let peer_id = PeerId::from(id_keys.public());[m
+     info!("Local peer id: {:?}", peer_id);[m
+[1mdiff --git a/src/setup_project.rs b/src/setup_project.rs[m
+[1mindex ab4d6f7..f36cc20 100644[m
+[1m--- a/src/setup_project.rs[m
+[1m+++ b/src/setup_project.rs[m
+[36m@@ -53,6 +53,7 @@[m [muse crate::dlc_support::DLCSupport;[m
+ use crate::lightning_support::LightningSupport;[m
+ use crate::bitcoin_support::BitcoinSupport;[m
+ use crate::web5_support::Web5Support;[m
+[32m+[m[32muse crate::libp2p_support::Libp2pSupport;[m
+ [m
+ const ANYA_LOGO_LARGE: &str = r#"[m
+     /\      _   _  __   __    _    [m
+[36m@@ -84,28 +85,30 @@[m [mpub struct ProjectSetup {[m
+     lightning_support:  LightningSupport,[m
+     bitcoin_support:    BitcoinSupport,[m
+     web5_support:       Web5Support,[m
+[32m+[m[32m    libp2p_support:    Libp2pSupport,[m
+ }[m
+ [m
+ impl ProjectSetup {[m
+[31m-    pub fn new(user_type: UserType, user_data: HashMap<String, String>) -> Self {[m
+[32m+[m[32m    pub fn new(user_type: UserType, user_data: HashMap<String, String>) -> Result<Self, Box<dyn Error>> {[m
+         let logger = slog::Logger::root(slog::Discard, slog::o!());[m
+         [m
+[31m-        Self {[m
+[32m+[m[32m        Ok(Self {[m
+             logger,[m
+             user_type,[m
+             user_data,[m
+             project_name:       String::from("anya-core"),[m
+[31m-            user_management:    UserManagement::new(),[m
+[32m+[m[32m            user_management:    UserManagement::new()?,[m
+             node:               Node::new(),[m
+             network_discovery:  NetworkDiscovery::new(),[m
+             main_system:        MainSystem::new(),[m
+             ml_logic:           MLLogic::new(),[m
+[31m-            stx_support:        STXSupport::new(),[m
+[31m-            dlc_support:        DLCSupport::new(),[m
+[31m-            lightning_support:  LightningSupport::new(),[m
+[31m-            bitcoin_support:    BitcoinSupport::new(),[m
+[31m-            web5_support:       Web5Support::new(),[m
+[31m-        }[m
+[32m+[m[32m            stx_support:        STXSupport::new()?,[m
+[32m+[m[32m            dlc_support:        DLCSupport::new()?,[m
+[32m+[m[32m            lightning_support:  LightningSupport::new()?,[m
+[32m+[m[32m            bitcoin_support:    BitcoinSupport::new()?,[m
+[32m+[m[32m            web5_support:       Web5Support::new()?,[m
+[32m+[m[32m            libp2p_support:    Libp2pSupport::new()?,[m
+[32m+[m[32m        })[m
+     }[m
+ [m
+     pub fn display_loading_screen(&self) {[m
+[36m@@ -153,6 +156,7 @@[m [mimpl ProjectSetup {[m
+         self.setup_lightning_support().await?;[m
+         self.setup_bitcoin_support().await?;[m
+         self.setup_web5_support().await?;[m
+[32m+[m[32m        self.setup_libp2p_support().await?;[m
+         Ok(())[m
+     }[m
+ [m
+[36m@@ -386,6 +390,28 @@[m [mimpl ProjectSetup {[m
+         let bitcoin_address = BitcoinAddress::from_str(&self.user_data["bitcoin_address"])?;[m
+         Ok(())[m
+     }[m
+[32m+[m
+[32m+[m[32m    async fn setup_web5_support(&mut self) -> Result<(), Box<dyn Error>> {[m
+[32m+[m[32m        info!(self.logger, "Setting up Web5 support");[m
+[32m+[m[32m        self.web5_support.initialize().await?;[m
+[32m+[m[32m        self.web5_support.setup_wallet().await?;[m
+[32m+[m[32m        self.web5_support.connect_to_network().await?;[m
+[32m+[m
+[32m+[m[32m        // Implement Web5 setup logic here[m
+[32m+[m
+[32m+[m[32m        Ok(())[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    async fn setup_libp2p_support(&mut self) -> Result<(), Box<dyn Error>> {[m
+[32m+[m[32m        info!(self.logger, "Setting up libp2p support");[m
+[32m+[m[32m        self.libp2p_support.initialize().await?;[m
+[32m+[m[32m        self.libp2p_support.setup_wallet().await?;[m
+[32m+[m[32m        self.libp2p_support.connect_to_network().await?;[m
+[32m+[m
+[32m+[m[32m        // Implement libp2p setup logic here[m
+[32m+[m
+[32m+[m[32m        Ok(())[m
+[32m+[m[32m    }[m
+ }[m
+ [m
+ #[tokio::main][m
+[36m@@ -394,7 +420,7 @@[m [masync fn main() -> Result<(), Box<dyn Error>> {[m
+ [m
+     let user_type = UserType::Normal;  // Or determine this dynamically[m
+     let user_data = HashMap::new();  // Fill this with necessary user data[m
+[31m-    let mut project_setup = ProjectSetup::new(user_type, user_data);[m
+[32m+[m[32m    let mut project_setup = ProjectSetup::new(user_type, user_data)?;[m
+     [m
+     if !project_setup.check_common_environment() {[m
+         project_setup.setup_common_environment()?;[m
+[36m@@ -423,114 +449,28 @@[m [masync fn main() -> Result<(), Box<dyn Error>> {[m
+ [m
+     Ok(())[m
+ }[m
+[31m-use std::collections::HashMap;[m
+[31m-use std::error::Error;[m
+[31m-use std::fs;[m
+[31m-use std::path::Path;[m
+[31m-use std::str::FromStr;[m
+[31m-use log::{info, error};[m
+[31m-use dotenv::dotenv;[m
+[31m-use serde_json;[m
+[31m-use tokio;[m
+[31m-use kademlia::Server as KademliaServer;[m
+[31m-use stacks_core::{[m
+[31m-    StacksAddress,[m
+[31m-    StacksPublicKey,[m
+[31m-    StacksPrivateKey,[m
+[31m-    StacksTransaction,[m
+[31m-    StacksNetwork,[m
+[31m-    StacksEpochId,[m
+[31m-};[m
+[31m-use clarity_repl::clarity::types::QualifiedContractIdentifier;[m
+[31m-use stacks_rpc_client::{[m
+[31m-    StacksRpcClient,[m
+[31m-    PoxInfo,[m
+[31m-    AccountBalanceResponse,[m
+[31m-    TransactionStatus,[m
+[31m-};[m
+[31m-use bitcoin::{Network as BitcoinNetwork, Address as BitcoinAddress};[m
+[31m-use lightning::{[m
+[31m-    chain::keysinterface::KeysManager,[m
+[31m-    ln::channelmanager::ChannelManager,[m
+[31m-    util::config::UserConfig,[m
+[31m-};[m
+[31m-use dlc::{DlcManager, OracleInfo, Contract as DlcContract};[m
+[31m-use libp2p::{[m
+[31m-    identity,[m
+[31m-    PeerId,[m
+[31m-    Swarm,[m
+[31m-    NetworkBehaviour,[m
+[31m-    Transport,[m
+[31m-    core::upgrade,[m
+[31m-    tcp::TokioTcpConfig,[m
+[31m-    mplex,[m
+[31m-    yamux,[m
+[31m-    noise,[m
+[31m-};[m
+[31m-[m
+[31m-use crate::user_management::{UserManagement, UserType};[m
+[31m-use crate::state_management::Node;[m
+[31m-use crate::network_discovery::NetworkDiscovery;[m
+[31m-use crate::main_system::MainSystem;[m
+[31m-use crate::ml_logic::MLLogic;[m
+[31m-use crate::stx_support::STXSupport;[m
+[31m-use crate::dlc_support::DLCSupport;[m
+[31m-use crate::lightning_support::LightningSupport;[m
+[31m-use crate::bitcoin_support::BitcoinSupport;[m
+[31m-use crate::web5_support::Web5Support;[m
+[31m-[m
+[31m-const ANYA_LOGO_LARGE: &str = r#"[m
+[31m-    /\      _   _  __   __    _    [m
+[31m-   /  \    | \ | | \ \ / /   / \   [m
+[31m-  / /\ \   |  \| |  \ V /   / _ \  [m
+[31m- / ____ \  | |\  |   | |   / ___ \ [m
+[31m-/_/    \_\ |_| \_|   |_|  /_/   \_\[m
+[31m-         ANYA CORE[m
+[31m-"#;[m
+[31m-[m
+[31m-const ANYA_LOGO_SMALL: &str = r#"[m
+[31m- /\[m
+[31m-/\/\[m
+[31m-ANYA[m
+[31m-"#;[m
+[31m-[m
+[31m-pub struct ProjectSetup {[m
+[31m-    logger:             slog::Logger,[m
+[31m-    user_type:          UserType,[m
+[31m-    user_data:          HashMap<String, String>,[m
+[31m-    project_name:       String,[m
+[31m-    user_management:    UserManagement,[m
+[31m-    node:               Node,[m
+[31m-    network_discovery:  NetworkDiscovery,[m
+[31m-    main_system:        MainSystem,[m
+[31m-    ml_logic:           MLLogic,[m
+[31m-    stx_support:        STXSupport,[m
+[31m-    dlc_support:        DLCSupport,[m
+[31m-    lightning_support:  LightningSupport,[m
+[31m-    bitcoin_support:    BitcoinSupport,[m
+[31m-    web5_support:       Web5Support,[m
+[31m-}[m
+ [m
+ impl ProjectSetup {[m
+[31m-    pub fn new(user_type: UserType, user_data: HashMap<String, String>) -> Self {[m
+[32m+[m[32m    pub fn new(user_type: UserType, user_data: HashMap<String, String>) -> Result<Self, Box<dyn Error>> {[m
+         let logger = slog::Logger::root(slog::Discard, slog::o!());[m
+         [m
+[31m-        Self {[m
+[32m+[m[32m        Ok(Self {[m
+             logger,[m
+             user_type,[m
+             user_data,[m
+             project_name:       String::from("anya-core"),[m
+[31m-            user_management:    UserManagement::new(),[m
+[32m+[m[32m            user_management:    UserManagement::new()?,[m
+             node:               Node::new(),[m
+             network_discovery:  NetworkDiscovery::new(),[m
+             main_system:        MainSystem::new(),[m
+             ml_logic:           MLLogic::new(),[m
+[31m-            stx_support:        STXSupport::new(),[m
+[31m-            dlc_support:        DLCSupport::new(),[m
+[31m-            lightning_support:  LightningSupport::new(),[m
+[31m-            bitcoin_support:    BitcoinSupport::new(),[m
+[31m-            web5_support:       Web5Support::new(),[m
+[31m-        }[m
+[32m+[m[32m            stx_support:        STXSupport::new()?,[m
+[32m+[m[32m            dlc_support:        DLCSupport::new()?,[m
+[32m+[m[32m            lightning_support:  LightningSupport::new()?,[m
+[32m+[m[32m            bitcoin_support:    BitcoinSupport::new()?,[m
+[32m+[m[32m            web5_support:       Web5Support::new()?,[m
+[32m+[m[32m            libp2p_support:    Libp2pSupport::new()?,[m
+[32m+[m[32m        })[m
+     }[m
+ [m
+     pub fn display_loading_screen(&self) {[m
+[36m@@ -578,6 +518,7 @@[m [mimpl ProjectSetup {[m
+         self.setup_lightning_support().await?;[m
+         self.setup_bitcoin_support().await?;[m
+         self.setup_web5_support().await?;[m
+[32m+[m[32m        self.setup_libp2p_support().await?;[m
+         Ok(())[m
+     }[m
+ [m
+[36m@@ -811,6 +752,28 @@[m [mimpl ProjectSetup {[m
+         let bitcoin_address = BitcoinAddress::from_str(&self.user_data["bitcoin_address"])?;[m
+         Ok(())[m
+     }[m
+[32m+[m
+[32m+[m[32m    async fn setup_web5_support(&mut self) -> Result<(), Box<dyn Error>> {[m
+[32m+[m[32m        info!(self.logger, "Setting up Web5 support");[m
+[32m+[m[32m        self.web5_support.initialize().await?;[m
+[32m+[m[32m        self.web5_support.setup_wallet().await?;[m
+[32m+[m[32m        self.web5_support.connect_to_network().await?;[m
+[32m+[m
+[32m+[m[32m        // Implement Web5 setup logic here[m
+[32m+[m
+[32m+[m[32m        Ok(())[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    async fn setup_libp2p_support(&mut self) -> Result<(), Box<dyn Error>> {[m
+[32m+[m[32m        info!(self.logger, "Setting up libp2p support");[m
+[32m+[m[32m        self.libp2p_support.initialize().await?;[m
+[32m+[m[32m        self.libp2p_support.setup_wallet().await?;[m
+[32m+[m[32m        self.libp2p_support.connect_to_network().await?;[m
+[32m+[m
+[32m+[m[32m        // Implement libp2p setup logic here[m
+[32m+[m
+[32m+[m[32m        Ok(())[m
+[32m+[m[32m    }[m
+ }[m
+ [m
+ #[tokio::main][m
+[36m@@ -819,7 +782,7 @@[m [masync fn main() -> Result<(), Box<dyn Error>> {[m
+ [m
+     let user_type = UserType::Normal;  // Or determine this dynamically[m
+     let user_data = HashMap::new();  // Fill this with necessary user data[m
+[31m-    let mut project_setup = ProjectSetup::new(user_type, user_data);[m
+[32m+[m[32m    let mut project_setup = ProjectSetup::new(user_type, user_data)?;[m
+     [m
+     if !project_setup.check_common_environment() {[m
+         project_setup.setup_common_environment()?;[m
+[1mdiff --git a/src/stx_support.rs b/src/stx_support.rs[m
+[1mindex bda6ada..46f9bea 100644[m
+[1m--- a/src/stx_support.rs[m
+[1m+++ b/src/stx_support.rs[m
+[36m@@ -6,81 +6,24 @@[m [muse stacks_transactions::{[m
+ };[m
+ use stacks_rpc_client::StacksRpcClient;[m
+ [m
+[31m-pub struct StxSupport {[m
+[32m+[m[32mpub struct STXSupport {[m
+     rpc_client: StacksRpcClient,[m
+ }[m
+ [m
+[31m-impl StxSupport {[m
+[31m-    pub fn new(node_url: &str) -> Result<Self, Box<dyn std::error::Error>> {[m
+[31m-        let rpc_client = StacksRpcClient::new(node_url)?;[m
+[32m+[m[32mimpl STXSupport {[m
+[32m+[m[32m    pub fn new() -> Result<Self, Box<dyn std::error::Error>> {[m
+[32m+[m[32m        let rpc_client = StacksRpcClient::new("https://stacks-node-api.mainnet.stacks.co")?;[m
+         Ok(Self { rpc_client })[m
+     }[m
+ [m
+[31m-    pub async fn get_balance(&self, address: &StacksAddress) -> Result<u64, Box<dyn std::error::Error>> {[m
+[31m-        let balance = self.rpc_client.get_account_balance(address).await?;[m
+[31m-        Ok(balance)[m
+[31m-    }[m
+[31m-[m
+[31m-    pub async fn transfer_stx([m
+[31m-        &self,[m
+[31m-        sender: &StacksAddress,[m
+[31m-        recipient: &StacksAddress,[m
+[31m-        amount: u64,[m
+[31m-        fee: u64,[m
+[31m-        nonce: u64,[m
+[31m-        private_key: &[u8; 32],[m
+[31m-    ) -> Result<Sha256Sum, Box<dyn std::error::Error>> {[m
+[31m-        let spending_condition = SingleSigSpendingCondition::new(nonce, fee);[m
+[31m-        let auth = TransactionAuth::Standard(spending_condition);[m
+[31m-        [m
+[31m-        let payload = TransactionPayload::TokenTransfer([m
+[31m-            recipient.clone(),[m
+[31m-            amount,[m
+[31m-            TokenTransferMemo([0u8; 34]),[m
+[31m-        );[m
+[31m-[m
+[31m-        let tx = StacksTransaction::new([m
+[31m-            TransactionVersion::Mainnet,[m
+[31m-            auth,[m
+[31m-            payload,[m
+[31m-        );[m
+[32m+[m[32m    // ... (keep existing methods)[m
+ [m
+[31m-        let signed_tx = tx.sign(private_key)?;[m
+[31m-        let tx_hash = self.rpc_client.broadcast_transaction(&signed_tx).await?;[m
+[31m-        [m
+[31m-        Ok(tx_hash)[m
+[31m-    }[m
+[31m-[m
+[31m-    pub async fn call_contract_function([m
+[32m+[m[32m    pub async fn deploy_contract([m
+         &self,[m
+[31m-        contract_address: &StacksAddress,[m
+[31m-        contract_name: &str,[m
+[31m-        function_name: &str,[m
+[31m-        function_args: Vec<Value>,[m
+[31m-        sender: &StacksAddress,[m
+[31m-        fee: u64,[m
+[31m-        nonce: u64,[m
+[31m-        private_key: &[u8; 32],[m
+[31m-    ) -> Result<Sha256Sum, Box<dyn std::error::Error>> {[m
+[31m-        let spending_condition = SingleSigSpendingCondition::new(nonce, fee);[m
+[31m-        let auth = TransactionAuth::Standard(spending_condition);[m
+[31m-        [m
+[31m-        let payload = TransactionPayload::ContractCall([m
+[31m-            contract_address.clone(),[m
+[31m-            contract_name.to_string(),[m
+[31m-            function_name.to_string(),[m
+[31m-            function_args,[m
+[31m-        );[m
+[31m-[m
+[31m-        let tx = StacksTransaction::new([m
+[31m-            TransactionVersion::Mainnet,[m
+[31m-            auth,[m
+[31m-            payload,[m
+[31m-        );[m
+[31m-[m
+[31m-        let signed_tx = tx.sign(private_key)?;[m
+[31m-        let tx_hash = self.rpc_client.broadcast_transaction(&signed_tx).await?;[m
+[31m-        [m
+[31m-        Ok(tx_hash)[m
+[32m+[m[32m        contract_id: &QualifiedContractIdentifier,[m
+[32m+[m[32m        contract_source: &str,[m
+[32m+[m[32m    ) -> Result<TransactionStatus, Box<dyn std::error::Error>> {[m
+[32m+[m[32m        // Implement contract deployment logic[m
+[32m+[m[32m        unimplemented!()[m
+     }[m
+ }[m
+[1mdiff --git a/src/user_management.rs b/src/user_management.rs[m
+[1mindex 0c69419..f742f8e 100644[m
+[1m--- a/src/user_management.rs[m
+[1m+++ b/src/user_management.rs[m
+[36m@@ -1,431 +1,102 @@[m
+[31m-use std::env;[m
+ use std::collections::HashMap;[m
+ use std::error::Error;[m
+[31m-use std::str::FromStr;[m
+[31m-use reqwest;[m
+[31m-use serde_json::Value;[m
+ use log::{info, error};[m
+[31m-use crypto::aes::{cbc_encryptor, cbc_decryptor, KeySize};[m
+[31m-use crypto::buffer::{RefReadBuffer, RefWriteBuffer, BufferResult};[m
+[31m-use rand::Rng;[m
+[31m-use crate::setup_project::ProjectSetup;[m
+ use crate::stx_support::STXSupport;[m
+ use crate::dlc_support::DLCSupport;[m
+ use crate::lightning_support::LightningSupport;[m
+ use crate::bitcoin_support::BitcoinSupport;[m
+ use crate::web5_support::Web5Support;[m
+ use crate::libp2p_support::Libp2pSupport;[m
+[31m-[m
+[31m-// Stacks imports[m
+[31m-use stacks_common::types::StacksAddress;[m
+[31m-use stacks_common::types::StacksPublicKey;[m
+[31m-use stacks_common::types::StacksPrivateKey;[m
+[31m-use stacks_transactions::StacksTransaction;[m
+[31m-use stacks_common::types::StacksNetwork;[m
+[31m-use stacks_common::types::StacksEpochId;[m
+[31m-use clarity_repl::clarity::types::QualifiedContractIdentifier;[m
+[31m-use stacks_rpc_client::StacksRpcClient;[m
+[31m-use stacks_rpc_client::PoxInfo;[m
+[31m-use stacks_rpc_client::AccountBalanceResponse;[m
+[31m-use stacks_rpc_client::TransactionStatus;[m
+[31m-[m
+[31m-// Bitcoin and Lightning imports[m
+[31m-use bitcoin::Network as BitcoinNetwork;[m
+[31m-use bitcoin::Address as BitcoinAddress;[m
+[31m-use bitcoin::PublicKey as BitcoinPublicKey;[m
+[31m-use bitcoin::PrivateKey as BitcoinPrivateKey;[m
+[31m-use lightning::chain::keysinterface::KeysManager;[m
+[31m-use lightning::ln::channelmanager::ChannelManager;[m
+[31m-use lightning::util::events::Event;[m
+[31m-[m
+[31m-// DLC imports[m
+[31m-use dlc::DlcManager;[m
+[31m-use dlc::OracleInfo;[m
+[31m-use dlc::Contract as DlcContract;[m
+[31m-[m
+[31m-// Libp2p imports[m
+[31m-use libp2p::PeerId;[m
+[31m-use libp2p::identity;[m
+[31m-use libp2p::Swarm;[m
+[31m-use libp2p::NetworkBehaviour;[m
+[31m-[m
+[31m-// Web5 imports[m
+[31m-use web5::did::{DID, DIDDocument};[m
+[31m-use web5::credentials::{Credential, VerifiableCredential};[m
+[31m-[m
+[31m-#[derive(Default, Debug)][m
+[31m-struct UserState {[m
+[31m-    github_username:    String,[m
+[31m-    user_type:          String,[m
+[31m-    encrypted_data:     HashMap<String, Vec<u8>>,[m
+[31m-    stx_address:        Option<StacksAddress>,[m
+[31m-    stx_public_key:     Option<StacksPublicKey>,[m
+[31m-    stx_private_key:    Option<StacksPrivateKey>,[m
+[31m-    bitcoin_address:    Option<BitcoinAddress>,[m
+[31m-    bitcoin_public_key: Option<BitcoinPublicKey>,[m
+[31m-    bitcoin_private_key:Option<BitcoinPrivateKey>,[m
+[31m-    lightning_node_id:  Option<String>,[m
+[31m-    lightning_channels: Vec<ChannelManager>,[m
+[31m-    dlc_pubkey:         Option<String>,[m
+[31m-    dlc_contracts:      Vec<DlcContract>,[m
+[31m-    web5_did:           Option<DID>,[m
+[31m-    web5_credentials:   Vec<VerifiableCredential>,[m
+[31m-    libp2p_peer_id:     Option<PeerId>,[m
+[32m+[m[32muse did_key::{DIDKey, KeyMaterial};[m
+[32m+[m[32muse verifiable_credentials::{Credential, CredentialSubject};[m
+[32m+[m
+[32m+[m[32m#[derive(Debug, Clone)][m
+[32m+[m[32mpub enum UserType {[m
+[32m+[m[32m    Creator,[m
+[32m+[m[32m    Developer,[m
+[32m+[m[32m    Normal,[m
+ }[m
+ [m
+[31m-struct UserType;[m
+[31m-[m
+[31m-impl UserType {[m
+[31m-    const CREATOR:   &'static str = "creator";[m
+[31m-    const NORMAL:    &'static str = "normal";[m
+[31m-    const DEVELOPER: &'static str = "developer";[m
+[32m+[m[32m#[derive(Debug, Clone)][m
+[32m+[m[32mpub struct UserState {[m
+[32m+[m[32m    pub username: String,[m
+[32m+[m[32m    pub user_type: UserType,[m
+[32m+[m[32m    pub encrypted_data: HashMap<String, Vec<u8>>,[m
+[32m+[m[32m    // Add other fields as needed[m
+ }[m
+ [m
+ pub struct UserManagement {[m
+[31m-    logger:            log::Logger,[m
+[31m-    github_token:      Option<String>,[m
+[31m-    user_state:        UserState,[m
+[31m-    cipher_key:        [u8; 32],[m
+[31m-    stx_support:       STXSupport,[m
+[31m-    dlc_support:       DLCSupport,[m
+[32m+[m[32m    logger: slog::Logger,[m
+[32m+[m[32m    user_state: UserState,[m
+[32m+[m[32m    stx_support: STXSupport,[m
+[32m+[m[32m    dlc_support: DLCSupport,[m
+     lightning_support: LightningSupport,[m
+[31m-    bitcoin_support:   BitcoinSupport,[m
+[31m-    web5_support:      Web5Support,[m
+[31m-    libp2p_support:    Libp2pSupport,[m
+[32m+[m[32m    bitcoin_support: BitcoinSupport,[m
+[32m+[m[32m    web5_support: Web5Support,[m
+[32m+[m[32m    libp2p_support: Libp2pSupport,[m
+[32m+[m[32m    did: DIDKey,[m
+[32m+[m[32m    credentials: Vec<Credential>,[m
+ }[m
+ [m
+ impl UserManagement {[m
+[31m-    pub fn new() -> Result<Self, Box<dyn Error>> {[m
+[31m-        let mut rng = rand::thread_rng();[m
+[31m-        let cipher_key: [u8; 32] = rng.gen();[m
+[31m-        [m
+[32m+[m[32m    pub fn new(logger: slog::Logger) -> Result<Self, Box<dyn Error>> {[m
+         Ok(UserManagement {[m
+[31m-            logger: log::Logger::root(log::slog_stdlog::StdLog.fuse(), o!()),[m
+[31m-            github_token: env::var("GITHUB_TOKEN").ok(),[m
+[31m-            user_state: UserState::default(),[m
+[31m-            cipher_key,[m
+[32m+[m[32m            logger,[m
+[32m+[m[32m            user_state: UserState {[m
+[32m+[m[32m                username: String::new(),[m
+[32m+[m[32m                user_type: UserType::Normal,[m
+[32m+[m[32m                encrypted_data: HashMap::new(),[m
+[32m+[m[32m            },[m
+             stx_support: STXSupport::new()?,[m
+             dlc_support: DLCSupport::new()?,[m
+             lightning_support: LightningSupport::new()?,[m
+             bitcoin_support: BitcoinSupport::new()?,[m
+             web5_support: Web5Support::new()?,[m
+             libp2p_support: Libp2pSupport::new()?,[m
+[32m+[m[32m            did: DIDKey::new()?,[m
+[32m+[m[32m            credentials: Vec::new(),[m
+         })[m
+     }[m
+ [m
+[31m-    pub async fn identify_user(&mut self) -> Result<(), Box<dyn Error>> {[m
+[31m-        if let Some(github_username) = self.get_github_username().await? {[m
+[31m-            self.user_state.github_username = github_username.clone();[m
+[31m-            if github_username == "botshelomokoka" {[m
+[31m-                self.user_state.user_type = UserType::CREATOR.to_string();[m
+[31m-                info!(self.logger, "Creator identified. Setting up creator-specific configurations.");[m
+[31m-            } else if self.is_developer(&github_username).await? {[m
+[31m-                self.user_state.user_type = UserType::DEVELOPER.to_string();[m
+[31m-                info!(self.logger, "Developer identified. Setting up developer environment.");[m
+[31m-            } else {[m
+[31m-                self.user_state.user_type = UserType::NORMAL.to_string();[m
+[31m-                info!(self.logger, "Normal user identified.");[m
+[31m-            }[m
+[31m-        } else {[m
+[31m-            error!(self.logger, "Failed to identify user.");[m
+[31m-        }[m
+[32m+[m[32m    pub async fn initialize_user(&mut self, username: String) -> Result<(), Box<dyn Error>> {[m
+[32m+[m[32m        self.user_state.username = username;[m
+[32m+[m[32m        self.identify_user_type().await?;[m
+[32m+[m[32m        self.setup_environment().await?;[m
+         Ok(())[m
+     }[m
+ [m
+[31m-    async fn get_github_username(&self) -> Result<Option<String>, Box<dyn Error>> {[m
+[31m-        match &self.github_token {[m
+[31m-            Some(token) => {[m
+[31m-                let client = reqwest::Client::new();[m
+[31m-                let response = client.get("https://api.github.com/user")[m
+[31m-                    .header("Authorization", format!("token {}", token))[m
+[31m-                    .header("Accept", "application/vnd.github.v3+json")[m
+[31m-                    .send()[m
+[31m-                    .await?[m
+[31m-                    .json::<Value>()[m
+[31m-                    .await?;[m
+[31m-                Ok(response["login"].as_str().map(|s| s.to_string()))[m
+[31m-            }[m
+[31m-            None => {[m
+[31m-                error!(self.logger, "GitHub token not found in environment variables.");[m
+[31m-                Ok(None)[m
+[31m-            }[m
+[31m-        }[m
+[31m-    }[m
+[31m-[m
+[31m-    async fn is_developer(&self, github_username: &str) -> Result<bool, Box<dyn Error>> {[m
+[31m-        let developer_organizations = vec!["anya-core-developers"];[m
+[31m-        let developer_teams = vec!["dev-team"];[m
+[31m-[m
+[31m-        if let Some(token) = &self.github_token {[m
+[31m-            let client = reqwest::Client::new();[m
+[31m-            for org in developer_organizations {[m
+[31m-                let response = client.get(&format!("https://api.github.com/orgs/{}/members/{}", org, github_username))[m
+[31m-                    .header("Authorization", format!("token {}", token))[m
+[31m-                    .header("Accept", "application/vnd.github.v3+json")[m
+[31m-                    .send()[m
+[31m-                    .await?;[m
+[31m-                if response.status() == 204 {[m
+[31m-                    return Ok(true);[m
+[31m-                }[m
+[31m-[m
+[31m-                for team in &developer_teams {[m
+[31m-                    let response = client.get(&format!("https://api.github.com/orgs/{}/teams/{}/memberships/{}", org, team, github_username))[m
+[31m-                        .header("Authorization", format!("token {}", token))[m
+[31m-                        .header("Accept", "application/vnd.github.v3+json")[m
+[31m-                        .send()[m
+[31m-                        .await?;[m
+[31m-                    if response.status() == 200 {[m
+[31m-                        return Ok(true);[m
+[31m-                    }[m
+[31m-                }[m
+[31m-            }[m
+[31m-        }[m
+[31m-        Ok(false)[m
+[31m-    }[m
+[31m-[m
+[31m-    pub fn encrypt_user_data(&mut self, data: HashMap<String, String>) -> Result<(), Box<dyn Error>> {[m
+[31m-        for (key, value) in data {[m
+[31m-            let encrypted_value = self.encrypt(&value)?;[m
+[31m-            self.user_state.encrypted_data.insert(key, encrypted_value);[m
+[31m-        }[m
+[32m+[m[32m    async fn identify_user_type(&mut self) -> Result<(), Box<dyn Error>> {[m
+[32m+[m[32m        // Implement user type identification logic[m
+[32m+[m[32m        // This could be based on a database lookup, user input, or other criteria[m
+         Ok(())[m
+     }[m
+ [m
+[31m-    pub fn decrypt_user_data(&self, key: &str) -> Result<Option<String>, Box<dyn Error>> {[m
+[31m-        if let Some(encrypted_value) = self.user_state.encrypted_data.get(key) {[m
+[31m-            Ok(Some(self.decrypt(encrypted_value)?))[m
+[31m-        } else {[m
+[31m-            Ok(None)[m
+[31m-        }[m
+[31m-    }[m
+[31m-[m
+[31m-    fn encrypt(&self, data: &str) -> Result<Vec<u8>, Box<dyn Error>> {[m
+[31m-        let mut encryptor = cbc_encryptor([m
+[31m-            KeySize::KeySize256,[m
+[31m-            &self.cipher_key,[m
+[31m-            &[0u8; 16],[m
+[31m-            crypto::blockmodes::PkcsPadding,[m
+[31m-        );[m
+[31m-[m
+[31m-        let mut final_result = Vec::<u8>::new();[m
+[31m-        let mut read_buffer = RefReadBuffer::new(data.as_bytes());[m
+[31m-        let mut buffer = [0; 4096];[m
+[31m-        let mut write_buffer = RefWriteBuffer::new(&mut buffer);[m
+[31m-[m
+[31m-        loop {[m
+[31m-            let result = encryptor.encrypt(&mut read_buffer, &mut write_buffer, true)?;[m
+[31m-            final_result.extend(write_buffer.take_read_buffer().take_remaining().iter().map(|&i| i));[m
+[31m-            match result {[m
+[31m-                BufferResult::BufferUnderflow => break,[m
+[31m-                BufferResult::BufferOverflow => { }[m
+[31m-            }[m
+[31m-        }[m
+[31m-[m
+[31m-        Ok(final_result)[m
+[31m-    }[m
+[31m-[m
+[31m-    fn decrypt(&self, encrypted_data: &[u8]) -> Result<String, Box<dyn Error>> {[m
+[31m-        let mut decryptor = cbc_decryptor([m
+[31m-            KeySize::KeySize256,[m
+[31m-            &self.cipher_key,[m
+[31m-            &[0u8; 16],[m
+[31m-            crypto::blockmodes::PkcsPadding,[m
+[31m-        );[m
+[31m-[m
+[31m-        let mut final_result = Vec::<u8>::new();[m
+[31m-        let mut read_buffer = RefReadBuffer::new(encrypted_data);[m
+[31m-        let mut buffer = [0; 4096];[m
+[31m-        let mut write_buffer = RefWriteBuffer::new(&mut buffer);[m
+[31m-[m
+[31m-        loop {[m
+[31m-            let result = decryptor.decrypt(&mut read_buffer, &mut write_buffer, true)?;[m
+[31m-            final_result.extend(write_buffer.take_read_buffer().take_remaining().iter().map(|&i| i));[m
+[31m-            match result {[m
+[31m-                BufferResult::BufferUnderflow => break,[m
+[31m-                BufferResult::BufferOverflow => { }[m
+[31m-            }[m
+[31m-        }[m
+[31m-[m
+[31m-        Ok(String::from_utf8(final_result)?)[m
+[31m-    }[m
+[31m-[m
+[31m-    pub fn get_user_state(&self) -> HashMap<String, String> {[m
+[31m-        let mut state = HashMap::new();[m
+[31m-        state.insert("github_username".to_string(), self.user_state.github_username.clone());[m
+[31m-        state.insert("user_type".to_string(), self.user_state.user_type.clone());[m
+[31m-        if let Some(stx_address) = &self.user_state.stx_address {[m
+[31m-            state.insert("stx_address".to_string(), stx_address.to_string());[m
+[31m-        }[m
+[31m-        if let Some(bitcoin_address) = &self.user_state.bitcoin_address {[m
+[31m-            state.insert("bitcoin_address".to_string(), bitcoin_address.to_string());[m
+[31m-        }[m
+[31m-        if let Some(lightning_node_id) = &self.user_state.lightning_node_id {[m
+[31m-            state.insert("lightning_node_id".to_string(), lightning_node_id.clone());[m
+[31m-        }[m
+[31m-        if let Some(dlc_pubkey) = &self.user_state.dlc_pubkey {[m
+[31m-            state.insert("dlc_pubkey".to_string(), dlc_pubkey.clone());[m
+[31m-        }[m
+[31m-        if let Some(web5_did) = &self.user_state.web5_did {[m
+[31m-            state.insert("web5_did".to_string(), web5_did.to_string());[m
+[31m-        }[m
+[31m-        if let Some(libp2p_peer_id) = &self.user_state.libp2p_peer_id {[m
+[31m-            state.insert("libp2p_peer_id".to_string(), libp2p_peer_id.to_string());[m
+[31m-        }[m
+[31m-        state[m
+[31m-    }[m
+[31m-[m
+[31m-    pub async fn initialize_user(&mut self) -> Result<(), Box<dyn Error>> {[m
+[31m-        self.identify_user().await?;[m
+[31m-        match self.user_state.user_type.as_str() {[m
+[31m-            UserType::CREATOR => self.setup_creator_environment().await?,[m
+[31m-            UserType::DEVELOPER => self.setup_developer_environment().await?,[m
+[31m-            _ => self.setup_normal_user_environment().await?,[m
+[31m-        }[m
+[31m-        self.setup_project()?;[m
+[31m-        Ok(())[m
+[31m-    }[m
+[31m-[m
+[31m-    async fn setup_creator_environment(&mut self) -> Result<(), Box<dyn Error>> {[m
+[31m-        info!(self.logger, "Setting up creator environment");[m
+[31m-        self.setup_stx_environment().await?;[m
+[31m-        self.setup_bitcoin_environment().await?;[m
+[31m-        self.setup_lightning_environment().await?;[m
+[31m-        self.setup_dlc_environment().await?;[m
+[31m-        self.setup_web5_environment().await?;[m
+[31m-        self.setup_libp2p_environment().await?;[m
+[31m-        Ok(())[m
+[31m-    }[m
+[31m-[m
+[31m-    async fn setup_developer_environment(&mut self) -> Result<(), Box<dyn Error>> {[m
+[31m-        info!(self.logger, "Setting up developer environment");[m
+[31m-        self.setup_stx_environment().await?;[m
+[31m-        self.setup_bitcoin_environment().await?;[m
+[31m-        self.setup_lightning_environment().await?;[m
+[31m-        self.setup_dlc_environment().await?;[m
+[31m-        self.setup_web5_environment().await?;[m
+[31m-        self.setup_libp2p_environment().await?;[m
+[31m-        Ok(())[m
+[31m-    }[m
+[31m-[m
+[31m-    async fn setup_normal_user_environment(&mut self) -> Result<(), Box<dyn Error>> {[m
+[31m-        info!(self.logger, "Setting up normal user environment");[m
+[31m-        self.setup_stx_environment().await?;[m
+[31m-        self.setup_bitcoin_environment().await?;[m
+[31m-        self.setup_lightning_environment().await?;[m
+[31m-        self.setup_dlc_environment().await?;[m
+[31m-        self.setup_web5_environment().await?;[m
+[31m-        self.setup_libp2p_environment().await?;[m
+[31m-        Ok(())[m
+[31m-    }[m
+[31m-[m
+[31m-    async fn setup_stx_environment(&mut self) -> Result<(), Box<dyn Error>> {[m
+[31m-        let (stx_address, stx_public_key, stx_private_key) = self.stx_support.generate_keys().await?;[m
+[31m-        self.user_state.stx_address = Some(stx_address.clone());[m
+[31m-        self.user_state.stx_public_key = Some(stx_public_key);[m
+[31m-        self.user_state.stx_private_key = Some(stx_private_key);[m
+[31m-        [m
+[31m-        // Initialize STX wallet[m
+[31m-        self.stx_support.initialize_wallet(&stx_address).await?;[m
+[31m-        [m
+[31m-        // Get STX balance[m
+[31m-        let stx_balance = self.stx_support.get_balance(&stx_address).await?;[m
+[31m-        info!(self.logger, "STX balance: {}", stx_balance);[m
+[31m-        [m
+[31m-        // Perform a sample STX transaction[m
+[31m-        let recipient = StacksAddress::from_string("ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG")?;[m
+[31m-        let amount = 100; // in microSTX[m
+[31m-        let memo = "Test transaction".to_string();[m
+[31m-        let tx_id = self.stx_support.send_transaction(&stx_address, &recipient, amount, &memo).await?;[m
+[31m-        info!(self.logger, "STX transaction sent. Transaction ID: {}", tx_id);[m
+[31m-        [m
+[31m-        Ok(())[m
+[31m-    }[m
+[31m-[m
+[31m-    async fn setup_bitcoin_environment(&mut self) -> Result<(), Box<dyn Error>> {[m
+[31m-        let (bitcoin_address, bitcoin_public_key, bitcoin_private_key) = self.bitcoin_support.generate_keys().await?;[m
+[31m-        self.user_state.bitcoin_address = Some(bitcoin_address.clone());[m
+[31m-        self.user_state.bitcoin_public_key = Some(bitcoin_public_key);[m
+[31m-        self.user_state.bitcoin_private_key = Some(bitcoin_private_key);[m
+[31m-        [m
+[31m-        // Initialize Bitcoin wallet[m
+[31m-        self.bitcoin_support.initialize_wallet(&bitcoin_address).await?;[m
+[31m-        [m
+[31m-        // Get Bitcoin balance[m
+[31m-        let btc_balance = self.bitcoin_support.get_balance(&bitcoin_address).await?;[m
+[31m-        info!(self.logger, "BTC balance: {}", btc_balance);[m
+[31m-        [m
+[31m-        // Perform a sample Bitcoin transaction[m
+[31m-        let recipient = BitcoinAddress::from_str("1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2")?;[m
+[31m-        let amount = 10000; // in satoshis[m
+[31m-        let tx_id = self.bitcoin_support.send_transaction(&bitcoin_address, &recipient, amount).await?;[m
+[31m-        info!(self.logger, "Bitcoin transaction sent. Transaction ID: {}", tx_id);[m
+[31m-        [m
+[31m-        Ok(())[m
+[31m-    }[m
+[31m-[m
+[31m-    async fn setup_lightning_environment(&mut self) -> Result<(), Box<dyn Error>> {[m
+[31m-        let lightning_node_id = self.lightning_support.initialize_node().await?;[m
+[31m-        self.user_state.lightning_node_id = Some(lightning_node_id.clone());[m
+[31m-        [m
+[31m-        // Open a sample channel[m
+[31m-        let channel_amount = 1_000_000; // in satoshis[m
+[31m-        let channel = self.lightning_support.open_channel(&lightning_node_id, channel_amount).await?;[m
+[31m-        self.user_state.lightning_channels.push(channel);[m
+[31m-        [m
+[31m-        info!(self.logger, "Lightning node initialized with ID: {}", lightning_node_id);[m
+[31m-        [m
+[31m-        // Perform a sample Lightning payment[m
+[31m-        let payment_hash = "0001020304050607080900010203040506070809000102030405060708090102";[m
+[31m-        let amount_msat = 1000; // 1 satoshi[m
+[32m+[m[32m    async fn setup_environment(&mut self) -> Result<(), Box<dyn Error>> {[m
+[32m+[m[32m        self.stx_support.setup().await?;[m
+[32m+[m[32m        self.dlc_support.setup().await?;[m
+[32m+[m[32m        self.lightning_support.setup().await?;[m
+[32m+[m[32m        self.bitcoin_support.setup().await?;[m
+[32m+[m[32m        self.web5_support.setup().await?;[m
+[32m+[m[32m        self.libp2p_support.setup().await?;[m
+         Ok(())[m
+     }[m
+ [m
+[31m-    async fn setup_dlc_environment(&mut self) -> Result<(), Box<dyn Error>> {[m
+[31m-        let (dlc_pubkey, dlc_privkey) = self.dlc_support.generate_keypair().await?;[m
+[31m-        self.user_state.dlc_pubkey = Some(dlc_pubkey.clone());[m
+[31m-        [m
+[31m-        // Create a sample DLC contract[m
+[31m-        let oracle = OracleInfo::new("sample_oracle", "https://example.com/oracle");[m
+[31m-        let contract = self.dlc_support.create_contract(&dlc_pubkey, &oracle, 1_000_000).await?;[m
+[31m-        self.user_state.dlc_contracts.push(contract);[m
+[31m-        [m
+[31m-        info!(self.logger, "DLC environment set up with public key: {}", dlc_pubkey);[m
+[31m-        [m
+[32m+[m[32m    pub fn create_did(&mut self) -> Result<(), Box<dyn Error>> {[m
+[32m+[m[32m        self.did = DIDKey::generate(KeyMaterial::Ed25519);[m
+         Ok(())[m
+     }[m
+ [m
+[31m-    fn setup_project(&self) -> Result<(), Box<dyn Error>> {[m
+[31m-        let project_setup = ProjectSetup::new(&self.user_state.user_type, &self.get_user_state())?;[m
+[31m-        project_setup.setup()?;[m
+[32m+[m[32m    pub fn issue_credential(&mut self, subject: CredentialSubject) -> Result<(), Box<dyn Error>> {[m
+[32m+[m[32m        let credential = Credential::new([m
+[32m+[m[32m            "ExampleCredential",[m
+[32m+[m[32m            vec!["VerifiableCredential", "ExampleCredential"],[m
+[32m+[m[32m            self.did.to_did(),[m
+[32m+[m[32m            subject,[m
+[32m+[m[32m            None,[m
+[32m+[m[32m        )?;[m
+[32m+[m[32m        self.credentials.push(credential);[m
+         Ok(())[m
+     }[m
+[31m-}[m
+ [m
+[31m-#[cfg(test)][m
+[31m-mod tests {[m
+[31m-    use super::*;[m
+[31m-[m
+[31m-    #[tokio::test][m
+[31m-    async fn test_user_management() -> Result<(), Box<dyn Error>> {[m
+[31m-        let mut user_management = UserManagement::new()?;[m
+[31m-        [m
+[31m-        // Test user identification[m
+[31m-        user_management.identify_user().await?;[m
+[31m-        assert!(!user_management.user_state.github_username.is_empty());[m
+[31m-        [m
+[31m-        // Test encryption and decryption[m
+[31m-        let mut test_data = HashMap::new();[m
+[31m-        test_data.insert("test_key".to_string(), "test_value".to_string());[m
+[31m-        user_management.encrypt_user_data(test_data)?;[m
+[31m-        let decrypted_value = user_management.decrypt_user_data("test_key")?;[m
+[31m-        assert_eq!(decrypted_value, Some("test_value".to_string()));[m
+[31m-        [m
+[31m-        // Test user initialization[m
+[31m-        user_management.initialize_user().await?;[m
+[31m-        let user_state = user_management.get_user_state();[m
+[31m-        assert!(user_state.contains_key("stx_address"));[m
+[31m-        assert!(user_state.contains_key("bitcoin_address"));[m
+[31m-        [m
+[31m-        Ok(())[m
+[31m-    }[m
+[32m+[m[32m    // Add other methods as needed[m
+ }[m
+[1mdiff --git a/tall py-libp2p b/tall py-libp2p[m
+[1mnew file mode 100644[m
+[1mindex 0000000..f3d915e[m
+[1m--- /dev/null[m
+[1m+++ b/tall py-libp2p[m	
+[36m@@ -0,0 +1,30 @@[m
+[32m+[m[32mdiff.astextplain.textconv=astextplain[m
+[32m+[m[32mfilter.lfs.clean=git-lfs clean -- %f[m
+[32m+[m[32mfilter.lfs.smudge=git-lfs smudge -- %f[m
+[32m+[m[32mfilter.lfs.process=git-lfs filter-process[m
+[32m+[m[32mfilter.lfs.required=true[m
+[32m+[m[32mhttp.sslbackend=openssl[m
+[32m+[m[32mhttp.sslcainfo=C:/Program Files/Git/mingw64/etc/ssl/certs/ca-bundle.crt[m
+[32m+[m[32mcore.autocrlf=true[m
+[32m+[m[32mcore.fscache=true[m
+[32m+[m[32mcore.symlinks=false[m
+[32m+[m[32mpull.rebase=false[m
+[32m+[m[32mcredential.helper=manager[m
+[32m+[m[32mcredential.https://dev.azure.com.usehttppath=true[m
+[32m+[m[32minit.defaultbranch=master[m
+[32m+[m[32muser.email=botshelomokoka@gmail.com[m
+[32m+[m[32muser.name=botshelomokoka[m
+[32m+[m[32mgui.recentrepo=C:/Users/bmokoka/Downloads/anya-core-main/anya-core-main[m
+[32m+[m[32msafe.directory=C:/Users/bmokoka/Downloads/anya-core-main/anya-core-main/anya-core[m
+[32m+[m[32mcore.repositoryformatversion=0[m
+[32m+[m[32mcore.filemode=false[m
+[32m+[m[32mcore.bare=false[m
+[32m+[m[32mcore.logallrefupdates=true[m
+[32m+[m[32mcore.symlinks=false[m
+[32m+[m[32mcore.ignorecase=true[m
+[32m+[m[32mremote.origin.url=https://github.com/botshelomokoka/anya-core-main.git[m
+[32m+[m[32mremote.origin.fetch=+refs/heads/*:refs/remotes/origin/*[m
+[32m+[m[32mbranch.main.remote=origin[m
+[32m+[m[32mbranch.main.merge=refs/heads/main[m
+[32m+[m[32mgui.wmstate=zoomed[m
+[32m+[m[32mgui.geometry=443x321+26+26 422 196[m
