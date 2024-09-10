@@ -15,7 +15,7 @@ tokio = { version = "1.28.0", features = ["full"] }
 kad = "0.3.1"
 diesel = { version = "2.0.3", features = ["sqlite"] }
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.96"
+serde_json = "1.0"
 rand = "0.8.5"
 ndarray = "0.15.6"
 linfa = { version = "0.6.1", features = ["linear"] }
@@ -44,14 +44,14 @@ libp2p = { version = "0.51.3", features = ["full"] }
 web5 = "0.1.0"
 web5-credentials = "0.1.0"
 neon = { version = "0.10.1", default-features = false, features = ["napi-6"] }
-log = "0.4.17"
+log = "0.4"
 env_logger = "0.10.0"
 schnorr = "0.2.0"
 chrono = "0.4.24"
 uuid = { version = "1.3.3", features = ["v4"] }
 futures = "0.3.28"
-async-trait = "0.1.68"
-thiserror = "1.0.40"
+async-trait = "0.1"
+thiserror = "1.0"
 anyhow = "1.0.71"
 walkdir = "2.3"
 sha2 = "0.10"
