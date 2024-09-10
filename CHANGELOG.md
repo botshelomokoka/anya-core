@@ -8,17 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Federated learning module in `src/ml_logic/federated_learning.rs`
-- System evaluation module in `src/ml_logic/system_evaluation.rs`
-- Updated project structure with `src/ml_logic/mod.rs`
-- Comprehensive test suite in `scripts/run_tests.sh`
+- Implemented core functionality for Bitcoin, Lightning, DLC, and Stacks integration
+- Added basic ML models and federated learning capabilities
+- Implemented network discovery using libp2p
+- Added integration tests
+- Set up CI/CD pipeline with GitHub Actions
 
 ### Changed
-- Updated `Rewriteplan.md` with current status and future plans
-- Improved documentation in `README.md`
+- Updated dependencies to latest versions
+- Refactored module structure for better organization
+- Improved error handling and logging in main application
+- Enhanced ML module with advanced models and optimization techniques
 
-### Fixed
-- Aligned `anya-core/Cargo.toml` with main `Cargo.toml`
+### Removed
+- Removed Python-related files and dependencies
 
 ## [0.1.0] - 2023-05-01
 
