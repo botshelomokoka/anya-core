@@ -136,7 +136,8 @@ If you encounter any issues or have questions, please open an issue on GitHub or
 
 ---
 
-Feel free to ask if you need further assistance or have any specific questions about the platform
+Feel free to ask if you need further assistance or have any specific questions about the platform 
+
 =======
 This project is licensed under MIT OR Apache-2.0.
 >>>>>>> f959f86c6b13fa23d19557dd0c6c38a4308daf57
