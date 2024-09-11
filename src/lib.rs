@@ -64,17 +64,45 @@ pub mod interoperability;
 pub mod privacy;
 pub mod ui;
 
-// Re-export important structs and functions
-pub use user_management::UserManagement;
-pub use network_discovery::NetworkDiscovery;
-pub use blockchain::{BitcoinSupport, LightningSupport, StacksSupport, DLCSupport};
-pub use ml_logic::FederatedLearning;
-pub use identity::{DIDManager, VerifiableCredential};
-pub use data_storage::{IPFSStorage, OrbitDB};
-pub use smart_contracts::{ClarityContract, WasmContract};
-pub use interoperability::{IBCProtocol, CosmosSDK, Polkadot};
-pub use privacy::{ZeroKnowledgeProof, HomomorphicEncryption, SecureMultiPartyComputation};
-pub use ui::{WebInterface, CLI, MobileApp};
+pub mod core;
+pub mod network;
+pub mod blockchain;
+pub mod federated_learning;
+pub mod identity;
+pub mod smart_contracts;
+pub mod interoperability;
+pub mod privacy;
+pub mod ui;
+
+pub mod dlc_support;
+pub mod kademlia;
+
+use crate::network::{
+    bitcoinadapter::BitcoinAdapter,
+    lightningadapter::LightningAdapter,
+    ipfsadapter::IPFSAdapter,
+    stacksadapter::StacksAdapter,
+};
+
+// Re-export important traits and types
+pub use crate::core::{NetworkNode, NetworkType, NetworkDiscovery, ConnectionManager, AdapterRunner};
+
+// Initialize and run all network adapters
+pub async fn run_network_adapters() {
+    let bitcoin_adapter = Arc::new(BitcoinAdapter::new(/* params */));
+    let lightning_adapter = Arc::new(LightningAdapter::new(/* params */));
+    let ipfs_adapter = Arc::new(IPFSAdapter::new(/* params */));
+    let stacks_adapter = Arc::new(StacksAdapter::new(/* params */));
+
+    tokio::join!(
+        bitcoin_adapter.run(),
+        lightning_adapter.run(),
+        ipfs_adapter.run(),
+        stacks_adapter.run()
+    );
+}
+
+// Other initialization and utility functions
 
 // Re-export important structs and functions
 pub use user_management::UserManagement;
