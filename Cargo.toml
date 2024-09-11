@@ -1,30 +1,22 @@
 [package]
 name = "anya-core"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 
 [dependencies]
-tokio = { version = "1.0", features = ["full"] }
-async-trait = "0.1"
-thiserror = "1.0"
-log = "0.4"
-libp2p = { version = "0.39", features = ["kad", "noise", "tcp-tokio", "websocket"] }
-bitcoin = "0.27"
-lightning = "0.0.103"
-stacks-node = "0.1"
-ipfs-api = "0.11"
+tokio = { version = "1.28", features = ["full"] }
+bitcoin = "0.30"
+bitcoin_fee_estimation = "0.1"
+chrono = "0.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-reqwest = { version = "0.11", features = ["json"] }
-openssl = { version = "0.10", features = ["vendored"] }
-bulletproofs = "2.0"
-seal_fhe = "0.1"
-mp-spdz = "0.1"
-yew = "0.18"
-wasm-bindgen = "0.2"
-web-sys = "0.3"
-js-sys = "0.3"
-wasm-bindgen-futures = "0.4"
+anyhow = "1.0"
+thiserror = "1.0"
+async-trait = "0.1"
+ndarray = "0.15"
+ndarray-stats = "0.5"
+linfa = "0.6"
+linfa-linear = "0.6"
+rand = "0.8"
 
-[lib]
-crate-type = ["cdylib", "rlib"]
+# ... (other dependencies)

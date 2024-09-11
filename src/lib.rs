@@ -116,6 +116,14 @@ pub use interoperability::{IBCProtocol, CosmosSDK, Polkadot};
 pub use privacy::{ZeroKnowledgeProof, HomomorphicEncryption, SecureMultiPartyComputation};
 pub use ui::{WebInterface, CLI, MobileApp};
 
+mod ml_core;
+mod blockchain;
+mod data_feed;
+mod reporting;
+mod management;
+
+pub use crate::ml_logic::dao_rules::AnyaCore;
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -132,3 +140,9 @@ mod tests {
         assert!(format!("{:?}", config).contains("AnyaConfig"));
     }
 }
+
+pub mod ml_logic;
+pub mod ml_core;
+
+// Re-export important structs and functions
+pub use crate::ml_logic::mlfee::MLFeeManager;
