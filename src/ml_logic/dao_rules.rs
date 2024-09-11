@@ -1,145 +1,148 @@
-use bitcoin::util::amount::Amount;
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
+use crate::federated_learning::{FederatedLearning, Model};
+use crate::privacy::{DifferentialPrivacy, Epsilon};
+use crate::secure_multiparty_computation::SecureAggregation;
+use crate::blockchain::{BlockchainInterface, Transaction};
+use crate::ml_logic::metrics::{Metric, MetricType};
+use crate::ml_logic::batching::{Batch, BatchProcessor};
+use crate::ml_logic::opcode::{OpCode, OpCodeExecutor};
+use crate::ml_logic::infopiping::{InfoPipe, MLDataStream};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct DAORule {
-    id: String,
-    description: String,
-    created_at: DateTime<Utc>,
-    updated_at: DateTime<Utc>,
-    condition: DAOCondition,
-    action: DAOAction,
-}
+use std::collections::HashMap;
+use ndarray::{Array1, Array2};
+use serde::{Serialize, Deserialize};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum DAOCondition {
-    FeeThreshold(Amount),
-    TimeWindow(DateTime<Utc>, DateTime<Utc>),
-    VoteThreshold(u32),
-    // Add more conditions as needed
-}
+const BATCH_SIZE: usize = 1000;
+const MAX_OPCODE_BITS: usize = 8;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum DAOAction {
-    AdjustFee(f64),
-    TriggerVote,
-    UpdateParameter(String, String),
-    // Add more actions as needed
-}
-
-impl DAORule {
-    pub fn new(id: String, description: String, condition: DAOCondition, action: DAOAction) -> Self {
-        let now = Utc::now();
-        Self {
-            id,
-            description,
-            created_at: now,
-            updated_at: now,
-            condition,
-            action,
-        }
-    }
-
-    pub fn apply_rule(&self, context: &DAOContext) -> Result<(), Box<dyn std::error::Error>> {
-        if self.evaluate_condition(context) {
-            self.execute_action(context)
-        } else {
-            Ok(())
-        }
-    }
-
-    fn evaluate_condition(&self, context: &DAOContext) -> bool {
-        match &self.condition {
-            DAOCondition::FeeThreshold(threshold) => context.current_fee >= *threshold,
-            DAOCondition::TimeWindow(start, end) => {
-                let now = Utc::now();
-                now >= *start && now <= *end
-            },
-            DAOCondition::VoteThreshold(threshold) => context.vote_count >= *threshold,
-            // Add more condition evaluations as needed
-        }
-    }
-
-    fn execute_action(&self, context: &mut DAOContext) -> Result<(), Box<dyn std::error::Error>> {
-        match &self.action {
-            DAOAction::AdjustFee(factor) => {
-                context.current_fee = Amount::from_sat((context.current_fee.as_sat() as f64 * factor) as u64);
-                Ok(())
-            },
-            DAOAction::TriggerVote => {
-                // Implement vote triggering logic
-                Ok(())
-            },
-            DAOAction::UpdateParameter(key, value) => {
-                context.parameters.insert(key.clone(), value.clone());
-                Ok(())
-            },
-            // Add more action executions as needed
-        }
-    }
-}
-
-pub struct DAOContext {
-    current_fee: Amount,
-    vote_count: u32,
-    parameters: std::collections::HashMap<String, String>,
-}
-
+#[derive(Serialize, Deserialize)]
 pub struct DAORules {
-    rules: Vec<DAORule>,
+    federated_learning: FederatedLearning,
+    differential_privacy: DifferentialPrivacy,
+    secure_aggregation: SecureAggregation,
+    blockchain: BlockchainInterface,
+    batch_processor: BatchProcessor,
+    opcode_executor: OpCodeExecutor,
+    info_pipe: InfoPipe,
+    metrics: HashMap<MetricType, Metric>,
 }
 
 impl DAORules {
-    pub fn new() -> Self {
-        Self { rules: Vec::new() }
-    }
-
-    pub fn add_rule(&mut self, rule: DAORule) {
-        self.rules.push(rule);
-    }
-
-    pub fn apply_rules(&self, context: &mut DAOContext) -> Result<(), Box<dyn std::error::Error>> {
-        for rule in &self.rules {
-            rule.apply_rule(context)?;
+    pub fn new(blockchain: BlockchainInterface) -> Self {
+        Self {
+            federated_learning: FederatedLearning::new(),
+            differential_privacy: DifferentialPrivacy::new(),
+            secure_aggregation: SecureAggregation::new(),
+            blockchain,
+            batch_processor: BatchProcessor::new(BATCH_SIZE),
+            opcode_executor: OpCodeExecutor::new(MAX_OPCODE_BITS),
+            info_pipe: InfoPipe::new(),
+            metrics: HashMap::new(),
         }
+    }
+
+    pub async fn apply_federated_learning(&mut self, data: &[f32]) -> Result<Model, Box<dyn std::error::Error>> {
+        let batches = self.batch_processor.create_batches(data);
+        let mut aggregated_model = Model::new();
+
+        for batch in batches {
+            let local_model = self.federated_learning.train(&batch);
+            aggregated_model = self.secure_aggregation.aggregate(vec![aggregated_model, local_model])?;
+        }
+
+        self.update_metric(MetricType::ModelAccuracy, aggregated_model.accuracy());
+        Ok(aggregated_model)
+    }
+
+    pub fn apply_differential_privacy(&self, data: &[f32], epsilon: f64) -> Result<Vec<f32>, Box<dyn std::error::Error>> {
+        let epsilon = Epsilon::new(epsilon);
+        self.differential_privacy.add_noise(data, epsilon)
+    }
+
+    pub async fn perform_secure_aggregation(&self, inputs: Vec<Vec<f32>>) -> Result<Vec<f32>, Box<dyn std::error::Error>> {
+        self.secure_aggregation.aggregate(inputs)
+    }
+
+    pub async fn execute_blockchain_transaction(&mut self, transaction: Transaction) -> Result<(), Box<dyn std::error::Error>> {
+        let opcode = self.opcode_executor.encode_transaction(&transaction);
+        let result = self.blockchain.submit_transaction(opcode).await?;
+        self.update_metric(MetricType::TransactionFee, result.fee);
         Ok(())
+    }
+
+    pub async fn process_ml_data_stream(&mut self, stream: MLDataStream) -> Result<(), Box<dyn std::error::Error>> {
+        let processed_data = self.info_pipe.process_stream(stream).await?;
+        self.federated_learning.update_model(processed_data);
+        Ok(())
+    }
+
+    pub fn perform_dimensional_analysis(&self, weight: f32, time: f32, fees: f32, security: f32) -> f32 {
+        let weight_factor = 0.3;
+        let time_factor = 0.2;
+        let fees_factor = 0.3;
+        let security_factor = 0.2;
+
+        weight * weight_factor + time * time_factor + fees * fees_factor + security * security_factor
+    }
+
+    fn update_metric(&mut self, metric_type: MetricType, value: f64) {
+        self.metrics.entry(metric_type)
+            .and_modify(|m| m.update(value))
+            .or_insert_with(|| Metric::new(metric_type, value));
+    }
+
+    pub fn get_metrics(&self) -> &HashMap<MetricType, Metric> {
+        &self.metrics
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::blockchain::MockBlockchainInterface;
 
-    #[test]
-    fn test_dao_rule_creation() {
-        let rule = DAORule::new(
-            "test_rule".to_string(),
-            "Test rule description".to_string(),
-            DAOCondition::FeeThreshold(Amount::from_sat(1000)),
-            DAOAction::AdjustFee(1.1),
-        );
-
-        assert_eq!(rule.id, "test_rule");
-        assert_eq!(rule.description, "Test rule description");
+    #[tokio::test]
+    async fn test_federated_learning() {
+        let mock_blockchain = MockBlockchainInterface::new();
+        let mut rules = DAORules::new(mock_blockchain);
+        let data = vec![1.0, 2.0, 3.0];
+        let result = rules.apply_federated_learning(&data).await.unwrap();
+        assert!(result.accuracy() > 0.0);
     }
 
     #[test]
-    fn test_dao_rule_application() {
-        let rule = DAORule::new(
-            "fee_adjustment".to_string(),
-            "Adjust fee when threshold is reached".to_string(),
-            DAOCondition::FeeThreshold(Amount::from_sat(1000)),
-            DAOAction::AdjustFee(1.1),
-        );
+    fn test_differential_privacy() {
+        let mock_blockchain = MockBlockchainInterface::new();
+        let rules = DAORules::new(mock_blockchain);
+        let data = vec![1.0, 2.0, 3.0];
+        let result = rules.apply_differential_privacy(&data, 0.1).unwrap();
+        assert_eq!(data.len(), result.len());
+    }
 
-        let mut context = DAOContext {
-            current_fee: Amount::from_sat(1100),
-            vote_count: 0,
-            parameters: std::collections::HashMap::new(),
-        };
+    #[tokio::test]
+    async fn test_secure_aggregation() {
+        let mock_blockchain = MockBlockchainInterface::new();
+        let rules = DAORules::new(mock_blockchain);
+        let inputs = vec![vec![1.0, 2.0], vec![3.0, 4.0]];
+        let result = rules.perform_secure_aggregation(inputs).await.unwrap();
+        assert_eq!(result.len(), 2);
+    }
 
-        assert!(rule.apply_rule(&mut context).is_ok());
-        assert_eq!(context.current_fee, Amount::from_sat(1210));
+    #[tokio::test]
+    async fn test_blockchain_transaction() {
+        let mut mock_blockchain = MockBlockchainInterface::new();
+        mock_blockchain.expect_submit_transaction()
+            .returning(|_| Ok(Transaction { fee: 0.001 }));
+        let mut rules = DAORules::new(mock_blockchain);
+        let transaction = Transaction { fee: 0.001 };
+        rules.execute_blockchain_transaction(transaction).await.unwrap();
+        assert!(rules.get_metrics().contains_key(&MetricType::TransactionFee));
+    }
+
+    #[test]
+    fn test_dimensional_analysis() {
+        let mock_blockchain = MockBlockchainInterface::new();
+        let rules = DAORules::new(mock_blockchain);
+        let result = rules.perform_dimensional_analysis(1.0, 2.0, 3.0, 4.0);
+        assert!(result > 0.0);
     }
 }
