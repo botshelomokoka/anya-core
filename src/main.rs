@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 mod architecture;
 mod blockchain;
 mod networking;
@@ -13,11 +14,27 @@ use identity::IdentityPlugin;
 fn main() {
     env_logger::init();
     info!("Anya Core Project - Initializing");
+=======
+mod network;
+mod ml;
+mod bitcoin;
+mod lightning;
+mod dlc;
+mod stacks;
+
+use log::{info, error};
+use std::error::Error;
+
+fn main() -> Result<(), Box<dyn Error>> {
+    env_logger::init();
+    info!("Anya Core - Decentralized AI Assistant Framework");
+>>>>>>> c9fe62bf07bc8e7e0a11b9b0e4e6375f56b5c4cc
 
     if let Err(e) = run() {
         error!("Application error: {}", e);
         std::process::exit(1);
     }
+<<<<<<< HEAD
 }
 
 fn run() -> Result<(), Box<dyn std::error::Error>> {
@@ -52,5 +69,23 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     // ... initialize other components ...
 
     info!("Anya Core Project - All components initialized");
+=======
+
+    Ok(())
+}
+
+fn run() -> Result<(), Box<dyn Error>> {
+    // Initialize modules
+    network::init()?;
+    ml::init()?;
+    bitcoin::init()?;
+    lightning::init()?;
+    dlc::init()?;
+    stacks::init()?;
+
+    // Start the main application loop
+    // TODO: Implement main loop
+
+>>>>>>> c9fe62bf07bc8e7e0a11b9b0e4e6375f56b5c4cc
     Ok(())
 }

@@ -62,11 +62,49 @@ wallet_data.json
 *~
 
 # OS generated files
-.DS_Store?
 ._*
 .Spotlight-V100
 .Trashes
 ehthumbs.db
 
+<<<<<<< HEAD
+# Dependency directories
+node_modules/
+
+# Anya-specific
+anya-core/target/
+anya-cli/target/
+anya-gui/target/
+anya-node/target/
+anya-wallet/target/
+
+# Documentation
+docs/_build/
+
+# Test coverage
+coverage/
+
+# Benchmark results
+benchmarks/results/
+
+# Generated protobuf files
+**/*.pb.rs
+
+# Local configuration files
+config.local.toml
+
+# Temporary Anya files
+.anya-temp/
+
+# Anya logs
+anya-logs/
+
+# Anya data
+anya-data/
+
+# Anya backups
+anya-backups/
+=======
 # Project-specific
 node_modules/
+>>>>>>> b706d7c49205d3634e6b11d0309d8911a18a435c

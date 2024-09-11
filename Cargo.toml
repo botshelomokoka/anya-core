@@ -1,4 +1,5 @@
 [package]
+<<<<<<< HEAD
 name        = "anya-core"
 version     = "0.1.0"
 edition     = "2021"
@@ -51,3 +52,34 @@ harness = false
 default    = ["std"]
 std        = []
 enterprise = ["advanced-analytics", "high-volume-trading"]
+=======
+name = "anya-core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.0", features = ["full"] }
+async-trait = "0.1"
+thiserror = "1.0"
+log = "0.4"
+libp2p = { version = "0.39", features = ["kad", "noise", "tcp-tokio", "websocket"] }
+bitcoin = "0.27"
+lightning = "0.0.103"
+stacks-node = "0.1"
+ipfs-api = "0.11"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+reqwest = { version = "0.11", features = ["json"] }
+openssl = { version = "0.10", features = ["vendored"] }
+bulletproofs = "2.0"
+seal_fhe = "0.1"
+mp-spdz = "0.1"
+yew = "0.18"
+wasm-bindgen = "0.2"
+web-sys = "0.3"
+js-sys = "0.3"
+wasm-bindgen-futures = "0.4"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+>>>>>>> c9fe62bf07bc8e7e0a11b9b0e4e6375f56b5c4cc
