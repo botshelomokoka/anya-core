@@ -105,34 +105,3 @@ Thumbs.db
 *.bak
 *.swp
 *~.nib
-
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-.env
-=======
-=======
->>>>>>> Stashed changes
-# Specific to Anya Core
-/data/
-/config/local.toml
-
-# Cargo
-Cargo.lock
-target/
-
-# Generated files
-*.generated.*
-
-# Debug files
-*.debug
-
-# Profiling files
-*.prof
-
-# Backup files
-*.bak
-*.backup
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
