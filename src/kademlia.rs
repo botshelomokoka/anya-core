@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 use std::collections::HashMap;
 use std::net::{IpAddr, SocketAddr};
 use std::time::Duration;
@@ -149,7 +148,6 @@ impl KademliaServer {
     pub async fn store(&mut self, key: Vec<u8>, value: Vec<u8>) -> Result<(), Box<dyn std::error::Error>> {
         let record = Record {
             key: RecordKey::new(&key),
-=======
 use std::error::Error;
 use libp2p::{
     core::upgrade,
@@ -213,7 +211,6 @@ impl KademliaServer {
     pub async fn put_record(&mut self, key: Vec<u8>, value: Vec<u8>) -> Result<(), Box<dyn Error>> {
         let record = Record {
             key,
->>>>>>> b706d7c49205d3634e6b11d0309d8911a18a435c
             value,
             publisher: None,
             expires: None,
