@@ -285,6 +285,7 @@ pub fn init() -> Result<(), Box<dyn std::error::Error>> {
 
 // TODO: Implement differential privacy techniques
 <<<<<<< HEAD
+<<<<<<< HEAD
 // TODO: Implement secure aggregation using the SPDZ protocol
 =======
 <<<<<<< HEAD
@@ -293,4 +294,6 @@ pub fn init() -> Result<(), Box<dyn std::error::Error>> {
 // TODO: Integrate with external AI services for enhanced functionality
 // TODO: Implement natural language processing capabilities
 =======
+=======
+>>>>>>> main
 // TODO: Implement secure aggregation using the SPDZ protocol
