@@ -66,29 +66,6 @@ Thumbs.db               # Windows
 *.swp                   # Vim swap files
 *~.nib                  # Interface Builder temporary files
 
-# Rust
-/target/
-**/*.rs.bk
-Cargo.lock
-
-# IDE
-.vscode/
-.idea/
-*.iml
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Build
-/build/
-
-# Logs
-*.log
-
-# Dependencies
-/node_modules/
-
 # Environment
 .env
 .env.local
@@ -116,10 +93,6 @@ Thumbs.db
 /data/
 /config/local.toml
 
-# Cargo
-Cargo.lock
-target/
-
 # Generated files
 *.generated.*
 
@@ -130,7 +103,6 @@ target/
 *.prof
 
 # Backup files
-*.bak
 *.backup
 <<<<<<< Updated upstream
 >>>>>>> Stashed changes
