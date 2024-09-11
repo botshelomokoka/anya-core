@@ -2,20 +2,6 @@
 name = "anya-core"
 version = "0.1.0"
 edition = "2021"
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-authors = ["Anya Core Contributors"]
-description = "A decentralized AI assistant framework (Open Source Edition)"
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/anya-core/anya-core"
-
-[workspace]
-members = [
-    "anya-core",
-    "anya-network",
-    "anya-ai",
-    "anya-cli"
-]
 
 [dependencies]
 tokio = { version = "1.28", features = ["full"] }
