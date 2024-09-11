@@ -25,16 +25,15 @@ Anya Core is an open-source decentralized AI assistant framework leveraging bloc
 
 ## License
 
-<<<<<<< HEAD
-3. Set up the Stacks blockchain locally (follow Stacks documentation).
-4. Clone the repository:
+1. Set up the Stacks blockchain locally (follow Stacks documentation).
+2. Clone the repository:
 
    ```bash
    git clone https://github.com/botshelomokoka/anya-core-main.git
    cd anya-core-main
    ```
 
-5. Build the project:
+3. Build the project:
 
    ```bash
    cargo build --release
@@ -136,8 +135,4 @@ If you encounter any issues or have questions, please open an issue on GitHub or
 
 ---
 
-Feel free to ask if you need further assistance or have any specific questions about the platform 
-
-=======
-This project is licensed under MIT OR Apache-2.0.
->>>>>>> f959f86c6b13fa23d19557dd0c6c38a4308daf57
+Feel free to ask if you need further assistance or have any specific questions about the platform

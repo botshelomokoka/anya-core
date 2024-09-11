@@ -51,7 +51,7 @@ impl MLFeeManager {
 
     pub fn get_adjusted_fee(&self, required_fee: Satoshis) -> Satoshis {
         // Implement fee adjustment logic based on DAO rules
-        required_fee
+        self.dao_rules.adjust_fee(required_fee)
     }
 
     pub fn allocate_fee(&mut self, fee: Satoshis) -> Result<Satoshis, AnyaError> {
