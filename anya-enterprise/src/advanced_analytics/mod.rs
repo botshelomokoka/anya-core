@@ -11,6 +11,7 @@ use std::collections::HashMap;
 use crate::error::AnyaResult; // Add this import for AnyaResult
 use log::{info, error}; // Add logging imports
 
+/// Represents the advanced analytics module.
 pub struct AdvancedAnalytics {
     model: nn::Sequential,
     user_metrics: UserMetrics,
@@ -20,6 +21,7 @@ pub struct AdvancedAnalytics {
 }
 
 impl AdvancedAnalytics {
+    /// Creates a new instance of the AdvancedAnalytics module.
     pub fn new(
         user_metrics: UserMetrics,
         blockchain: BlockchainInterface,
@@ -43,7 +45,8 @@ impl AdvancedAnalytics {
         }
     }
 
-    pub fn run(&self) -> AnyaResult<()> { // Change return type to AnyaResult
+    /// Runs the advanced analytics process.
+    pub fn run(&self) -> AnyaResult<()> {
         info!("Running advanced analytics..."); // Log the start of the analytics run
 
         let market_sentiment = self.analyze_market_sentiment()?;
@@ -64,7 +67,8 @@ impl AdvancedAnalytics {
         Ok(())
     }
 
-    fn analyze_market_sentiment(&self) -> AnyaResult<f64> { // Change return type to AnyaResult
+    fn analyze_market_sentiment(&self) -> AnyaResult<f64> {
+        info!("Analyzing market sentiment..."); // Log sentiment analysis
         let market_data = self.data_feeds.get(&DataSource::Market)
             .ok_or("Market data feed not found")?
             .get_latest_data()?;

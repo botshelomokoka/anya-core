@@ -8,6 +8,7 @@ use crate::ml::MLInput;
 use tokio; // Ensure you have tokio in your dependencies
 use std::sync::{Arc, Mutex}; // For shared state
 use crate::ml_logic::metrics::Metrics; // Assuming you have a Metrics struct in ml_logic
+use log::{info, error}; // Add logging imports
 
 pub struct HighVolumeTrading {
     price_predictor: AdvancedBitcoinPricePredictor,
@@ -30,7 +31,7 @@ impl HighVolumeTrading {
     }
 
     pub fn execute(&self) -> Result<(), Box<dyn Error>> {
-        println!("Executing high volume trading strategy with Lightning Network support...");
+        info!("Executing high volume trading strategy with Lightning Network support...");
         
         let price_prediction = self.price_predictor.predict(&self.get_market_data())?;
         
@@ -60,25 +61,37 @@ impl HighVolumeTrading {
     }
 
     fn place_buy_order(&self) -> Result<(), Box<dyn Error>> {
-        println!("Placing buy order...");
-        // Implement buy order logic using Lightning Network for faster settlement
-        let invoice_amount = config.get::<u32>("invoice.amount")?;
-        let invoice = self.lightning_client.create_invoice(invoice_amount, "Buy order", 3600)?;
-        println!("Lightning invoice created: {}", invoice.to_string());
-        Ok(())
+        info!("Placing buy order...");
+        let result = self.lightning_client.create_invoice(invoice_amount, "Buy order", 3600);
+        match result {
+            Ok(invoice) => {
+                info!("Lightning invoice created: {}", invoice.to_string());
+                Ok(())
+            }
+            Err(e) => {
+                error!("Failed to create buy order invoice: {}", e);
+                Err(Box::new(e))
+            }
+        }
     }
 
     fn place_sell_order(&self) -> Result<(), Box<dyn Error>> {
-        println!("Placing sell order...");
-        // Implement sell order logic using Lightning Network for faster settlement
-        let invoice_amount = config.get::<u32>("invoice.amount")?;
-        let invoice = self.lightning_client.create_invoice(invoice_amount, "Sell order", 3600)?;
-        println!("Lightning invoice created: {}", invoice.to_string());
-        Ok(())
+        info!("Placing sell order...");
+        let result = self.lightning_client.create_invoice(invoice_amount, "Sell order", 3600);
+        match result {
+            Ok(invoice) => {
+                info!("Lightning invoice created: {}", invoice.to_string());
+                Ok(())
+            }
+            Err(e) => {
+                error!("Failed to create sell order invoice: {}", e);
+                Err(Box::new(e))
+            }
+        }
     }
 
     async fn process_lightning_payments(&self) -> Result<(), Box<dyn Error>> {
-        println!("Processing Lightning Network payments...");
+        info!("Processing Lightning Network payments...");
         let pending_invoices = self.lightning_client.list_invoices()?;
         
         // Use futures to process invoices concurrently
@@ -87,9 +100,9 @@ impl HighVolumeTrading {
             tokio::spawn(async move {
                 let invoice = Invoice::from_str(&invoice_str)?;
                 if invoice.is_expired() {
-                    println!("Invoice {} has expired", invoice.payment_hash());
+                    info!("Invoice {} has expired", invoice.payment_hash());
                 } else if invoice.is_paid() {
-                    println!("Payment received for invoice {}", invoice.payment_hash());
+                    info!("Payment received for invoice {}", invoice.payment_hash());
                     // Update metrics in a thread-safe manner
                     let mut metrics = metrics.lock().unwrap();
                     metrics.update_payment_received(invoice.payment_hash()); // Example method
