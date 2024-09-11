@@ -1,66 +1,8 @@
-<<<<<<< HEAD
-# Rust-specific
-=======
 # Rust-specific ignores
->>>>>>> f959f86c6b13fa23d19557dd0c6c38a4308daf57
 /target
 **/*.rs.bk
 Cargo.lock
 
-<<<<<<< HEAD
-# Build artifacts
-/dist
-/build
-
-# IDE/editor specific files
-/.vscode
-/.idea
-*.swp
-*.swo
-
-# System-specific files
-.DS_Store
-Thumbs.db
-
-# Sensitive information
-*.key
-*.pem
-wallet_data.json
-.env
-
-# Log files
-*.log
-
-# STX-specific
-/.stacks-chain
-/.stacks-testnet
-
-# Web5-specific
-/.web5
-
-# DLC-specific
-/.dlc
-
-# Lightning Network-specific
-/.lnd
-*.macaroon
-
-# Bitcoin-specific
-/.bitcoin
-
-# libp2p-specific
-/.libp2p
-
-# Compiled files
-*.rlib
-*.so
-*.dylib
-*.dll
-
-# Database files
-*.db
-*.sqlite
-=======
 # Ignore all files and directories in the project root
 /*
 
@@ -124,29 +66,6 @@ Thumbs.db               # Windows
 *.swp                   # Vim swap files
 *~.nib                  # Interface Builder temporary files
 
-# Rust
-/target/
-**/*.rs.bk
-Cargo.lock
-
-# IDE
-.vscode/
-.idea/
-*.iml
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Build
-/build/
-
-# Logs
-*.log
-
-# Dependencies
-/node_modules/
-
 # Environment
 .env
 .env.local
@@ -157,30 +76,10 @@ Thumbs.db
 
 # Documentation
 /docs/
->>>>>>> f959f86c6b13fa23d19557dd0c6c38a4308daf57
 
-# Temporary files
-*.tmp
-*.bak
-<<<<<<< HEAD
-*~
-=======
-*.swp
-*~.nib
-
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-.env
-=======
-=======
->>>>>>> Stashed changes
 # Specific to Anya Core
 /data/
 /config/local.toml
-
-# Cargo
-Cargo.lock
-target/
 
 # Generated files
 *.generated.*
@@ -192,10 +91,6 @@ target/
 *.prof
 
 # Backup files
-*.bak
 *.backup
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
->>>>>>> f959f86c6b13fa23d19557dd0c6c38a4308daf57
+
+anya-core
