@@ -1,57 +1,22 @@
-use std::error::Error;
-use std::sync::Arc;
-use tokio::sync::Mutex;
-use serde::{Serialize, Deserialize};
-use bitcoin::{Transaction, TxIn, TxOut, OutPoint, Script, blockdata::opcodes::all as opcodes, blockdata::script::Builder};
-use lightning::ln::chan_utils::ChannelPublicKeys;
-use stacks_core::{StacksTransaction, StacksAddress, clarity::types::{Value, PrincipalData}, clarity::vm::ClarityVersion};
-use web5::{did::{DID, KeyMethod}, dids::methods::key::DIDKey, credentials::{Credential, CredentialSubject}};
-use aes_gcm::{Aes256Gcm, Key, Nonce};
-use aes_gcm::aead::{Aead, NewAead};
-use rand::Rng;
-use std::time::{Duration, Instant};
-use ndarray::{Array1, ArrayView1, Array2};
-use rand::seq::SliceRandom;
-use statrs::statistics::Statistics;
+use crate::ml_core::{MLCore, ProcessedData, TrainedModel, Prediction, OptimizedAction};
+use crate::blockchain::{BlockchainInterface, Transaction};
+use crate::data_feed::{DataFeed, DataSource};
+use crate::reporting::{Report, ReportType, SystemWideReporter};
+use crate::management::{ManagementAction, OperationalStatus, SystemManager};
+use crate::ml_logic::mlfee::MLFeeManager;
+
+use std::collections::HashMap;
+use tokio::sync::mpsc;
+use async_trait::async_trait;
 use anyhow::{Result, Context};
-use bitcoin::util::amount::Amount;
-use bitcoin_fee_estimation::{FeeEstimator, BitcoinCoreFeeEstimator};
-use linfa::prelude::*;
-use linfa_linear::LinearRegression;
-use chrono::{DateTime, Utc};
-use std::collections::{VecDeque, HashMap};
-use serde_json::Value;
-
-use crate::bitcoin_support::BitcoinSupport;
-use crate::stx_support::STXSupport;
-use crate::lightning_support::LightningSupport;
-use crate::web5::{Web5Support, Web5Operations, Web5Error, FederatedLearningProtocol, Record, RecordQuery};
-use crate::user_management::UserWallet;
-use super::mlfee::MLFeeManager;
-use super::dao_rules::DAORules;
-use super::financial_integration::{MLFinancialIntegration, MLContributionData, FinancialReport, Improvement};
-
-#[derive(Serialize, Deserialize)]
-struct EncryptedWeb5Data {
-    ciphertext: Vec<u8>,
-    nonce: Vec<u8>,
-}
 
 pub struct FederatedLearning {
-    global_model: Arc<Mutex<Vec<f64>>>,
-    local_models: Vec<Vec<f64>>,
-    aggregation_threshold: usize,
-    bitcoin_support: BitcoinSupport,
-    stx_support: STXSupport,
-    lightning_support: LightningSupport,
-    web5_support: Web5Support,
-    user_wallet: UserWallet,
-    encryption_key: Key<Aes256Gcm>,
-    last_aggregation_time: Instant,
-    min_aggregation_interval: Duration,
-    diversity_threshold: f64,
+    ml_core: MLCore,
+    blockchain: BlockchainInterface,
+    system_reporter: SystemWideReporter,
+    system_manager: SystemManager,
+    data_feeds: HashMap<DataSource, Box<dyn DataFeed>>,
     fee_manager: MLFeeManager,
-    financial_integration: MLFinancialIntegration,
 }
 
 impl FederatedLearning {

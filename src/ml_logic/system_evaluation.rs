@@ -18,6 +18,7 @@ use crate::ml_logic::federated_learning::FederatedLearning;
 use crate::config::Config;
 use crate::data_management::DataManager;
 use crate::security::SecurityManager;
+use crate::ml_logic::federated_learning::FederatedLearning;
 
 pub struct SystemEvaluator {
     bitcoin_support: BitcoinSupport,
@@ -79,17 +80,16 @@ impl SystemEvaluator {
         let model_performance = self.evaluate_model_performance(federated_learning).await?;
         let network_performance = self.evaluate_network_performance().await?;
         let financial_performance = self.evaluate_financial_performance().await?;
-        let web5_performance = self.evaluate_web5_performance().await?;
         let data_management_performance = self.evaluate_data_management_performance().await?;
         let security_performance = self.evaluate_security_performance().await?;
 
-        Ok((model_performance + network_performance + financial_performance + web5_performance + data_management_performance + security_performance) / 6.0)
+        Ok((model_performance + network_performance + financial_performance + data_management_performance + security_performance) / 5.0)
     }
 
-    async fn evaluate_model_performance(&self, federated_learning: &FederatedLearning) -> Result<f64> {
-        let accuracy = federated_learning.get_model_accuracy().await?;
-        let loss = federated_learning.get_model_loss().await?;
-        let convergence_rate = federated_learning.get_convergence_rate().await?;
+    async fn evaluate_model_performance(&self, ml_core: &MLCore) -> Result<f64> {
+        let accuracy = ml_core.get_metric(MetricType::ModelAccuracy).unwrap_or(0.0);
+        let loss = ml_core.get_metric(MetricType::ModelLoss).unwrap_or(1.0);
+        let convergence_rate = ml_core.get_metric(MetricType::ConvergenceRate).unwrap_or(0.0);
         
         // Combine accuracy, loss, and convergence rate into a single performance metric
 >>>>>>> 279f5ad40ab979cd8a5acdbfee77325abc6ee5cf
@@ -118,12 +118,8 @@ impl SystemEvaluator {
     }
 
     async fn evaluate_financial_performance(&self) -> Result<f64> {
-        let bitcoin_balance = self.bitcoin_support.get_balance().await?;
-        let stx_balance = self.stx_support.get_balance().await?;
-        let lightning_balance = self.lightning_support.get_balance().await?;
-        
-        let total_balance = bitcoin_balance + stx_balance + lightning_balance;
-        let target_balance = self.config.get_target_balance();
+        let balance = self.blockchain.get_balance().await?;
+        let target_balance = self.blockchain.get_target_balance().await?;
 
         let roi = self.calculate_roi(total_balance, target_balance);
         let liquidity = self.calculate_liquidity_ratio(bitcoin_balance, stx_balance, lightning_balance);
