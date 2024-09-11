@@ -42,16 +42,25 @@ impl AnyaConfig {
 }
 
 // Core modules (open source)
-pub mod bitcoin_core;
-pub mod lightning;
-pub mod dlc;
-pub mod ml_logic;
+pub mod core {
+    // Core functionality, free and open-source
+    pub use crate::blockchain;
+    pub use crate::networking;
+    pub use crate::identity;
+}
 
-// Enterprise modules (API access)
+pub mod standard {
+    // Standard features, free and open-source
+    pub use crate::smart_contracts;
+    pub use crate::federated_learning;
+}
+
 #[cfg(feature = "enterprise")]
-pub mod advanced_analytics;
-#[cfg(feature = "enterprise")]
-pub mod high_volume_trading;
+pub mod enterprise {
+    // Enterprise features, requires paid license
+    pub mod advanced_analytics;
+    pub mod high_volume_trading;
+}
 
 // Add more modules as needed
 pub mod user_management;
@@ -103,6 +112,8 @@ pub async fn run_network_adapters() {
 }
 
 // Other initialization and utility functions
+<<<<<<< HEAD
+=======
 
 // Re-export important structs and functions
 pub use user_management::UserManagement;
@@ -116,6 +127,41 @@ pub use interoperability::{IBCProtocol, CosmosSDK, Polkadot};
 pub use privacy::{ZeroKnowledgeProof, HomomorphicEncryption, SecureMultiPartyComputation};
 pub use ui::{WebInterface, CLI, MobileApp};
 
+pub mod interlink;
+
+pub mod ml;
+pub mod interlink;
+
+// Re-export important structs and functions
+pub use ml::{MLModel, SimpleLinearRegression};
+pub use interlink::Interlink;
+
+// Re-export important structs and functions
+pub use user_management::UserManagement;
+pub use network_discovery::NetworkDiscovery;
+pub use blockchain::{BitcoinSupport, LightningSupport, StacksSupport, DLCSupport};
+pub use ml_logic::FederatedLearning;
+pub use identity::{DIDManager, VerifiableCredential};
+pub use data_storage::{IPFSStorage, OrbitDB};
+pub use smart_contracts::{ClarityContract, WasmContract};
+pub use interoperability::{IBCProtocol, CosmosSDK, Polkadot};
+pub use privacy::{ZeroKnowledgeProof, HomomorphicEncryption, SecureMultiPartyComputation};
+pub use ui::{WebInterface, CLI, MobileApp};
+>>>>>>> 279f5ad40ab979cd8a5acdbfee77325abc6ee5cf
+
+// Re-export important structs and functions
+pub use user_management::UserManagement;
+pub use network_discovery::NetworkDiscovery;
+pub use blockchain::{BitcoinSupport, LightningSupport, StacksSupport, DLCSupport};
+pub use ml_logic::FederatedLearning;
+pub use identity::{DIDManager, VerifiableCredential};
+pub use data_storage::{IPFSStorage, OrbitDB};
+pub use smart_contracts::{ClarityContract, WasmContract};
+pub use interoperability::{IBCProtocol, CosmosSDK, Polkadot};
+pub use privacy::{ZeroKnowledgeProof, HomomorphicEncryption, SecureMultiPartyComputation};
+pub use ui::{WebInterface, CLI, MobileApp};
+
+<<<<<<< HEAD
 mod ml_core;
 mod blockchain;
 mod data_feed;
@@ -123,6 +169,9 @@ mod reporting;
 mod management;
 
 pub use crate::ml_logic::dao_rules::AnyaCore;
+=======
+pub mod interlink;
+>>>>>>> 279f5ad40ab979cd8a5acdbfee77325abc6ee5cf
 
 #[cfg(test)]
 mod tests {
