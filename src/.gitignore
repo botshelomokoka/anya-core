@@ -30,7 +30,7 @@ wallet_data.json
 # Log files
 *.log
 
-# STX-specific
+# Network-specific
 .stacks-chain/
 .stacks-testnet/
 .web5/
@@ -70,6 +70,10 @@ anya-cli/target/
 anya-gui/target/
 anya-node/target/
 anya-wallet/target/
+.anya-temp/
+anya-logs/
+anya-data/
+anya-backups/
 
 # Documentation
 docs/_build/
@@ -80,7 +84,7 @@ coverage/
 # Benchmark results
 benchmarks/results/
 
-# Generated protobuf files
+# Generated files
 **/*.pb.rs
 
 # Local configuration files

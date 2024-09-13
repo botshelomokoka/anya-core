@@ -1,6 +1,6 @@
 # Anya Enterprise
 
-Anya Enterprise is a commercial extension of Anya Core, providing seamless integration and advanced features for enterprise users.
+Anya Enterprise extends the core Anya framework with advanced features for high-performance, enterprise-grade applications.
 
 ## Key Features
 
@@ -17,22 +17,26 @@ All features from Anya Core, plus:
 - Web-based interface using WebAssembly and Yew
 
 ## Integration with Anya Core
+
 The integration with Anya Core is seamless and straightforward. To integrate Anya Enterprise with Anya Core, follow these steps:
 
 1. Ensure you have Anya Core installed and configured.
 
 2. Clone the Anya Enterprise repository:
+
    ```bash
    git clone https://github.com/your-repo/anya-enterprise.git
    cd anya-enterprise
    ```
 
 3. Install the Anya Installer:
+
    ```bash
    pip install anya_installer
    ```
 
 4. Run the Anya Installer:
+
    ```bash
    python -m anya_installer
    ```
@@ -43,6 +47,7 @@ The integration with Anya Core is seamless and straightforward. To integrate Any
    - Configuring advanced privacy and security settings
 
 6. Once the installation is complete, you can start Anya Enterprise:
+
    ```bash
    cargo run --release
    ```
@@ -65,18 +70,21 @@ Anya Enterprise seamlessly integrates with Anya Core, extending its functionalit
 1. Ensure you have Anya Core installed and configured.
 
 2. Clone the Anya Enterprise repository:
-   ```
+
+   ```bash
    git clone https://github.com/your-repo/anya-enterprise.git
    cd anya-enterprise
    ```
 
 3. Install the Anya Installer:
-   ```
+
+   ```bash
    pip install anya_installer
    ```
 
 4. Run the Anya Installer:
-   ```
+
+   ```bash
    python -m anya_installer
    ```
 
@@ -86,7 +94,8 @@ Anya Enterprise seamlessly integrates with Anya Core, extending its functionalit
    - Configuring advanced privacy and security settings
 
 6. Once the installation is complete, you can start Anya Enterprise:
-   ```
+
+   ```bash
    cargo run --release
    ```
 
@@ -111,4 +120,3 @@ To use Anya Enterprise, follow these steps:
 ## License
 
 Anya Enterprise is available under a commercial license. Please contact [sales@anya-enterprise.co.za](mailto:sales@anya-enterprise.co.za) for more information.
-

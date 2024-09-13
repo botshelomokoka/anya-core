@@ -4,7 +4,7 @@
 Cargo.lock
 
 # Ignore all files and directories in the project root
-/*
+!/*
 
 # But don't ignore these specific directories and files
 !/src/
