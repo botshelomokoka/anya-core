@@ -13,7 +13,7 @@ Let V: B → ℝ be a function that assigns a value to each block.
 ## Algorithm
 
 1. Each participant p ∈ P proposes a block b ∈ B.
-2. The network selects the block b*such that:
+2. The network selects the block   b* such that:
    b* = argmax_{b ∈ B} V(b)
 
 ## Proof of Correctness
@@ -21,7 +21,7 @@ Let V: B → ℝ be a function that assigns a value to each block.
 Theorem: The selected block b* maximizes the value function V.
 
 Proof:
-By construction, b*is chosen such that V(b*) ≥ V(b) for all b ∈ B.
+By construction, b* is chosen such that V(b*) ≥ V(b) for all b ∈ B.
 Therefore, b* maximizes the value function V.
 
 ## Complexity Analysis

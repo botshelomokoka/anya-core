@@ -188,6 +188,16 @@ mod tests {
         let config = AnyaConfig::new().expect("Failed to create AnyaConfig");
         assert!(format!("{:?}", config).contains("AnyaConfig"));
     }
+
+    #[test]
+    fn test_federated_learning() {
+        // Add comprehensive tests for federated learning
+    }
+
+    #[test]
+    fn test_blockchain_integration() {
+        // Add comprehensive tests for blockchain integration
+    }
 }
 
 pub mod ml_logic;
@@ -195,3 +205,10 @@ pub mod ml_core;
 
 // Re-export important structs and functions
 pub use crate::ml_logic::mlfee::MLFeeManager;
+
+pub mod rate_limiter;
+pub mod unified_network;
+
+// Re-export important structs and functions
+pub use crate::rate_limiter::RateLimiter;
+pub use crate::unified_network::UnifiedNetworkManager;
