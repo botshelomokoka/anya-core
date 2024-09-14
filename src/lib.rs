@@ -220,3 +220,7 @@ pub mod high_volume_trading;
 pub use crate::ml_logic::dao_rules::AnyaCore;
 pub use crate::market_data::MarketDataFetcher;
 pub use crate::high_volume_trading::HighVolumeTrading;
+
+pub mod chain_support;
+
+// ... rest of the code ...
