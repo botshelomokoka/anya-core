@@ -1,82 +1,47 @@
-# Anya Enterprise
+# Anya Enterprise Development Environment
 
-Anya Enterprise is an advanced AI assistant framework with enterprise-grade features for privacy-preserving computations, blockchain integrations, and more.
+## Overview
+
+This repository contains the Anya Enterprise Development Environment, which includes tools and configurations for secure multiparty computation, payment processing, code translation, vulnerability checking, and machine learning-based code analysis.
 
 ## Features
 
-- OpenDP integration for differential privacy
-- SPDZ for secure multi-party computation
-- SEAL for homomorphic encryption
-- Advanced DLC (Discreet Log Contracts) support
-- Web interface with WebAssembly and Yew
-- Cosmos SDK and Polkadot XCMP integrations
-- IPFS, OrbitDB, and IPLD support
-- WebAuthn for secure authentication
-- Ordinals analysis and Taro asset management
-- Advanced DeFi integration
+- **Secure Multiparty Computation**: Implemented using Rust for high performance and security.
+- **Payment Processing**: Supports Bitcoin payments with dynamic pricing based on user metrics.
+- **Code Translation**: Translates code snippets between different programming languages.
+- **Vulnerability Checking**: Uses tools like Bandit, Safety, and ESLint to check for vulnerabilities.
+- **Machine Learning Code Analysis**: Analyzes code quality and suggests improvements using machine learning.
 
-## Installation
+## Setup
 
-1. Clone the repository:
+### Prerequisites
 
-   ```bash
-   git clone https://github.com/your-org/anya-enterprise.git
-   cd anya-enterprise
-   ```
+- Docker
+- Docker Compose
+- Node.js (LTS)
+- Python 3.10
+- Rust
 
-2. Run the installer:
+### Development Environment
 
-   ```bash
-   python anya_installer.py
-   ```
+The development environment is set up using a Docker container. Follow these steps to get started:
 
-3. Follow the prompts to select your subscription tier and desired features.
+1. **Clone the repository**:
+    ```sh
+    git clone https://github.com/your-username/anya-enterprise.git
+    cd anya-enterprise
+    ```
 
-4. The installer will set up all necessary dependencies, including Python, Rust, and Bitcoin Core.
+2. **Build the Docker container**:
+    ```sh
+    docker-compose up --build
+    ```
 
-5. Once the installation is complete, you can start using Anya Enterprise!
+3. **Open the development environment in VSCode**:
+    - Install the [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension.
+    - Open the repository in VSCode.
+    - Click on the green button in the bottom-left corner and select "Remote-Containers: Reopen in Container".
 
-## Usage
+### Post-Create Commands
 
-To use Anya Enterprise, you can either:
-
-1. Use the Python API:
-
-   ```python
-   from anya_enterprise import PyConfig, run_analysis
-
-   config = PyConfig()
-   config.set_feature("OpenDP", True)
-
-   data = [1.0, 2.0, 3.0, 4.0, 5.0]
-   result = run_analysis(data, config)
-   print(result)
-   ```
-
-2. Use the REST API:
-
-   ```bash
-   curl -X POST -H "Content-Type: application/json" -d '{"data": [1.0, 2.0, 3.0, 4.0, 5.0]}' <http://localhost:8080/docs>
-   ```
-
-## Configuration
-
-You can modify the Anya Enterprise settings by running:
-
-```bash
-python anya_installer.py --modify-settings
-```
-
-This will allow you to enable/disable features and set various configuration options.
-
-## Documentation
-
-For more detailed documentation, please refer to the `docs/` directory.
-
-## API Documentation
-
-Anya Enterprise now provides OpenAPI documentation for its REST API. You can access the Swagger UI interface at:
-
-## License
-
-Anya Enterprise is licensed under a commercial license. Please contact <sales@anya-enterprise.com> for more information.
+After the container is created, the following commands will be run automatically:
