@@ -14,7 +14,7 @@ impl RateLimiter {
     pub fn new() -> Self {
         RateLimiter {
             limits: Arc::new(Mutex::new(HashMap::new())),
-            network_load: Arc::new(Mutex::new(0.5)), // Start with 50% load
+            network_load: Arc::new(Mutex::new(0.25)), // Start with 25% load
             base_limit: 100,
             max_limit: 1000,
         }
