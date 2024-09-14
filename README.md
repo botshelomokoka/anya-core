@@ -18,12 +18,14 @@ Anya Enterprise is an advanced AI assistant framework with enterprise-grade feat
 ## Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/your-org/anya-enterprise.git
    cd anya-enterprise
    ```
 
 2. Run the installer:
+
    ```bash
    python anya_installer.py
    ```
@@ -39,6 +41,7 @@ Anya Enterprise is an advanced AI assistant framework with enterprise-grade feat
 To use Anya Enterprise, you can either:
 
 1. Use the Python API:
+
    ```python
    from anya_enterprise import PyConfig, run_analysis
 
@@ -51,15 +54,16 @@ To use Anya Enterprise, you can either:
    ```
 
 2. Use the REST API:
+
    ```bash
-   curl -X POST -H "Content-Type: application/json" -d '{"data": [1.0, 2.0, 3.0, 4.0, 5.0]}' http://localhost:8080/api/analysis
+   curl -X POST -H "Content-Type: application/json" -d '{"data": [1.0, 2.0, 3.0, 4.0, 5.0]}' <http://localhost:8080/docs>
    ```
 
 ## Configuration
 
 You can modify the Anya Enterprise settings by running:
 
-```
+```bash
 python anya_installer.py --modify-settings
 ```
 
@@ -75,4 +79,4 @@ Anya Enterprise now provides OpenAPI documentation for its REST API. You can acc
 
 ## License
 
-Anya Enterprise is licensed under a commercial license. Please contact sales@anya-enterprise.com for more information.
+Anya Enterprise is licensed under a commercial license. Please contact <sales@anya-enterprise.com> for more information.
