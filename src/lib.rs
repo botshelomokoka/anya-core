@@ -212,3 +212,11 @@ pub mod unified_network;
 // Re-export important structs and functions
 pub use crate::rate_limiter::RateLimiter;
 pub use crate::unified_network::UnifiedNetworkManager;
+
+pub mod market_data;
+pub mod high_volume_trading;
+
+// Re-export important structs and functions
+pub use crate::ml_logic::dao_rules::AnyaCore;
+pub use crate::market_data::MarketDataFetcher;
+pub use crate::high_volume_trading::HighVolumeTrading;
