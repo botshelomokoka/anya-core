@@ -93,4 +93,7 @@ Thumbs.db               # Windows
 # Backup files
 *.backup
 
+# Tracked code snippets
+tracked_snippets/
+
 
