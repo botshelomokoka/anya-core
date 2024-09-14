@@ -19,12 +19,12 @@ pub struct RateLimiter {
 }
 
 impl RateLimiter {
-    pub fn new() -> Self {
-        RateLimiter {
-            limits: Arc::new(Mutex::new(HashMap::new())),
-            network_load: Arc::new(Mutex::new(0.25)), // Start with 25% load
-            base_limit: 100,
-            max_limit: 1000,
+    pub fn new(capacity: u32, refill_rate: f64) -> Self {
+        Self {
+            capacity,
+            refill_rate,
+            tokens: capacity as f64,
+            last_refill: Instant::now(),
         }
     }
 
