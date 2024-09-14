@@ -14,15 +14,10 @@ use async_trait::async_trait;
 
 #[derive(Serialize, Deserialize)]
 pub struct AnyaCore {
-    ml_core: MLCore,
     blockchain: BlockchainInterface,
-    system_reporter: SystemWideReporter,
-    system_manager: SystemManager,
-    data_feeds: HashMap<DataSource, DataFeed>,
-    operational_status: OperationalStatus,
+    // ... other fields ...
 }
 
-#[async_trait]
 impl AnyaCore {
     pub fn new(blockchain: BlockchainInterface) -> Self {
         let (report_sender, report_receiver) = mpsc::channel(100);
