@@ -45,8 +45,8 @@ We use GitHub issues to track public bugs. Report a bug by [opening a new issue]
 
 ## Use a Consistent Coding Style
 
-* 4 spaces for indentation rather than tabs
-* You can try running `cargo fmt` for style unification
+- 4 spaces for indentation rather than tabs
+- You can try running `cargo fmt` for style unification
 
 ## License
 
@@ -61,11 +61,13 @@ This document was adapted from the open-source contribution guidelines for [Face
 We use Git worktrees to manage different features and versions of the project. Here's how to use them:
 
 1. Create a new worktree for a feature:
+
    ```bash
    git worktree add -b feature-branch ../anya-core-feature-branch main
    ```
 
 2. Navigate to the new worktree:
+
    ```bash
    cd ../anya-core-feature-branch
    ```
@@ -78,6 +80,7 @@ We use Git worktrees to manage different features and versions of the project. H
    ```
 
 4. When you're done with the feature, you can remove the worktree:
+
    ```bash
    cd ..
    git worktree remove anya-core-feature-branch
