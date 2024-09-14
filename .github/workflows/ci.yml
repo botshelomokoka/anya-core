@@ -90,7 +90,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
-          args: --ignore-tests --workspace
+          ref: main
         env:
           LOG_IN: echo "Logging in to GitHub Container Registry"
           ESLINT: npm run lint
