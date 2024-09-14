@@ -40,10 +40,9 @@ pub enum MLError {
     InternalAIError(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
 pub struct MLInput {
-    pub timestamp: chrono::DateTime<chrono::Utc>,
     pub features: Vec<f64>,
+    pub label: f64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -198,7 +197,6 @@ impl InternalAIEngine {
         // Periodically reset matrices to prevent extreme values
         if self.performance_history.len() % 10 == 0 {
             self.reset_matrices();
-=======
 >>>>>>> 279f5ad40ab979cd8a5acdbfee77325abc6ee5cf
         // Use technical indicators for model optimization
         let last_performance = self.performance_history.last().cloned().unwrap_or(0.0);
@@ -248,7 +246,6 @@ impl InternalAIEngine {
         let prediction = self.global_model.dot(&Array1::from(input.features.clone()));
         Ok(MLOutput {
             prediction,
-=======
 >>>>>>> 279f5ad40ab979cd8a5acdbfee77325abc6ee5cf
     pub fn predict(&self, input: &MLInput) -> Result<MLOutput, MLError> {
         let features = Array1::from(input.features.clone());

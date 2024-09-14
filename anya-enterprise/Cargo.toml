@@ -1,6 +1,6 @@
 [package]
 name = "anya-enterprise"
-version = "0.1.0"
+version = "0.3.0"
 edition = "2021"
 authors = ["Anya Enterprise Contributors"]
 description = "Advanced features for Anya Core (Enterprise Edition)"
@@ -8,38 +8,41 @@ license = "Commercial"
 publish = false
 
 [dependencies]
-anya-core = { path = "../anya-core" }
-tokio = { version = "1.28", features = ["full"] }
-slog = "2.7"
-slog-term = "2.9"
-config = "0.13"
-thiserror = "1.0"
-log = "0.4"
-env_logger = "0.10"
+anya-core = { path = "../anya-core", version = "0.3.0" }
+tch = "0.13.0"
+ndarray = "0.15.6"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-libp2p = "0.51"
+tokio = { version = "1.29", features = ["full"] }
+reqwest = { version = "0.11", features = ["json"] }
+bitcoin = "0.31.0"
+lightning = "0.0.118"
+dlc = "0.4.1"
+stacks-blockchain = "2.4.0"
+ord = "0.8.1"
+libp2p = "0.53"
 ipfs-api = "0.17"
-yew = "0.20"
+yew = "0.21"
 clap = { version = "4.3", features = ["derive"] }
-bitcoin = "0.30"
-bitcoincore-rpc = "0.16"
-lightning = "0.0.116"
-lightning-invoice = "0.24"
+bitcoincore-rpc = "0.17"
+lightning-invoice = "0.25"
 rust-dlc = "0.4"
 clarity-repl = "1.0"
 stacks-rpc-client = "1.0"
-ndarray = "0.15"
 chrono = "0.4"
 ta = "0.5"
 statrs = "0.16"
-linfa = "0.6"
-linfa-linear = "0.6"
+linfa = "0.7"
+linfa-linear = "0.7"
 bulletproofs = "4.0"
 seal = "0.1"
 interledger = "0.5"
 cosmos-sdk = "0.1"
 polkadot-api = "0.1"
+log = "0.4"
+env_logger = "0.10"
+opendp = "0.6"
+pyo3 = { version = "0.19", features = ["extension-module"] }
 
 [dev-dependencies]
 criterion = "0.5"
