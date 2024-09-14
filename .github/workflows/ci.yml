@@ -58,9 +58,11 @@ jobs:
     - name: Run unit tests
       run: npm test
 
-    - name: Verify tests
-      if: failure()
-      run: exit 1
+    - name: Run vulnerability checks
+      run: python anya/vulnerability_checker.py
+
+    - name: Analyze code with ML
+      run: python anya/ml_code_analyzer.py
 
     - name: Commit and push changes
       run: |
