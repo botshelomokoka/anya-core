@@ -36,6 +36,12 @@ Anya Core is an open-source decentralized AI assistant framework leveraging bloc
 3. Build the project:
 
    ```bash
+   git clone https://github.com/your-org/anya-enterprise.git
+   cd anya-enterprise
+   ```
+
+2. Run the installer:
+
    cargo build --release
    ```
 
