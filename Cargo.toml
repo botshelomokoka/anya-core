@@ -6,7 +6,7 @@ edition = "2021"
 
 [dependencies]
 tokio = { version = "1.28", features = ["full"] }
-bitcoin = "0.30"
+bitcoin = { version = "0.29", features = ["rand"] }
 bitcoin_fee_estimation = "0.1"
 chrono = "0.4"
 serde = { version = "1.0", features = ["derive"] }
@@ -19,91 +19,10 @@ ndarray-stats = "0.5"
 linfa = "0.6"
 linfa-linear = "0.6"
 rand = "0.8"
+web3 = "0.18"
+substrate-api-client = "0.13"
+cosmos-sdk = "0.1"
 
 # ... (other dependencies)
-=======
-<<<<<<< HEAD
-name        = "anya-core"
-version     = "0.1.0"
-edition     = "2021"
-authors     = ["Anya Core Contributors"]
-description = "A decentralized AI assistant framework"
-license     = "MIT OR Apache-2.0"
-repository  = "https://github.com/anya-core/anya-core"
-
-[workspace]
-members = [
-    "anya-core",
-    "anya-network",
-    "anya-ai",
-    "anya-cli"
-]
-
-[dependencies]
-tokio        = { version = "1.0", features = ["full"] }
-slog         = "2.7.0"
-slog-term    = "2.9.0"
-config       = "0.13.1"
-thiserror    = "1.0"
-log          = "0.4"
-env_logger   = "0.9"
-serde        = { version = "1.0", features = ["derive"] }
-serde_json   = "1.0"
-libp2p       = "0.50"
-ipfs-api     = "0.17"
-bulletproofs = "4.0"
-seal         = "0.1"
-yew          = "0.19"
-clap         = "3.2"
-# Open-source alternatives for blockchain and networking
-bitcoin      = "0.29"
-lightning    = "0.0.112"
-clarity-repl = "0.3"
-# Add new dependencies as needed
-interledger  = "0.5"
-cosmos-sdk   = "0.1"
-polkadot-api = "0.1"
-
-[dev-dependencies]
-criterion = "0.4"
-
-[[bench]]
-name    = "core_benchmarks"
-harness = false
-
-[features]
-default    = ["std"]
-std        = []
-enterprise = ["advanced-analytics", "high-volume-trading"]
-=======
-name = "anya-core"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-tokio = { version = "1.0", features = ["full"] }
-async-trait = "0.1"
-thiserror = "1.0"
-log = "0.4"
-libp2p = { version = "0.39", features = ["kad", "noise", "tcp-tokio", "websocket"] }
-bitcoin = "0.27"
-lightning = "0.0.103"
-stacks-node = "0.1"
-ipfs-api = "0.11"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-reqwest = { version = "0.11", features = ["json"] }
-openssl = { version = "0.10", features = ["vendored"] }
-bulletproofs = "2.0"
-seal_fhe = "0.1"
-mp-spdz = "0.1"
-yew = "0.18"
-wasm-bindgen = "0.2"
-web-sys = "0.3"
-js-sys = "0.3"
-wasm-bindgen-futures = "0.4"
-
-[lib]
-crate-type = ["cdylib", "rlib"]
 >>>>>>> c9fe62bf07bc8e7e0a11b9b0e4e6375f56b5c4cc
 >>>>>>> 279f5ad40ab979cd8a5acdbfee77325abc6ee5cf
