@@ -73,6 +73,7 @@ We use Git worktrees to manage different features and versions of the project. H
    ```
 
 3. Make your changes, commit them, and push to the remote branch:
+
    ```bash
    git add .
    git commit -m "Implement new feature"
