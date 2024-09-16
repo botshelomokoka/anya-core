@@ -1,103 +1,123 @@
 # Rust-specific ignores
-/target
+/target/
 **/*.rs.bk
 Cargo.lock
 
-# Ignore all files and directories in the project root
-/*
+# Build artifacts
+/dist/
+/build/
 
-# But don't ignore these specific directories and files
-!/src/
-!/Cargo.toml
-!/README.md
-!/LICENSE
+# IDE/editor specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.iml
 
-# Ignore common build and IDE-specific files
-*.class                 # Java class files
-*.log                   # Log files
-*.ctxt                  # BlueJ files
-.mtj.tmp/               # Mobile Tools for Java (J2ME)
-*.jar                   # JAR files
-*.war                   # WAR files
-*.nar                   # NAR files
-*.ear                   # EAR files
-*.zip                   # ZIP files
-*.tar.gz                # Compressed tar files
-*.rar                   # RAR files
+# System-specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
-# Virtual machine crash logs
-hs_err_pid*
-replay_pid*
-
-# IDE-specific files
-.idea/                  # IntelliJ IDEA
-*.iml                   # IntelliJ IDEA module files
-.vscode/                # Visual Studio Code
-*.swp                   # Vim swap files
-*~                      # Temporary files
-
-# Build directories
-target/                 # Maven build directory
-build/                  # Gradle build directory
-
-# Dependency directories
-node_modules/           # Node.js dependencies
-jspm_packages/          # JSPM packages
-
-# Logs
-logs/                   # Log directory
-*.log                   # Log files
-npm-debug.log*          # npm debug logs
-yarn-debug.log*         # Yarn debug logs
-yarn-error.log*         # Yarn error logs
-
-# OS generated files
-.DS_Store               # macOS
-.DS_Store?              # macOS
-._*                     # macOS
-.Spotlight-V100         # macOS
-.Trashes                # macOS
-ehthumbs.db             # Windows
-Thumbs.db               # Windows
-
-# Temporary files
-*.tmp                   # Temporary files
-*.bak                   # Backup files
-*.swp                   # Vim swap files
-*~.nib                  # Interface Builder temporary files
-
-# Environment
+# Sensitive information
+*.key
+*.pem
+wallet_data.json
 .env
 .env.local
 .env.*.local
 
-# Testing
-/coverage/
+# Log files
+/logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Network-specific
+.stacks-chain/
+.stacks-testnet/
+.web5/
+.dlc/
+.lnd/
+*.macaroon
+.bitcoin/
+.libp2p/
+
+# Compiled files
+*.rlib
+*.so
+*.dylib
+*.dll
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+
+# Database files
+*.db
+*.sqlite
+
+# Temporary files
+*.tmp
+*.bak
+*~
+*.swp
+.mtj.tmp/
+
+# Dependency directories
+/node_modules/
+/jspm_packages/
+
+# Anya-specific
+/anya-core/target/
+/anya-cli/target/
+/anya-gui/target/
+/anya-node/target/
+/anya-wallet/target/
+/.anya-temp/
+/anya-logs/
+/anya-data/
+/anya-backups/
 
 # Documentation
-/docs/
+/docs/_build/
+
+# Test coverage
+/coverage/
+
+# Benchmark results
+/benchmarks/results/
+
+# Generated files
+**/*.pb.rs
+*.generated.*
+
+# Local configuration files
+config.local.toml
+
+# Debug and profiling files
+*.debug
+*.prof
 
 # Specific to Anya Core
 /data/
 /config/local.toml
 
-# Generated files
-*.generated.*
-
-# Debug files
-*.debug
-
-# Profiling files
-*.prof
-
-# Backup files
-*.backup
-
 # Tracked code snippets
-tracked_snippets/
+/tracked_snippets/
 
-# Temporary files (merged from both branches)
-*.tmp
-*.bak
-*.swp
-*~.nib
+# But don't ignore these specific files
+!README.md
+!LICENSE
+!Cargo.toml
+
+# Ignore all files in the root directory
+/*
+# But don't ignore the src directory
+!/src/
