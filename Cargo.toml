@@ -1,20 +1,46 @@
 [package]
-<<<<<<< HEAD
 name = "anya-core"
 version = "0.2.0"
 edition = "2021"
+authors = ["Anya Core Contributors"]
+description = "A decentralized AI assistant framework (Open Source Edition)"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/anya-core/anya-core"
+
+[workspace]
+members = [
+    "anya-core",
+    "anya-network",
+    "anya-ai",
+    "anya-cli"
+]
 
 [dependencies]
 tokio = { version = "1.28", features = ["full"] }
-bitcoin = { version = "0.29", features = ["rand"] }
-bitcoin_fee_estimation = "0.1"
-chrono = "0.4"
+libp2p = "0.51"
+bitcoin = { version = "0.30", features = ["rand"] }
+lightning = "0.0.116"
+stacks-rpc-client = "1.0"
+rust-dlc = "0.4"
+clarity-repl = "1.0"
+yew = "0.20"
+bulletproofs = "4.0"
+slog = "2.7"
+slog-term = "2.9"
+config = "0.13"
+thiserror = "1.0"
+log = "0.4"
+env_logger = "0.10"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-anyhow = "1.0"
-thiserror = "1.0"
-async-trait = "0.1"
+did-key = "0.1"
+verifiable-credentials = "0.1"
+wasmer = "2.3"
+openfl = "0.1"
 ndarray = "0.15"
+bitcoincore-rpc = "0.16"
+anyhow = "1.0"
+async-trait = "0.1"
 ndarray-stats = "0.5"
 linfa = "0.6"
 linfa-linear = "0.6"
@@ -22,7 +48,28 @@ rand = "0.8"
 web3 = "0.18"
 substrate-api-client = "0.13"
 cosmos-sdk = "0.1"
+chrono = "0.4"
+bitcoin_fee_estimation = "0.1"
 
-# ... (other dependencies)
->>>>>>> c9fe62bf07bc8e7e0a11b9b0e4e6375f56b5c4cc
->>>>>>> 279f5ad40ab979cd8a5acdbfee77325abc6ee5cf
+# New dependencies
+ipfs-api = "0.17"
+orbit-db = "0.1"
+seal = "4.1"
+mp-spdz = "0.1"
+rust-bert = "0.20"
+
+[features]
+default = ["std"]
+std = []
+enterprise = ["advanced_analytics", "high_volume_trading"]
+advanced_analytics = []
+high_volume_trading = []
+
+[dev-dependencies]
+criterion = "0.5"
+mockall = "0.11"
+proptest = "1.0"
+
+[[bench]]
+name = "core_benchmarks"
+harness = false

@@ -2,46 +2,66 @@
 
 ## Overview
 
-This repository contains the Anya Enterprise Development Environment, which includes tools and configurations for secure multiparty computation, payment processing, code translation, vulnerability checking, and machine learning-based code analysis.
+Anya Core is an open-source decentralized AI assistant framework leveraging blockchain technologies, federated learning, and advanced cryptography, implemented entirely in Rust.
 
 ## Features
 
-- **Secure Multiparty Computation**: Implemented using Rust for high performance and security.
-- **Payment Processing**: Supports Bitcoin payments with dynamic pricing based on user metrics.
-- **Code Translation**: Translates code snippets between different programming languages.
-- **Vulnerability Checking**: Uses tools like Bandit, Safety, and ESLint to check for vulnerabilities.
-- **Machine Learning Code Analysis**: Analyzes code quality and suggests improvements using machine learning.
+- Decentralized user management
+- Multi-blockchain support (Bitcoin, Lightning Network, Stacks, DLC)
+- Federated learning with advanced ML models
+- Peer-to-peer networking using libp2p
+- ML models for cryptocurrency analysis and prediction
+- Integration with multiple blockchain technologies
 
-## Setup
+## Project Structure
+
+[Project structure details]
+
+## Getting Started
 
 ### Prerequisites
 
-- Docker
-- Docker Compose
-- Node.js (LTS)
-- Python 3.10
-- Rust
+- Rust (latest stable version)
+- Docker (for containerized development)
+- Git (for version control)
 
-### Development Environment
+### Building the Project
 
-The development environment is set up using a Docker container. Follow these steps to get started:
-
-1. **Clone the repository**:
+1. Clone the repository:
     ```sh
-    git clone https://github.com/your-username/anya-enterprise.git
-    cd anya-enterprise
+    git clone https://github.com/yourusername/anya-core.git
+    cd anya-core
     ```
 
-2. **Build the Docker container**:
+2. Build the project using Cargo:
     ```sh
-    docker-compose up --build
+    cargo build --release
     ```
 
-3. **Open the development environment in VSCode**:
-    - Install the [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension.
-    - Open the repository in VSCode.
-    - Click on the green button in the bottom-left corner and select "Remote-Containers: Reopen in Container".
+### Running the Project
 
-### Post-Create Commands
+1. Run the project:
+    ```sh
+    cargo run
+    ```
 
-After the container is created, the following commands will be run automatically:
+2. Alternatively, you can use Docker to build and run the project:
+    ```sh
+    docker build -t anya-core .
+    docker run -p 8080:8080 anya-core
+    ```
+
+### Testing
+
+1. Run the tests:
+    ```sh
+    cargo test
+    ```
+
+## Contributing
+
+[Contribution guidelines]
+
+## License
+
+This project is licensed under MIT OR Apache-2.0.
