@@ -96,4 +96,8 @@ Thumbs.db               # Windows
 # Tracked code snippets
 tracked_snippets/
 
-
+# Temporary files (merged from both branches)
+*.tmp
+*.bak
+*.swp
+*~.nib

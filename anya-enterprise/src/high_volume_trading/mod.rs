@@ -86,6 +86,12 @@ impl HighVolumeTrading {
     }
 }
 
+pub mod trading_engine;
+pub mod risk_management;
+pub mod order_execution;
+pub mod market_data;
+pub mod analytics;
+
 pub fn init(user_metrics: &UserMetrics, bitcoin_client: BitcoinClient, lightning_client: LightningClient) -> HighVolumeTrading {
     HighVolumeTrading::new(user_metrics.clone(), bitcoin_client, lightning_client)
 }
