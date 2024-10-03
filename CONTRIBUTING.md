@@ -1,67 +1,90 @@
-# Contributing to Anya Core Project
+# Contributing to Anya Core
 
-We welcome contributions to the Anya Core Project! This document outlines our development and release process.
+We love your input! We want to make contributing to this project as easy and transparent as possible, whether it's:
 
-## Development Process
+- Reporting a bug
+- Discussing the current state of the code
+- Submitting a fix
+- Proposing new features
+- Becoming a maintainer
 
-1. Fork the repository and create your branch from `development`.
-2. Make your changes, ensuring you follow our coding standards and guidelines.
-3. Write or update tests as necessary.
-4. Update the `CHANGELOG.md` file with details of your changes.
-5. Submit a pull request to the `development` branch.
+## We Develop with Github
 
-## Release Process
+We use github to host code, to track issues and feature requests, as well as accept pull requests.
 
-1. Development occurs in feature branches and is merged into the `development` branch.
-2. Once a phase is complete and thoroughly tested, a release candidate branch is created (e.g., `release-1.0.0-rc`).
-3. The release candidate undergoes extensive testing and any necessary bug fixes.
-4. When deemed production-ready, the release candidate is merged into `main`.
-5. A new tag is created for the release, following semantic versioning (e.g., v1.0.0).
-6. The `VERSION` file is updated with the new version number.
-7. The `CHANGELOG.md` file is updated to reflect the new release.
+## We Use [Github Flow](https://guides.github.com/introduction/flow/index.html), So All Code Changes Happen Through Pull Requests
 
-## Versioning
+Pull requests are the best way to propose changes to the codebase. We actively welcome your pull requests:
 
-We use [Semantic Versioning](https://semver.org/). Version numbers are in the format MAJOR.MINOR.PATCH.
+1. Fork the repo and create your branch from `main`.
+2. If you've added code that should be tested, add tests.
+3. If you've changed APIs, update the documentation.
+4. Ensure the test suite passes.
+5. Make sure your code lints.
+6. Issue that pull request!
 
-- MAJOR version for incompatible API changes
-- MINOR version for backwards-compatible functionality additions
-- PATCH version for backwards-compatible bug fixes
+## Any contributions you make will be under the MIT Software License
 
-## Reporting Issues
+In short, when you submit code changes, your submissions are understood to be under the same [MIT License](http://choosealicense.com/licenses/mit/) that covers the project. Feel free to contact the maintainers if that's a concern.
 
-If you find a bug or have a suggestion for improvement, please open an issue on our GitHub repository.
+## Report bugs using Github's [issues](https://github.com/botshelomokoka/anya/issues)
 
-## Code Style
+We use GitHub issues to track public bugs. Report a bug by [opening a new issue](https://github.com/botshelomokoka/anya/issues/new); it's that easy!
 
-- Follow the Rust style guide
-- Use `rustfmt` to format your code
-- Run `clippy` and address any warnings before submitting
+## Write bug reports with detail, background, and sample code
 
-## Testing
+**Great Bug Reports** tend to have:
 
-- Write unit tests for all new functionality
-- Use property-based testing for complex logic
-- Aim for at least 80% code coverage
+- A quick summary and/or background
+- Steps to reproduce
+  - Be specific!
+  - Give sample code if you can.
+- What you expected would happen
+- What actually happens
+- Notes (possibly including why you think this might be happening, or stuff you tried that didn't work)
 
-## Submitting Changes
+## Use a Consistent Coding Style
 
-1. Fork the repository
-2. Create a new branch for your changes
-3. Make your changes, including tests and documentation
-4. Run all tests and ensure they pass
-5. Submit a pull request to the `development` branch
+- 4 spaces for indentation rather than tabs
+- You can try running `cargo fmt` for style unification
 
-## Review Process
+## License
 
-- All changes must be reviewed by at least one core contributor
-- Changes to critical components require review by two core contributors
-- All CI checks must pass before merging
+By contributing, you agree that your contributions will be licensed under its MIT License.
 
-## Documentation
+## References
 
-- Update relevant documentation for any changes
-- Provide clear, concise comments in your code
-- For significant changes, update the CHANGELOG.md file
+This document was adapted from the open-source contribution guidelines for [Facebook's Draft](https://github.com/facebook/draft-js/blob/a9316a723f9e918afde44dea68b5f9f39b7d9b00/CONTRIBUTING.md)
 
-Thank you for contributing to the Anya Core Project!
+## Git Worktree Workflow
+
+We use Git worktrees to manage different features and versions of the project. Here's how to use them:
+
+1. Create a new worktree for a feature:
+
+   ```bash
+   git worktree add -b feature-branch ../anya-core-feature-branch main
+   ```
+
+2. Navigate to the new worktree:
+
+   ```bash
+   cd ../anya-core-feature-branch
+   ```
+
+3. Make your changes, commit them, and push to the remote branch:
+
+   ```bash
+   git add .
+   git commit -m "Implement new feature"
+   git push -u origin feature-branch
+   ```
+
+4. When you're done with the feature, you can remove the worktree:
+
+   ```bash
+   cd ..
+   git worktree remove anya-core-feature-branch
+   ```
+
+Remember to keep your worktrees in sync with the main repository by regularly pulling changes from the main branch.

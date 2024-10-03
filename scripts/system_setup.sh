@@ -135,6 +135,7 @@ cargo install cargo-audit
 # Install dependencies for ZK proofs, STX, DLC, Lightning, and Bitcoin support
 print_status "Installing dependencies for advanced features..."
 sudo apt-get install -y libgmp-dev libsodium-dev
+
 # Set up Kademlia and libp2p
 print_status "Setting up Kademlia and libp2p..."
 cargo install libp2p-cli

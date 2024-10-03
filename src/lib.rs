@@ -164,17 +164,47 @@ pub mod blockchain;
 pub mod data_storage;
 pub mod ui;
 
-// Re-export important structs and functions
-pub use user_management::UserManagement;
-pub use network_discovery::NetworkDiscovery;
-pub use blockchain::{BitcoinSupport, LightningSupport, StacksSupport, DLCSupport};
-pub use ml_logic::FederatedLearning;
-pub use identity::{DIDManager, VerifiableCredential};
-pub use data_storage::{IPFSStorage, OrbitDB};
-pub use smart_contracts::{ClarityContract, WasmContract};
-pub use interoperability::{IBCProtocol, CosmosSDK, Polkadot};
-pub use privacy::{ZeroKnowledgeProof, HomomorphicEncryption, SecureMultiPartyComputation};
-pub use ui::{WebInterface, CLI, MobileApp};
+pub mod core;
+pub mod network;
+pub mod blockchain;
+pub mod federated_learning;
+pub mod identity;
+pub mod smart_contracts;
+pub mod interoperability;
+pub mod privacy;
+pub mod ui;
+
+pub mod dlc_support;
+pub mod kademlia;
+
+use crate::network::{
+    bitcoinadapter::BitcoinAdapter,
+    lightningadapter::LightningAdapter,
+    ipfsadapter::IPFSAdapter,
+    stacksadapter::StacksAdapter,
+};
+
+// Re-export important traits and types
+pub use crate::core::{NetworkNode, NetworkType, NetworkDiscovery, ConnectionManager, AdapterRunner};
+
+// Initialize and run all network adapters
+pub async fn run_network_adapters() {
+    let bitcoin_adapter = Arc::new(BitcoinAdapter::new(/* params */));
+    let lightning_adapter = Arc::new(LightningAdapter::new(/* params */));
+    let ipfs_adapter = Arc::new(IPFSAdapter::new(/* params */));
+    let stacks_adapter = Arc::new(StacksAdapter::new(/* params */));
+
+    tokio::join!(
+        bitcoin_adapter.run(),
+        lightning_adapter.run(),
+        ipfs_adapter.run(),
+        stacks_adapter.run()
+    );
+}
+
+// Other initialization and utility functions
+<<<<<<< HEAD
+=======
 
 // Re-export important structs and functions
 pub use user_management::UserManagement;
@@ -208,6 +238,7 @@ pub use smart_contracts::{ClarityContract, WasmContract};
 pub use interoperability::{IBCProtocol, CosmosSDK, Polkadot};
 pub use privacy::{ZeroKnowledgeProof, HomomorphicEncryption, SecureMultiPartyComputation};
 pub use ui::{WebInterface, CLI, MobileApp};
+>>>>>>> 279f5ad40ab979cd8a5acdbfee77325abc6ee5cf
 
 // Re-export important structs and functions
 pub use user_management::UserManagement;
@@ -221,7 +252,17 @@ pub use interoperability::{IBCProtocol, CosmosSDK, Polkadot};
 pub use privacy::{ZeroKnowledgeProof, HomomorphicEncryption, SecureMultiPartyComputation};
 pub use ui::{WebInterface, CLI, MobileApp};
 
+<<<<<<< HEAD
+mod ml_core;
+mod blockchain;
+mod data_feed;
+mod reporting;
+mod management;
+
+pub use crate::ml_logic::dao_rules::AnyaCore;
+=======
 pub mod interlink;
+>>>>>>> 279f5ad40ab979cd8a5acdbfee77325abc6ee5cf
 
 #[cfg(test)]
 mod tests {
@@ -238,4 +279,39 @@ mod tests {
         let config = AnyaConfig::new().expect("Failed to create AnyaConfig");
         assert!(format!("{:?}", config).contains("AnyaConfig"));
     }
+
+    #[test]
+    fn test_federated_learning() {
+        // Add comprehensive tests for federated learning
+    }
+
+    #[test]
+    fn test_blockchain_integration() {
+        // Add comprehensive tests for blockchain integration
+    }
 }
+
+pub mod ml_logic;
+pub mod ml_core;
+
+// Re-export important structs and functions
+pub use crate::ml_logic::mlfee::MLFeeManager;
+
+pub mod rate_limiter;
+pub mod unified_network;
+
+// Re-export important structs and functions
+pub use crate::rate_limiter::RateLimiter;
+pub use crate::unified_network::UnifiedNetworkManager;
+
+pub mod market_data;
+pub mod high_volume_trading;
+
+// Re-export important structs and functions
+pub use crate::ml_logic::dao_rules::AnyaCore;
+pub use crate::market_data::MarketDataFetcher;
+pub use crate::high_volume_trading::HighVolumeTrading;
+
+pub mod chain_support;
+
+// ... rest of the code ...

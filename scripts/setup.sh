@@ -46,7 +46,7 @@ if [ -z "${USER_ROLE:-}" ]; then
     select USER_ROLE in "developer" "user" "owner"; do
         case $USER_ROLE in
             developer|user|owner) break ;;
-            *) log "Invalid selection. Please try again." ;;
+            *)                    log "Invalid selection. Please try again." ;;
         esac
     done
 fi
@@ -62,7 +62,7 @@ if [ -z "${ENVIRONMENT:-}" ]; then
         select ENVIRONMENT in "testnet" "live"; do
             case $ENVIRONMENT in
                 testnet|live) break ;;
-                *) log "Invalid selection. Please try again." ;;
+                *)            log "Invalid selection. Please try again." ;;
             esac
         done
     fi
@@ -88,7 +88,7 @@ sudo apt-get install -y build-essential pkg-config libssl-dev
 cargo build --release
 
 # Set up environment variables
-echo "export ANYA_LOG_LEVEL=info" >> ~/.bashrc
+echo "export ANYA_LOG_LEVEL=info"      >> ~/.bashrc
 echo "export ANYA_NETWORK_TYPE=testnet" >> ~/.bashrc
 
 # Source the updated bashrc
