@@ -121,3 +121,6 @@ config.local.toml
 /*
 # But don't ignore the src directory
 !/src/
+
+# anya-core-config.json
+

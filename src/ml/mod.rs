@@ -23,10 +23,6 @@ use linfa::prelude::*;
 use linfa_linear::LinearRegression;
 use ta::indicators::{ExponentialMovingAverage, RelativeStrengthIndex};
 use statrs::statistics::Statistics;
-<<<<<<< HEAD
-=======
->>>>>>> c9fe62bf07bc8e7e0a11b9b0e4e6375f56b5c4cc
->>>>>>> 279f5ad40ab979cd8a5acdbfee77325abc6ee5cf
 
 #[derive(Error, Debug)]
 pub enum MLError {
@@ -41,6 +37,7 @@ pub enum MLError {
 }
 
 pub struct MLInput {
+    pub timestamp: chrono::DateTime<chrono::Utc>,
     pub features: Vec<f64>,
     pub label: f64,
 }
@@ -297,5 +294,3 @@ pub fn init() -> Result<(), Box<dyn std::error::Error>> {
 // TODO: Implement natural language processing capabilities
 =======
 // TODO: Implement secure aggregation using the SPDZ protocol
->>>>>>> c9fe62bf07bc8e7e0a11b9b0e4e6375f56b5c4cc
->>>>>>> 279f5ad40ab979cd8a5acdbfee77325abc6ee5cf

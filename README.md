@@ -1,67 +1,90 @@
-# Anya Enterprise Development Environment
+# Anya Core Project
 
-## Overview
+Anya Core is a decentralized AI assistant framework leveraging blockchain technologies, federated learning, and advanced cryptography, with enhanced open standards support.
 
-Anya Core is an open-source decentralized AI assistant framework leveraging blockchain technologies, federated learning, and advanced cryptography, implemented entirely in Rust.
+## Current Status
 
-## Features
+- Basic project structure implemented
+- User management system in place
+- STX, DLC, Lightning, and Bitcoin support integrated
+- Kademlia-based network discovery implemented
+- Federated learning module added
+- Basic CLI and testing infrastructure set up
+- Modular architecture with init() functions for all core components
+- Basic error handling and logging implemented
+- AI ethics module with Bitcoin principles added
+- Networking module placeholder created
+- Test structure for core modules established
 
-- Decentralized user management
-- Multi-blockchain support (Bitcoin, Lightning Network, Stacks, DLC)
-- Federated learning with advanced ML models
-- Peer-to-peer networking using libp2p
-- ML models for cryptocurrency analysis and prediction
-- Integration with multiple blockchain technologies
+## Roadmap
 
-## Project Structure
+We are currently working on Phase 1 of our development plan, which includes:
 
-[Project structure details]
+1. Implementing a modular, plugin-based architecture (In Progress)
+2. Applying the Hexagonal Architecture pattern
+3. Implementing a standardized API layer using OpenAPI 3.0
+4. Developing an internal metrics and function awareness system
+5. Fully implementing libp2p for P2P communications
+6. Enhancing Kademlia DHT implementation
+7. Integrating IPFS support
+
+For more details on our development plan and future phases, please see the DEVPLAN.md file.
+
+## Features (Planned)
+
+- Decentralized user management with DIDs and Verifiable Credentials (W3C standards)
+- Multi-blockchain support (Bitcoin, Lightning Network, Stacks, IBC, Cosmos, Polkadot)
+- Advanced federated learning with differential privacy (OpenFL, OpenDP)
+- Peer-to-peer networking using libp2p and IPFS
+- Smart contract support with Clarity and WebAssembly
+- Cross-chain interoperability (IBC, Cosmos SDK, Polkadot XCMP)
+- Enhanced privacy and security measures (Zero-knowledge proofs, Homomorphic encryption, Secure multi-party computation)
+- Web, CLI, and mobile interfaces
 
 ## Getting Started
 
-### Prerequisites
+To run the project:
 
-- Rust (latest stable version)
-- Docker (for containerized development)
-- Git (for version control)
+1. Clone the repository
+2. Install Rust and Cargo
+3. Run `cargo build` to build the project
+4. Run `cargo run` to start the application
 
-### Building the Project
+For development:
 
-1. Clone the repository:
-    ```sh
-    git clone https://github.com/yourusername/anya-core.git
-    cd anya-core
-    ```
-
-2. Build the project using Cargo:
-    ```sh
-    cargo build --release
-    ```
-
-### Running the Project
-
-1. Run the project:
-    ```sh
-    cargo run
-    ```
-
-2. Alternatively, you can use Docker to build and run the project:
-    ```sh
-    docker build -t anya-core .
-    docker run -p 8080:8080 anya-core
-    ```
-
-### Testing
-
-1. Run the tests:
-    ```sh
-    cargo test
-    ```
+1. Run `cargo test` to run the test suite
+2. Use `cargo doc` to generate documentation
 
 ## Contributing
 
-[Contribution guidelines]
+Please see the CONTRIBUTING.md file for details on how to contribute to this project.
 
 ## License
 
-This project is licensed under MIT OR Apache-2.0.
+This project is licensed under either of
+
+ * Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
+ * MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+
+at your option.
+
+## Acknowledgments
+
+[List any acknowledgments or credits here]
+
+## Development and Release Process
+
+We follow a structured development process with multiple branches:
+
+- `main`: The stable, production-ready branch
+- `development`: The primary development branch
+- Feature branches: Separate branches for each major feature or section
+
+### Release Process
+
+1. Development occurs in feature branches and is merged into the `development` branch.
+2. Once a phase is complete and thoroughly tested, a release candidate branch is created.
+3. After extensive testing and when deemed production-ready, the release candidate is merged into `main`.
+4. A new tag is created for each release, following semantic versioning (e.g., v1.0.0).
+
+For more details on contributing and the development process, please see the `CONTRIBUTING.md` file.
