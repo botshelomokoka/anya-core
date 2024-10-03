@@ -1,4 +1,6 @@
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
 mod did;
 mod verifiable_credentials;
 mod web5;
@@ -44,6 +46,7 @@ pub fn init() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize identity module
     Ok(())
 =======
+>>>>>>> 279f5ad40ab979cd8a5acdbfee77325abc6ee5cf
 use crate::core::NetworkNode;
 use thiserror::Error;
 use serde::{Serialize, Deserialize};
@@ -107,5 +110,8 @@ impl IdentityModule {
         // This is a placeholder implementation and should be replaced with actual WebAuthn logic
         Ok(challenge == response)
     }
+<<<<<<< HEAD
+=======
 >>>>>>> c9fe62bf07bc8e7e0a11b9b0e4e6375f56b5c4cc
+>>>>>>> 279f5ad40ab979cd8a5acdbfee77325abc6ee5cf
 }

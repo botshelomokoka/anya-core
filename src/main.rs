@@ -1,4 +1,6 @@
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
 mod architecture;
 mod blockchain;
 mod networking;
@@ -15,6 +17,7 @@ fn main() {
     env_logger::init();
     info!("Anya Core Project - Initializing");
 =======
+>>>>>>> 279f5ad40ab979cd8a5acdbfee77325abc6ee5cf
 mod network;
 mod ml;
 mod bitcoin;
@@ -28,12 +31,17 @@ use std::error::Error;
 fn main() -> Result<(), Box<dyn Error>> {
     env_logger::init();
     info!("Anya Core - Decentralized AI Assistant Framework");
+<<<<<<< HEAD
+=======
 >>>>>>> c9fe62bf07bc8e7e0a11b9b0e4e6375f56b5c4cc
+>>>>>>> 279f5ad40ab979cd8a5acdbfee77325abc6ee5cf
 
     if let Err(e) = run() {
         error!("Application error: {}", e);
         std::process::exit(1);
     }
+<<<<<<< HEAD
+=======
 <<<<<<< HEAD
 }
 
@@ -70,6 +78,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
 
     info!("Anya Core Project - All components initialized");
 =======
+>>>>>>> 279f5ad40ab979cd8a5acdbfee77325abc6ee5cf
 
     Ok(())
 }
@@ -86,6 +95,49 @@ fn run() -> Result<(), Box<dyn Error>> {
     // Start the main application loop
     // TODO: Implement main loop
 
+<<<<<<< HEAD
+=======
 >>>>>>> c9fe62bf07bc8e7e0a11b9b0e4e6375f56b5c4cc
+>>>>>>> 279f5ad40ab979cd8a5acdbfee77325abc6ee5cf
     Ok(())
+}
+
+use crate::api::ApiHandler;
+use crate::unified_network::UnifiedNetworkManager;
+use crate::rate_limiter::RateLimiter;
+use std::sync::Arc;
+use tokio::time::Duration;
+
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    let rate_limiter = Arc::new(RateLimiter::new());
+    let unified_network_manager = Arc::new(UnifiedNetworkManager::new());
+
+    // Start network load monitoring
+    let rate_limiter_clone = Arc::clone(&rate_limiter);
+    let unified_network_manager_clone = Arc::clone(&unified_network_manager);
+    tokio::spawn(async move {
+        unified_network_manager_clone.monitor_network_load(rate_limiter_clone).await;
+    });
+
+    // Periodically auto-adjust system parameters
+    let unified_network_manager_clone = Arc::clone(&unified_network_manager);
+    tokio::spawn(async move {
+        loop {
+            if let Err(e) = unified_network_manager_clone.auto_adjust().await {
+                log::error!("Failed to auto-adjust system parameters: {}", e);
+            }
+            tokio::time::sleep(Duration::from_secs(3600)).await; // Auto-adjust every hour
+        }
+    });
+
+    // Set up API server
+    HttpServer::new(move || {
+        App::new()
+            .app_data(web::Data::new(ApiHandler::new(Arc::clone(&rate_limiter))))
+            .configure(api::config)
+    })
+    .bind("127.0.0.1:8080")?
+    .run()
+    .await
 }

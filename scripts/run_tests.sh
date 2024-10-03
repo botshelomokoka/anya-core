@@ -1,6 +1,5 @@
 #!/bin/bash
 
-<<<<<<< HEAD
 # Run all tests for Anya Core
 
 # Set the project root directory
@@ -8,6 +7,9 @@ PROJECT_ROOT=$(git rev-parse --show-toplevel)
 
 # Change to the project root directory
 cd "$PROJECT_ROOT" || exit
+
+# Set up environment variables
+source .env
 
 # Run cargo tests
 echo "Running cargo tests..."
@@ -53,40 +55,15 @@ cargo test --package anya-core --lib privacy_enhancements
 echo "Running libp2p integration tests..."
 cargo test --package anya-core --test libp2p_integration
 
-# Run any additional custom tests
-echo "Running custom tests..."
-# Add any custom test commands here
-
-echo "All tests completed."
-=======
-# Run all tests for the Anya Core project
-
-# Set up environment variables
-source .env
-
-# Run unit tests
-echo "Running unit tests..."
-cargo test --lib
-
-# Run integration tests
-echo "Running integration tests..."
-cargo test --test '*'
-
-# Run specific module tests
-echo "Running user management tests..."
-cargo test --test user_management_tests
-echo "Running blockchain integration tests..."
-cargo test --test blockchain_integration_tests
-echo "Running ML logic tests..."
-cargo test --test ml_logic_tests
-
-# Run new test categories
+# Run blockchain interoperability tests
 echo "Running blockchain interoperability tests..."
 cargo test --test blockchain_interoperability
-echo "Running privacy and security tests..."
-cargo test --test privacy_and_security
+
+# Run smart contracts tests
 echo "Running smart contracts tests..."
 cargo test --test smart_contracts
+
+# Run user interface tests
 echo "Running user interface tests..."
 cargo test --test user_interface
 
@@ -119,14 +96,9 @@ echo "Running identity tests..."
 cargo test --test identity_tests
 echo "Running data storage tests..."
 cargo test --test data_storage_tests
-echo "Running smart contracts tests..."
-cargo test --test smart_contracts_tests
 echo "Running interoperability tests..."
 cargo test --test interoperability_tests
 echo "Running privacy tests..."
 cargo test --test privacy_tests
-echo "Running UI tests..."
-cargo test --test ui_tests
 
 echo "All tests completed successfully!"
->>>>>>> b706d7c49205d3634e6b11d0309d8911a18a435c
