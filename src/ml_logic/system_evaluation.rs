@@ -1,4 +1,14 @@
 use anyhow::Result;
+<<<<<<< HEAD
+use crate::ml_core::MLCore;
+use crate::blockchain::BlockchainInterface;
+use crate::data_management::DataManager;
+use crate::security::SecurityManager;
+use crate::ml_logic::federated_learning::FederatedLearning;
+
+pub struct SystemEvaluator {
+    blockchain: BlockchainInterface,
+=======
 use ndarray::{Array1, Array2};
 use crate::bitcoin_support::BitcoinSupport;
 use crate::stx_support::STXSupport;
@@ -15,32 +25,57 @@ pub struct SystemEvaluator {
     lightning_support: LightningSupport,
     web5_support: Web5Support,
     config: Config,
+>>>>>>> 279f5ad40ab979cd8a5acdbfee77325abc6ee5cf
     data_manager: DataManager,
     security_manager: SecurityManager,
 }
 
 impl SystemEvaluator {
     pub fn new(
+<<<<<<< HEAD
+        blockchain: BlockchainInterface,
+=======
         bitcoin_support: BitcoinSupport,
         stx_support: STXSupport,
         lightning_support: LightningSupport,
         web5_support: Web5Support,
         config: Config,
+>>>>>>> 279f5ad40ab979cd8a5acdbfee77325abc6ee5cf
         data_manager: DataManager,
         security_manager: SecurityManager,
     ) -> Self {
         Self {
+<<<<<<< HEAD
+            blockchain,
+=======
             bitcoin_support,
             stx_support,
             lightning_support,
             web5_support,
             config,
+>>>>>>> 279f5ad40ab979cd8a5acdbfee77325abc6ee5cf
             data_manager,
             security_manager,
         }
     }
 
     pub async fn evaluate_performance(&self, federated_learning: &FederatedLearning) -> Result<f64> {
+<<<<<<< HEAD
+        let model_performance = self.evaluate_model_performance(&federated_learning.ml_core).await?;
+        let network_performance = self.evaluate_network_performance().await?;
+        let financial_performance = self.evaluate_financial_performance().await?;
+        let data_management_performance = self.evaluate_data_management_performance().await?;
+        let security_performance = self.evaluate_security_performance().await?;
+
+        Ok((model_performance + network_performance + financial_performance + data_management_performance + security_performance) / 5.0)
+    }
+
+    async fn evaluate_model_performance(&self, ml_core: &MLCore) -> Result<f64> {
+        let accuracy = ml_core.get_metric(MetricType::ModelAccuracy).unwrap_or(0.0);
+        let loss = ml_core.get_metric(MetricType::ModelLoss).unwrap_or(1.0);
+        let convergence_rate = ml_core.get_metric(MetricType::ConvergenceRate).unwrap_or(0.0);
+        
+=======
         let model_performance = self.evaluate_model_performance(federated_learning).await?;
         let network_performance = self.evaluate_network_performance().await?;
         let financial_performance = self.evaluate_financial_performance().await?;
@@ -57,10 +92,23 @@ impl SystemEvaluator {
         let convergence_rate = federated_learning.get_convergence_rate().await?;
         
         // Combine accuracy, loss, and convergence rate into a single performance metric
+>>>>>>> 279f5ad40ab979cd8a5acdbfee77325abc6ee5cf
         Ok(0.5 * accuracy + 0.3 * (1.0 - loss) + 0.2 * convergence_rate)
     }
 
     async fn evaluate_network_performance(&self) -> Result<f64> {
+<<<<<<< HEAD
+        self.blockchain.get_network_performance().await
+    }
+
+    async fn evaluate_financial_performance(&self) -> Result<f64> {
+        let balance = self.blockchain.get_balance().await?;
+        let target_balance = self.blockchain.get_target_balance().await?;
+
+        let roi = self.calculate_roi(balance, target_balance);
+        let liquidity = self.blockchain.get_liquidity_ratio().await?;
+        let diversification = self.blockchain.get_diversification().await?;
+=======
         let bitcoin_performance = self.bitcoin_support.get_network_performance().await?;
         let stx_performance = self.stx_support.get_network_performance().await?;
         let lightning_performance = self.lightning_support.get_network_performance().await?;
@@ -80,6 +128,7 @@ impl SystemEvaluator {
         let roi = self.calculate_roi(total_balance, target_balance);
         let liquidity = self.calculate_liquidity_ratio(bitcoin_balance, stx_balance, lightning_balance);
         let diversification = self.calculate_diversification(bitcoin_balance, stx_balance, lightning_balance);
+>>>>>>> 279f5ad40ab979cd8a5acdbfee77325abc6ee5cf
         
         Ok(0.4 * roi + 0.3 * liquidity + 0.3 * diversification)
     }
@@ -88,6 +137,8 @@ impl SystemEvaluator {
         (current_balance - initial_balance) / initial_balance
     }
 
+<<<<<<< HEAD
+=======
     fn calculate_liquidity_ratio(&self, bitcoin: f64, stx: f64, lightning: f64) -> f64 {
         let total = bitcoin + stx + lightning;
         if total == 0.0 {
@@ -116,6 +167,7 @@ impl SystemEvaluator {
         Ok(0.4 * (1.0 / record_creation_time) + 0.3 * (1.0 / query_response_time) + 0.3 * (1.0 / did_resolution_time))
     }
 
+>>>>>>> 279f5ad40ab979cd8a5acdbfee77325abc6ee5cf
     async fn evaluate_data_management_performance(&self) -> Result<f64> {
         let data_integrity = self.data_manager.check_data_integrity().await?;
         let storage_efficiency = self.data_manager.measure_storage_efficiency().await?;
