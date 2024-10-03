@@ -59,6 +59,8 @@ use linear_regression::LinearRegression;
 use std::cmp::Ordering;
 use linfa::prelude::*;
 use ndarray::{Array1, Array2};
+use crate::ml_logic::system_evaluation::SystemEvaluator;
+use crate::ml_logic::federated_learning::FederatedLearning;
 
 const BNS_API_BASE_URL: &str = "https://api.bns.xyz";
 
@@ -111,6 +113,8 @@ struct System {
     performance_threshold:       f64,
     performance_history:        Vec<f64>,
     max_history_length:         usize,
+    system_evaluator:          SystemEvaluator,
+    federated_learning:        FederatedLearning,
 }
 
 impl System {
@@ -150,6 +154,8 @@ impl System {
             performance_threshold:      0.6,
             performance_history:        Vec::new(),
             max_history_length:        100,
+            system_evaluator:          SystemEvaluator::new(),
+            federated_learning:        FederatedLearning::new(),
         }
     }
 
@@ -600,6 +606,10 @@ impl System {
 
         info!("Model refinement completed");
         Ok(())
+    }
+
+    pub async fn evaluate_system_performance(&self) -> Result<f64> {
+        self.system_evaluator.evaluate_performance(&self.federated_learning).await
     }
 }
 
