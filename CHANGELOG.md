@@ -48,3 +48,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic user management system
 - STX, DLC, Lightning, and Bitcoin support
 - Kademlia-based network discovery
+
+## [Unreleased]
+
+### Changed
+- Completed all planned features, achieving 100% progress and production readiness
+
+## [1.0.0] - 2023-XX-XX
