@@ -37,6 +37,7 @@ pub enum MLError {
 }
 
 pub struct MLInput {
+    pub timestamp: chrono::DateTime<chrono::Utc>,
     pub features: Vec<f64>,
     pub label: f64,
 }
