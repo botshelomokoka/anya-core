@@ -1,4 +1,5 @@
 use bitcoincore_rpc::{Auth, Client, RpcApi};
+use dlc_btc_lib::{Dlc, ...}; // Added the new import
 use std::error::Error;
 
 pub struct BitcoinRPC {

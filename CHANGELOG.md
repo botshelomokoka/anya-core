@@ -25,7 +25,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactored project structure to align with the new rewrite plan
 - Aligned date formats across all documentation files (README.md, CHANGELOG.md, ROADMAP.md)
 
-
 ### Removed (1)
 
 - DEVPLAN.md (content merged into ROADMAP.md)
