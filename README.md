@@ -19,16 +19,19 @@ Anya Core is the foundational framework that provides essential functionalities 
 To install Anya Core, follow these steps:
 
 1. Clone the repository:
+
    ```bash
-   git clone https://github.com/anya-core/anya-core.git
+   git clone https://github.com/botshelomokoka/anya-core.git
    ```
 
 2. Navigate to the project directory:
+
    ```bash
    cd anya-core
    ```
 
 3. Build the project:
+
    ```bash
    cargo build --release
    ```
