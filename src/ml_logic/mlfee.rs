@@ -9,6 +9,7 @@ use crate::ml_logic::dao_rules::DAORules;
 use std::collections::HashMap;
 use crate::error::AnyaError;
 use crate::types::Satoshis;
+use log::{info, error};
 
 pub struct MLFee {
     base_fee: Satoshis,
@@ -101,7 +102,8 @@ impl MLFeeManager {
         Ok(best_time)
     }
 
-    pub fn update_fee_model_performance(&mut self, tx_hash: &str, actual_fee: Satoshis) -> Result<(), AnyaError> {
+    pub fn update_fee_model_performance(&mut self, tx_hash: &str, actual_fee: Amount) -> Result<(), AnyaError> {
+        info!("Updating fee model performance for transaction: {}", tx_hash);
         let estimated_fee = self.estimate_fee(250)?;
         let error = (actual_fee.0 as f64 - estimated_fee.0 as f64).abs() / estimated_fee.0 as f64;
 
