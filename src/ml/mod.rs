@@ -1,3 +1,13 @@
+/// The code defines a Rust module for machine learning with a focus on federated learning, Bitcoin
+/// price prediction, and internal AI engine functionalities.
+/// 
+/// Returns:
+/// 
+/// The code snippet is returning a module structure for a machine learning (ML) system. It includes
+/// definitions for ML models, error handling for ML operations, input and output structures, an
+/// internal AI engine, initialization functions, and placeholders for future implementations such as
+/// differential privacy techniques, secure aggregation using the SPDZ protocol, advanced aggregation
+/// algorithms, integration with external AI services, and natural language processing capabilities.
 mod federated_learning;
 mod bitcoin_models;
 
@@ -45,21 +55,21 @@ pub trait MLModel {
 }
 
 pub struct InternalAIEngine {
-    global_model: LinearRegression<f64, f64>,
+    global_model: LinearRegression<f64, f64>, // Changed from Array1<f64> to LinearRegression
     local_models: Vec<Array1<f64>>,
     performance_history: Vec<f64>,
-    ema: ExponentialMovingAverage,
-    rsi: RelativeStrengthIndex,
+    ema: ExponentialMovingAverage, // Added EMA for optimization
+    rsi: RelativeStrengthIndex, // Added RSI for optimization
 }
 
 impl InternalAIEngine {
     pub fn new() -> Self {
         Self {
-            global_model: LinearRegression::default(),
+            global_model: LinearRegression::default(), // Initialize as LinearRegression
             local_models: Vec::new(),
             performance_history: Vec::new(),
-            ema: ExponentialMovingAverage::new(14).unwrap(),
-            rsi: RelativeStrengthIndex::new(14).unwrap(),
+            ema: ExponentialMovingAverage::new(14).unwrap(), // Initialize EMA
+            rsi: RelativeStrengthIndex::new(14).unwrap(), // Initialize RSI
         }
     }
 
@@ -142,8 +152,9 @@ pub fn init() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-// TODO: Implement differential privacy techniques
-// TODO: Implement secure aggregation using the SPDZ protocol
-// TODO: Implement advanced aggregation algorithms
-// TODO: Integrate with external AI services for enhanced functionality
-// TODO: Implement natural language processing capabilities
+// TODO: Implement the following tasks:
+// - Differential privacy techniques
+// - Secure aggregation using the SPDZ protocol
+// - Advanced aggregation algorithms
+// - Integration with external AI services for enhanced functionality
+// - Natural language processing capabilities
