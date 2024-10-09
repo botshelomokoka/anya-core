@@ -1,6 +1,5 @@
 # Contributing to Anya Core
 
-<<<<<<< HEAD
 We welcome contributions to the Anya Core project! This document provides guidelines for contributing to the project.
 
 ## Table of Contents
@@ -76,7 +75,6 @@ Join our community channels to discuss the project, ask questions, and get help:
 - [Forum](https://forum.anyacore.org)
 
 Thank you for contributing to Anya Core!
-=======
 We welcome contributions to the Anya Core project! This document provides guidelines for contributing to the project, including how to maintain code consistency across the project.
 
 ## Getting Started
@@ -166,4 +164,3 @@ If you find a bug or have a suggestion for improvement:
 Please note that this project is released with a Contributor Code of Conduct. By participating in this project you agree to abide by its terms.
 
 Thank you for contributing to Anya Core and helping build a revolutionary Bitcoin intelligence platform!
->>>>>>> b706d7c49205d3634e6b11d0309d8911a18a435c

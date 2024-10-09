@@ -1,3 +1,22 @@
+use log::{info, error};
+use tokio::time::{Duration, sleep};
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
+use crate::api::PyConfig;
+use crate::error::AnyaResult;
+use crate::network::Network;
+use crate::ml::ML;
+use crate::bitcoin::Bitcoin;
+use crate::lightning::Lightning;
+use crate::dlc::DLC;
+use crate::stacks::Stacks;
+use crate::advanced_analytics::AdvancedAnalytics;
+use crate::high_volume_trading::HighVolumeTrading;
+use crate::enterprise::EnterpriseFeatures;
+
+mod api;
+mod error;
+mod logging;
 mod network;
 mod ml;
 mod bitcoin;
@@ -6,25 +25,16 @@ mod dlc;
 mod stacks;
 mod advanced_analytics;
 mod high_volume_trading;
-mod api;
-mod error;
-mod logging;
-
-use log::{info, error};
-use tokio::time::{Duration, sleep};
-use std::sync::Arc;
-use std::sync::atomic::{AtomicBool, Ordering};
-use crate::api::PyConfig;
-use crate::error::AnyaResult;
+mod enterprise;
 
 #[actix_web::main]
 async fn main() -> AnyaResult<()> {
-    logging::init()?;
+    logging::init()?; // Initialize logging
     info!("Anya Enterprise - Advanced Decentralized AI Assistant Framework");
     
     let config = PyConfig::new();
     
-    // Initialize modules with enterprise features
+    // Initialize modules
     let network = network::init(&config.inner)?;
     let ml = ml::init(&config.inner)?;
     let bitcoin = bitcoin::init(&config.inner)?;
@@ -38,7 +48,7 @@ async fn main() -> AnyaResult<()> {
     let api_server = api::start_api_server(config.clone());
     
     // Start the main application loop
-    let main_loop = run_enterprise_features(
+    let main_loop = enterprise::run_enterprise_features(
         network,
         ml,
         bitcoin,
@@ -64,5 +74,3 @@ async fn main() -> AnyaResult<()> {
 
     Ok(())
 }
-
-// ... (update other functions to use AnyaResult and logging) ...

@@ -2,6 +2,10 @@
 target/
 **/*.rs.bk
 Cargo.lock
+# Rust-specific
+target/
+**/*.rs.bk
+Cargo.lock
 
 # Build artifacts
 dist/
@@ -51,6 +55,12 @@ wallet_data.json
 *.bak
 *~
 
+# OS generated files
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
 # Dependency directories
 node_modules/
 
@@ -80,5 +90,14 @@ benchmarks/results/
 # Local configuration files
 config.local.toml
 
-# Project-specific
-# (node_modules/ already included above)
+# Temporary Anya files
+.anya-temp/
+
+# Anya logs
+anya-logs/
+
+# Anya data
+anya-data/
+
+# Anya backups
+anya-backups/

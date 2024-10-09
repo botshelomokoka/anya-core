@@ -5,6 +5,7 @@ use bitcoin::util::address::Address;
 use bitcoin::hashes::Hash;
 use bitcoin::Transaction;
 use bitcoin::util::bip32::{ExtendedPrivKey, ExtendedPubKey};
+use dlc_btc_lib::{Dlc, ...}; // Import necessary modules from the DLC library
 
 pub struct BitcoinWallet {
     client: Client,
@@ -43,6 +44,12 @@ impl BitcoinWallet {
         // Implement transaction verification logic
         // This is a placeholder implementation
         Ok(true) // Replace with actual verification logic
+    }
+
+    // Add a method to create a DLC
+    pub fn create_dlc(&self, params: ...) -> Result<Dlc, Box<dyn std::error::Error>> {
+        let dlc = Dlc::new(params); // Initialize with appropriate parameters
+        Ok(dlc)
     }
 
     // Other methods...

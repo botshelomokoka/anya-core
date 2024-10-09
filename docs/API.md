@@ -22,6 +22,8 @@
 
 This document provides a comprehensive guide to the Anya Core API, detailing the available endpoints, request/response formats, and authentication methods for both open-source and enterprise features.
 
+This document provides a comprehensive guide to the Anya Core API, detailing the available endpoints, request/response formats, and authentication methods.
+
 ## Authentication
 
 All API requests require authentication using JSON Web Tokens (JWT). Include the JWT in the Authorization header of your requests:
