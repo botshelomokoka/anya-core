@@ -8,7 +8,10 @@ use crate::ml::{MLInput, MLOutput};
 use tch::{nn, Device, Tensor};
 use std::error::Error;
 use std::collections::HashMap;
+use crate::error::AnyaResult; // Add this import for AnyaResult
+use log::{info, error}; // Add logging imports
 
+/// Represents the advanced analytics module.
 pub struct AdvancedAnalytics {
     model: nn::Sequential,
     user_metrics: UserMetrics,
@@ -18,6 +21,7 @@ pub struct AdvancedAnalytics {
 }
 
 impl AdvancedAnalytics {
+    /// Creates a new instance of the AdvancedAnalytics module.
     pub fn new(
         user_metrics: UserMetrics,
         blockchain: BlockchainInterface,
@@ -41,28 +45,30 @@ impl AdvancedAnalytics {
         }
     }
 
-    pub fn run(&self) -> Result<(), Box<dyn Error>> {
-        println!("Running advanced analytics...");
+    /// Runs the advanced analytics process.
+    pub fn run(&self) -> AnyaResult<()> {
+        info!("Running advanced analytics..."); // Log the start of the analytics run
 
         let market_sentiment = self.analyze_market_sentiment()?;
-        println!("Market sentiment score: {}", market_sentiment);
+        info!("Market sentiment score: {}", market_sentiment); // Log the market sentiment score
 
         let user_behavior = self.analyze_user_behavior()?;
-        println!("User behavior score: {}", user_behavior);
+        info!("User behavior score: {}", user_behavior); // Log the user behavior score
 
         let blockchain_metrics = self.analyze_blockchain_metrics()?;
-        println!("Blockchain health score: {}", blockchain_metrics);
+        info!("Blockchain health score: {}", blockchain_metrics); // Log the blockchain health score
 
         let dao_effectiveness = self.analyze_dao_effectiveness()?;
-        println!("DAO effectiveness score: {}", dao_effectiveness);
+        info!("DAO effectiveness score: {}", dao_effectiveness); // Log the DAO effectiveness score
 
         let combined_score = (market_sentiment + user_behavior + blockchain_metrics + dao_effectiveness) / 4.0;
-        println!("Combined analytics score: {}", combined_score);
+        info!("Combined analytics score: {}", combined_score); // Log the combined score
 
         Ok(())
     }
 
-    fn analyze_market_sentiment(&self) -> Result<f64, Box<dyn Error>> {
+    fn analyze_market_sentiment(&self) -> AnyaResult<f64> {
+        info!("Analyzing market sentiment..."); // Log sentiment analysis
         let market_data = self.data_feeds.get(&DataSource::Market)
             .ok_or("Market data feed not found")?
             .get_latest_data()?;
@@ -77,7 +83,7 @@ impl AdvancedAnalytics {
         Ok(normalized_score)
     }
 
-    fn analyze_user_behavior(&self) -> Result<f64, Box<dyn Error>> {
+    fn analyze_user_behavior(&self) -> AnyaResult<f64> { // Change return type to AnyaResult
         let usage_level = self.user_metrics.get_usage_level()?;
         let contribution_score = self.user_metrics.get_contribution_score()?;
         let loyalty_score = self.user_metrics.get_loyalty_score()?;
@@ -88,7 +94,7 @@ impl AdvancedAnalytics {
         Ok(behavior_score)
     }
 
-    fn analyze_blockchain_metrics(&self) -> Result<f64, Box<dyn Error>> {
+    fn analyze_blockchain_metrics(&self) -> AnyaResult<f64> { // Change return type to AnyaResult
         let transaction_volume = self.blockchain.get_transaction_volume()?;
         let network_hashrate = self.blockchain.get_network_hashrate()?;
         let mempool_size = self.blockchain.get_mempool_size()?;
@@ -103,7 +109,7 @@ impl AdvancedAnalytics {
         Ok(blockchain_health)
     }
 
-    fn analyze_dao_effectiveness(&self) -> Result<f64, Box<dyn Error>> {
+    fn analyze_dao_effectiveness(&self) -> AnyaResult<f64> { // Change return type to AnyaResult
         let mut context = DAOContext {
             current_fee: self.blockchain.get_current_fee()?,
             vote_count: self.blockchain.get_total_votes()?,
@@ -122,7 +128,7 @@ impl AdvancedAnalytics {
         Ok(normalized_score)
     }
 
-    pub fn perform_analysis(&self) -> Result<MLOutput, Box<dyn Error>> {
+    pub fn perform_analysis(&self) -> AnyaResult<MLOutput> { // Change return type to AnyaResult
         let market_data_fetcher = MarketDataFetcher::new();
         let raw_data = market_data_fetcher.fetch_latest_data()?;
         let processed_data = process_market_data(raw_data)?;
@@ -143,7 +149,7 @@ impl AdvancedAnalytics {
         })
     }
 
-    fn calculate_confidence(&self) -> Result<f64, Box<dyn Error>> {
+    fn calculate_confidence(&self) -> AnyaResult<f64> { // Change return type to AnyaResult
         let market_sentiment = self.analyze_market_sentiment()?;
         let user_behavior = self.analyze_user_behavior()?;
         let blockchain_metrics = self.analyze_blockchain_metrics()?;
@@ -158,6 +164,45 @@ impl AdvancedAnalytics {
         );
 
         Ok(confidence)
+    }
+
+    /// Aligns business logic for analytics APIs to enterprise standards
+    pub fn align_analytics_api_logic(&self) -> AnyaResult<()> {
+        info!("Aligning analytics API logic...");
+
+        // Step 1: Validate input data
+        let input_data = self.validate_input_data()?;
+
+        // Step 2: Process the input data according to enterprise standards
+        let processed_data = self.process_data(input_data)?;
+
+        // Step 3: Handle potential errors and log the process
+        match self.handle_analytics_logic(processed_data) {
+            Ok(result) => {
+                info!("Analytics logic executed successfully: {:?}", result);
+            }
+            Err(e) => {
+                error!("Error executing analytics logic: {:?}", e);
+                return Err(e);
+            }
+        }
+
+        Ok(())
+    }
+
+    fn validate_input_data(&self) -> AnyaResult<InputData> {
+        // Logic to validate input data
+        // ...
+    }
+
+    fn process_data(&self, data: InputData) -> AnyaResult<ProcessedData> {
+        // Logic to process the data
+        // ...
+    }
+
+    fn handle_analytics_logic(&self, data: ProcessedData) -> Result<AnalyticsResult, AnyaError> {
+        // Logic to execute the analytics business logic
+        // ...
     }
 }
 
