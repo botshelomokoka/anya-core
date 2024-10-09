@@ -75,15 +75,6 @@ yarn-error.log*
 /jspm_packages/
 
 # Anya-specific
-/anya-core/target/
-/anya-cli/target/
-/anya-gui/target/
-/anya-node/target/
-/anya-wallet/target/
-/.anya-temp/
-/anya-logs/
-/anya-data/
-/anya-backups/
 
 # Documentation
 /docs/_build/
