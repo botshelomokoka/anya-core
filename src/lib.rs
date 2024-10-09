@@ -298,8 +298,6 @@ pub async fn run_network_adapters() {
 }
 
 // Other initialization and utility functions
-<<<<<<< HEAD
-=======
 
 // Re-export important structs and functions
 pub use user_management::UserManagement;
@@ -333,7 +331,6 @@ pub use smart_contracts::{ClarityContract, WasmContract};
 pub use interoperability::{IBCProtocol, CosmosSDK, Polkadot};
 pub use privacy::{ZeroKnowledgeProof, HomomorphicEncryption, SecureMultiPartyComputation};
 pub use ui::{WebInterface, CLI, MobileApp};
->>>>>>> 279f5ad40ab979cd8a5acdbfee77325abc6ee5cf
 
 // Re-export important structs and functions
 pub use user_management::UserManagement;
@@ -347,7 +344,6 @@ pub use interoperability::{IBCProtocol, CosmosSDK, Polkadot};
 pub use privacy::{ZeroKnowledgeProof, HomomorphicEncryption, SecureMultiPartyComputation};
 pub use ui::{WebInterface, CLI, MobileApp};
 
-<<<<<<< HEAD
 mod ml_core;
 mod blockchain;
 mod data_feed;
@@ -355,9 +351,6 @@ mod reporting;
 mod management;
 
 pub use crate::ml_logic::dao_rules::AnyaCore;
-=======
-pub mod interlink;
->>>>>>> 279f5ad40ab979cd8a5acdbfee77325abc6ee5cf
 
 #[cfg(test)]
 mod tests {
