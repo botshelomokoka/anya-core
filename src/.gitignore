@@ -65,11 +65,7 @@ ehthumbs.db
 node_modules/
 
 # Anya-specific
-anya-core/target/
-anya-cli/target/
-anya-gui/target/
-anya-node/target/
-anya-wallet/target/
+config.local.toml
 .anya-temp/
 anya-logs/
 anya-data/
