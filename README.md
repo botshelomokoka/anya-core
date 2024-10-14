@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# anya-enterprise
-=======
 # Anya Enterprise
 
 Anya Enterprise is a commercial extension of Anya Core, providing advanced features for enterprise users.
@@ -25,4 +22,4 @@ All features from Anya Core, plus:
 ## License
 
 This project is licensed under a commercial license. Please contact for details.
->>>>>>> 8213591 (Refactor project structure and add enterprise features)
+
