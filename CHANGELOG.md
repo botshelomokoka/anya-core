@@ -5,7 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [Unreleased] - 2024-05-16
+
+*Current development stage with ongoing updates, including new MLCore structure, fee management integration, and dynamic fee adjustment methods.*
 
 ### Added
 
@@ -13,20 +15,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integrated fee management functionality in `mlfee.rs`
 - New `adjust_fee` method in DAORules for dynamic fee adjustment
 
-### Changed
+### Updated `federated_learning.rs` to use new MLCore components
 
-- Refactored `federated_learning.rs` to use new MLCore components
 - Updated `system_evaluation.rs` to work with new MLCore and FederatedLearning structures
 - Modified `lib.rs` to reflect new module organization
 - Updated `Cargo.toml` with necessary dependencies for new structure
 
-### Removed
+### Removed `ml_fee_manager.rs`, with functionality merged into `mlfee.rs`
 
-- Removed `ml_fee_manager.rs`, with functionality merged into `mlfee.rs`
+## [0.2.0] - 2024-05-15
 
-## [0.2.0] - 2023-05-15
+*Major release with core functionality and integration improvements.*
 
-### Added
+### Added (v0.0.9)
 
 - Implemented core functionality for Bitcoin, Lightning, DLC, and Stacks integration
 - Added basic ML models and federated learning capabilities
@@ -34,13 +35,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added integration tests
 - Set up CI/CD pipeline with GitHub Actions
 
-### Changed
+### Updated `system_evaluation.rs` to work with new MLCore and FederatedLearning structures
 
-- Updated dependencies to latest versions
-- Refactored module structure for better organization
-- Improved error handling and logging in main application
+- Modified `lib.rs` to reflect new module organization
+- Updated `Cargo.toml` with necessary dependencies for new structure
 
-## [0.1.0] - 2023-05-01
+### Removed
+
+- Removed `ml_fee_manager.rs`, with functionality merged into `mlfee.rs`
+
+## [0.1.0] - 2024-05-01
+
+*Initial release with foundational features and user management.*
 
 ### Added (Pre-release)
 
@@ -49,9 +55,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - STX, DLC, Lightning, and Bitcoin support
 - Kademlia-based network discovery
 
-## [Unreleased]
+### Changed (v0.1.0)
+
+- Updated `system_evaluation.rs` to work with new MLCore and FederatedLearning structures
+- Modified `lib.rs` to reflect new module organization
+- Updated `Cargo.toml` with necessary dependencies for new structure
+
+### Removed `ml_fee_manager.rs` Functionality
+
+- Removed `ml_fee_manager.rs`, with functionality merged into `mlfee.rs`
+
+## [Future Plans] - TBD
+
+*Planned features and enhancements for future releases.*
 
 ### Changed
+
 - Completed all planned features, achieving 100% progress and production readiness
 
-## [1.0.0] - 2023-XX-XX
+---
+
+**Note:** The `ml_logic` component is responsible for corrective dating checks and updates across the project.

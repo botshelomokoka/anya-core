@@ -2,7 +2,7 @@ use std::error::Error;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use log::{info, error};
-use dlc::{DlcManager, OracleInfo, Offer, Contract, Outcome};
+use dlc_btc_lib::{Dlc, ...}; // Updated import to align with dlc_btc_lib
 use bitcoin::Network;
 
 pub struct DLCSupport {
