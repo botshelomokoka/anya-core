@@ -25,6 +25,7 @@ use super::peer_discovery::PeerDiscoveryService;
 use super::transaction_analysis::TransactionAnalyzer;
 use super::lightning_network_optimization::LightningNetworkOptimizer;
 use super::dlc_contract_evaluation::DLCContractEvaluator;
+use log::{info, error}; // Add logging imports
 
 pub struct MLFeeManager {
     fee_estimator: Box<dyn FeeEstimator>,
@@ -226,9 +227,10 @@ impl MLFeeManager {
     }
 
     pub async fn update_fee_model_performance(&mut self, tx_hash: &str, actual_fee: Satoshis) -> Result<(), AnyaError> {
+        info!("Updating fee model performance for transaction: {}", tx_hash);
         if let Some(predicted_fee) = self.fee_history.back().map(|(_, fee)| *fee) {
             let error = (actual_fee.0 as f64 - predicted_fee.0 as f64).abs();
-            log::info!("Fee prediction error for tx {}: {} sats", tx_hash, error);
+            info!("Fee prediction error for tx {}: {} sats", tx_hash, error);
             
             if error > predicted_fee.0 as f64 * 0.2 {
                 self.update_model_if_needed().await?;
@@ -251,7 +253,7 @@ impl MLFeeManager {
 
     pub async fn handle_fee_spike(&mut self) -> Result<(), AnyaError> {
         if self.detect_fee_spike() {
-            log::warn!("Fee spike detected. Adjusting fee strategy.");
+            info!("Fee spike detected. Adjusting fee strategy.");
             self.dao_rules.fee_allocation_ratio *= 1.2;
             self.update_model_if_needed().await?;
         }
