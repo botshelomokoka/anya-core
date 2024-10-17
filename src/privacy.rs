@@ -1,4 +1,3 @@
-use bulletproofs::r1cs::BulletproofGens;
 use thiserror::Error;
 use bulletproofs::r1cs::{Prover, R1CSError};
 use bulletproofs::BulletproofGens;
