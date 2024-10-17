@@ -5,6 +5,7 @@ use bitcoin::network::constants::Network;
 use bitcoin::blockdata::transaction::Transaction;
 use bitcoin::blockdata::script::Script;
 use bitcoin::util::psbt::PartiallySignedTransaction;
+use bitcoin::util::psbt::PartiallySignedTransaction as Psbt;
 
 pub struct PrivacyModule;
 

@@ -129,9 +129,9 @@ macro_rules! rate_limited_endpoint {
 // Example of using the macro for an endpoint
 async fn get_advanced_analytics(req: HttpRequest, body: web::Bytes) -> impl Responder {
     // Implement the logic for advanced analytics here
-    HttpResponse::Ok().json({
+    HttpResponse::Ok().json(serde_json::json!({
         "message": "Advanced analytics data"
-    })
+    }))
 }
 
 pub fn config(cfg: &mut web::ServiceConfig) {
