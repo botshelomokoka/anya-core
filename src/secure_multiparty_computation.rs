@@ -18,9 +18,20 @@ impl SecureMultipartyComputation {
             return Err(SMCError::InvalidThreshold);
         }
         // Initialize p, q, and g with some default values or generate them
-        let p = BigUint::one(); // Placeholder, replace with actual large prime
-        let q = BigUint::one(); // Placeholder, replace with actual prime factor of p-1
-        let g = BigUint::one(); // Placeholder, replace with actual generator
+        // Generate large prime p, prime factor q of p-1, and generator g
+        let p = BigUint::parse_bytes(
+            b"FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E08"
+            b"8A67CC74020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245E485B576625E7EC6F44C42E9A63A36210000000000090563", 
+            16
+        ).unwrap();
+        let q = BigUint::parse_bytes(
+            b"7FFFFFFFFFFFFFFFE487ED5110B4611A62633145C06E0E68948127044533E63A0105DF5318D89C9128A505C7C1A026EF7CA8CD9E1D1A18D15985B7F62A262170800000000000482B1",
+            16
+        ).unwrap();
+        let g = BigUint::parse_bytes(
+            b"2",
+            16
+        ).unwrap();
 
         Ok(Self { num_parties, threshold, p, q, g })
         // Initialize p, q, and g with some default values or generate them
@@ -58,12 +69,12 @@ impl SecureMultipartyComputation {
         let mut rng = rand::thread_rng();
         let k: BigUint = rng.gen_biguint_below(&self.q);
         let r = self.g.modpow(&k, &self.p);
-        let e = self.hash(&r)?;56(&r);
+        let e = self.hash(&r)?;
         let s = (&k + e * x) % &self.q;
         Ok((r, s))
     }
 
-    pub fn schnorr_verify(&self, y: &BigUint, r: &BigUint, s: &BigUint) -> bool {
+    pub fn schnorr_verify(&self, y: &BigUint, r: &BigUint, s: &BigUint) -> Result<bool, SMCError> {
         let e = self.hash(r)?;
         let lhs = self.g.modpow(s, &self.p);
         let rhs = (r * y.modpow(&e, &self.p)) % &self.p;
@@ -71,7 +82,6 @@ impl SecureMultipartyComputation {
     }
 
     fn hash(&self, value: &BigUint) -> Result<BigUint, SMCError> {
-        use sha2::{Sha256, Digest};
         let mut hasher = Sha256::new();
         hasher.update(value.to_bytes_be());
         let result = hasher.finalize();
@@ -79,7 +89,6 @@ impl SecureMultipartyComputation {
     }
 
     fn create_shares(&self, inputs: &[Vec<u8>]) -> Result<Vec<Vec<Vec<u8>>>, SMCError> {
-        use rand::Rng;
         let mut rng = rand::thread_rng();
         let mut shares = vec![vec![vec![0u8; self.num_parties]; self.threshold]; inputs.len()];
 
@@ -90,11 +99,9 @@ impl SecureMultipartyComputation {
             for j in 1..self.threshold {
                 coefficients[j] = rng.gen();
             }
-                coefficients[j] = rng.gen();
-            }
 
             for x in 1..=self.num_parties {
-                shares[i][x - 1] = evaluate_polynomial(&coefficients, x as u8);
+                shares[i][x - 1] = Self::evaluate_polynomial_at_point(&coefficients, x as u8);
             }
         }
 
@@ -115,19 +122,7 @@ impl SecureMultipartyComputation {
 
         Ok(result)
     }
-            for x in 1..=self.num_parties {
-                shares[i][x - 1] = evaluate_polynomial(&coefficients, x as u8);
-            }
-        }
 
-        Ok(shares)
-    }   }
-
-        Ok(shares)
-    }
-
-    fn create_shares(&self, inputs: &[Vec<u8>]) -> Result<Vec<Vec<Vec<u8>>>, SMCError> {
-        // TODO: Implement Shamir's Secret Sharing
     fn reconstruct_secret(&self, shares: Vec<Vec<u8>>) -> Result<Vec<u8>, SMCError> {
         if shares.is_empty() {
             return Err(SMCError::InvalidShares);
@@ -142,19 +137,6 @@ impl SecureMultipartyComputation {
         }
 
         Ok(secret)
-    }n compute_on_shares(&self, shares: Vec<Vec<Vec<u8>>>) -> Result<Vec<Vec<u8>>, SMCError> {
-/// Evaluates a polynomial at a given point x using the provided coefficients.
-/// 
-/// # Arguments
-///
-/// * `coefficients` - A slice of coefficients for the polynomial, where the first element is the constant term.
-/// * `x` - The point at which to evaluate the polynomial.
-///
-/// # Returns
-///
-/// The result of the polynomial evaluation at point x.
-fn evaluate_polynomial_at_point(coefficients: &[u8], x: u8) -> u8 {
-        unimplemented!()
     }
 
     fn reconstruct_secret(&self, shares: Vec<Vec<u8>>) -> Result<Vec<u8>, SMCError> {

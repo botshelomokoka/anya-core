@@ -18,6 +18,7 @@ members = [
 
 [dependencies]
 # Async runtime and networking
+<<<<<<< HEAD
 tokio = { version = "1.32", features = ["full", "test-util"] }
 libp2p = "0.51"
 
@@ -56,6 +57,46 @@ rust-bert = "0.21"
 
 # Distributed systems and storage
 ipfs-api = "0.9"
+=======
+tokio = { version = "1", features = ["full", "test-util"] }
+libp2p = "0.40.0"
+
+# Blockchain and cryptocurrencies
+bitcoin = { version = "0.26", features = ["rand"] }
+lightning = "0.0.100"
+stacks-rpc-client = "0.1"
+rust-dlc = "0.1.0"
+bitcoincore-rpc = "0.15.0"
+
+# Web and UI
+yew = "0.18"
+
+# Cryptography and security
+bulletproofs = "3.0.0"
+did-key = "0.1"
+verifiable-credentials = "0.1"
+
+# Logging and configuration
+slog = "2.7"
+slog-term = "2.7"
+config = "0.10"
+log = "0.4"
+env_logger = "0.9"
+
+# Serialization and error handling
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+
+# WebAssembly and AI
+wasmer = "2.1"
+openfl = "0.1"
+ndarray = "0.15"
+rust-bert = "0.14"
+
+# Distributed systems and storage
+ipfs-api = "0.8"
+>>>>>>> b7b9059 (refactor: Clean up imports, enhance struct definitions, and improve error handling across multiple modules)
 orbit-db = "0.1"
 
 # Cryptographic protocols
@@ -75,6 +116,7 @@ tempfile = "3.2"
 
 [build-dependencies]
 neon-build = "0.9"
+<<<<<<< HEAD
 =======
 authors = ["botshelomokoka@gmail.com"]  # Updated author
 description = "Bitcoin-centric AI assistant framework"  # Updated description
@@ -152,6 +194,8 @@ std = []
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 >>>>>>> Stashed changes
+=======
+>>>>>>> b7b9059 (refactor: Clean up imports, enhance struct definitions, and improve error handling across multiple modules)
 
 [package.metadata.docs.rs]
 all-features = true

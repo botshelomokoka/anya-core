@@ -128,6 +128,7 @@ macro_rules! rate_limited_endpoint {
 
 // Example of using the macro for an endpoint
 <<<<<<< HEAD
+<<<<<<< HEAD
 async fn get_advanced_analytics(req: HttpRequest, body: web::Bytes) -> impl Responder {
     // Implement the logic for advanced analytics here
     HttpResponse::Ok().json(serde_json::json!({
@@ -137,6 +138,14 @@ async fn get_advanced_analytics(req: HttpRequest, body: web::Bytes) -> impl Resp
 =======
 // Removed duplicate definition of get_advanced_analytics
 >>>>>>> be71d83 (chore: Update documentation, add changelog, and initialize anya-enterprise module)
+=======
+async fn get_advanced_analytics(req: HttpRequest, body: web::Bytes) -> impl Responder {
+    // Implement the logic for advanced analytics here
+    HttpResponse::Ok().json({
+        "message": "Advanced analytics data"
+    })
+}
+>>>>>>> b7b9059 (refactor: Clean up imports, enhance struct definitions, and improve error handling across multiple modules)
 
 pub fn config(cfg: &mut web::ServiceConfig) {
     let api_handler = web::Data::new(ApiHandler::new(Arc::new(RateLimiter::new())));

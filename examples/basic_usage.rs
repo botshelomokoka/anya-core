@@ -25,11 +25,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "http://localhost:18332",
         "rpcuser",
         "rpcpassword",
-    ).map_err(|e| {
-        error!("Failed to create BitcoinModule: {}", e);
-        e
-    })?;
-
+    )
+    .map_err(handle_error("BitcoinModule"))?;
     let api_server = ApiServer::new(privacy_module, bitcoin_module);
     info!("Starting API server on 127.0.0.1:8080");
     api_server.run("127.0.0.1", 8080).await.map_err(|e| {

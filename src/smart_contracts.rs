@@ -28,7 +28,7 @@ pub enum SmartContractsError {
 }
 
 #[derive(Deserialize)]
-    rate: f64,
+struct MarketRateResponse {
     rate: f64, // Assuming the API returns a JSON object with a "rate" field
 }
 
@@ -52,8 +52,8 @@ pub struct SmartContracts {
 impl SmartContracts {
     pub fn new() -> Result<Self, SmartContractsError> {
         let store = Store::default();
-        let keypair = Keypair::generate(&mut rand::thread_rng()); // Generate a new Schnorr keypair
-        let staking_rate = Self::fetch_market_rate()?; // Fetch initial market rate
+        let staking_rate = Self::fetch_market_rate()?; // Fetch initial market rate keypair
+        let staking_rate = Self::fetch_staking_market_rate()?; // Fetch initial market rate
         Ok(Self {
             store,
             stakes: HashMap::new(),
@@ -63,18 +63,22 @@ impl SmartContracts {
     }
 
     // Fetch current market rate for staking
-    fn fetch_market_rate() -> Result<f64, SmartContractsError> {
+    pub fn fetch_market_rate() -> Result<f64, SmartContractsError> {
         // Replace with the actual API endpoint for fetching market rates
-        let response: MarketRateResponse = reqwest::blocking::get("https://api.example.com/market-rate")
-            .map_err(|e| SmartContractsError::MarketRateError(e.to_string()))?
-            .json()
-            .map_err(|e| SmartContractsError::MarketRateError(e.to_string()))?;
+        let response = tokio::runtime::Runtime::new()
+            .unwrap()
+            .block_on(async {
+                let res = reqwest::get("https://api.example.com/market-rate").await;
+                let res = res.map_err(|e| SmartContractsError::MarketRateError(e.to_string()))?;
+                let json = res.json::<MarketRateResponse>().await;
+                json.map_err(|e| SmartContractsError::MarketRateError(e.to_string()))
+            })?;
         Ok(response.rate)
     }
 
     // Update staking rate based on market conditions
-    pub fn update_staking_rate(&mut self) -> Result<(), SmartContractsError> {
         self.staking_rate = Self::fetch_market_rate()?; // Update the staking rate
+        self.staking_rate = Self::fetch_staking_market_rate()?; // Update the staking rate
         Ok(())
     }
 
