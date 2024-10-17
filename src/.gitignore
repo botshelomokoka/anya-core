@@ -2,6 +2,10 @@
 target/
 **/*.rs.bk
 Cargo.lock
+# Rust-specific
+target/
+**/*.rs.bk
+Cargo.lock
 
 # Build artifacts
 dist/
@@ -26,24 +30,14 @@ wallet_data.json
 # Log files
 *.log
 
-# STX-specific
+# Network-specific
 .stacks-chain/
 .stacks-testnet/
-
-# Web5-specific
 .web5/
-
-# DLC-specific
 .dlc/
-
-# Lightning Network-specific
 .lnd/
 *.macaroon
-
-# Bitcoin-specific
 .bitcoin/
-
-# libp2p-specific
 .libp2p/
 
 # Compiled files
@@ -67,16 +61,15 @@ wallet_data.json
 .Trashes
 ehthumbs.db
 
-<<<<<<< HEAD
 # Dependency directories
 node_modules/
 
 # Anya-specific
-anya-core/target/
-anya-cli/target/
-anya-gui/target/
-anya-node/target/
-anya-wallet/target/
+config.local.toml
+.anya-temp/
+anya-logs/
+anya-data/
+anya-backups/
 
 # Documentation
 docs/_build/
@@ -87,7 +80,7 @@ coverage/
 # Benchmark results
 benchmarks/results/
 
-# Generated protobuf files
+# Generated files
 **/*.pb.rs
 
 # Local configuration files
@@ -104,7 +97,3 @@ anya-data/
 
 # Anya backups
 anya-backups/
-=======
-# Project-specific
-node_modules/
->>>>>>> b706d7c49205d3634e6b11d0309d8911a18a435c

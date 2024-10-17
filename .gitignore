@@ -66,10 +66,6 @@ wallet_data.json
 /data/
 /config/local.toml
 
-# Cargo
-Cargo.lock
-target/
-
 # Generated files
 *.generated.*
 
@@ -80,5 +76,4 @@ target/
 *.prof
 
 # Backup files
-*.bak
 *.backup

@@ -5,6 +5,12 @@ use bitcoin::{
     hashes::Hash,
 };
 use bitcoincore_rpc::{Auth, Client, RpcApi};
+use bitcoin::secp256k1::{Secp256k1, Signature};
+use bitcoin::util::address::Address;
+use bitcoin::hashes::Hash;
+use bitcoin::Transaction;
+use bitcoin::util::bip32::{ExtendedPrivKey, ExtendedPubKey};
+use dlc_btc_lib::{Dlc, ...}; // Import necessary modules from the DLC library
 
 pub struct BitcoinModule {
     network: Network,
