@@ -141,9 +141,9 @@ async fn get_advanced_analytics(req: HttpRequest, body: web::Bytes) -> impl Resp
 =======
 async fn get_advanced_analytics(req: HttpRequest, body: web::Bytes) -> impl Responder {
     // Implement the logic for advanced analytics here
-    HttpResponse::Ok().json({
+    HttpResponse::Ok().json(serde_json::json!({
         "message": "Advanced analytics data"
-    })
+    }))
 }
 >>>>>>> b7b9059 (refactor: Clean up imports, enhance struct definitions, and improve error handling across multiple modules)
 

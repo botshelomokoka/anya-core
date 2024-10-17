@@ -19,6 +19,7 @@ members = [
 [dependencies]
 # Async runtime and networking
 <<<<<<< HEAD
+<<<<<<< HEAD
 tokio = { version = "1.32", features = ["full", "test-util"] }
 libp2p = "0.51"
 
@@ -60,43 +61,51 @@ ipfs-api = "0.9"
 =======
 tokio = { version = "1", features = ["full", "test-util"] }
 libp2p = "0.40.0"
+=======
+tokio = { version = "1.32", features = ["full", "test-util"] }
+libp2p = "0.51"
+>>>>>>> 256d3df (chore: Update dependencies in Cargo.toml and improve API response formatting)
 
 # Blockchain and cryptocurrencies
-bitcoin = { version = "0.26", features = ["rand"] }
-lightning = "0.0.100"
+bitcoin = { version = "0.29", features = ["rand"] }
+lightning = "0.0.115"
 stacks-rpc-client = "0.1"
 rust-dlc = "0.1.0"
-bitcoincore-rpc = "0.15.0"
+bitcoincore-rpc = "0.18.0"
 
 # Web and UI
-yew = "0.18"
+yew = "0.20"
 
 # Cryptography and security
-bulletproofs = "3.0.0"
-did-key = "0.1"
-verifiable-credentials = "0.1"
+bulletproofs = "4.0.0"
+did-key = "0.4"
+verifiable-credentials = "0.2"
 
 # Logging and configuration
-slog = "2.7"
-slog-term = "2.7"
-config = "0.10"
-log = "0.4"
-env_logger = "0.9"
+slog = "2.7.0"
+slog-term = "2.9.0"
+config = "0.13"
+log = "0.4.20"
+env_logger = "0.10"
 
 # Serialization and error handling
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-thiserror = "1.0"
+serde = { version = "1.0.188", features = ["derive"] }
+serde_json = "1.0.104"
+thiserror = "1.0.40"
 
 # WebAssembly and AI
-wasmer = "2.1"
+wasmer = "3.2"
 openfl = "0.1"
-ndarray = "0.15"
-rust-bert = "0.14"
+ndarray = "0.15.5"
+rust-bert = "0.21"
 
 # Distributed systems and storage
+<<<<<<< HEAD
 ipfs-api = "0.8"
 >>>>>>> b7b9059 (refactor: Clean up imports, enhance struct definitions, and improve error handling across multiple modules)
+=======
+ipfs-api = "0.9"
+>>>>>>> 256d3df (chore: Update dependencies in Cargo.toml and improve API response formatting)
 orbit-db = "0.1"
 
 # Cryptographic protocols
