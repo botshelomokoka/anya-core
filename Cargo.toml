@@ -2,6 +2,7 @@
 name = "anya-core"
 version = "0.3.0"
 edition = "2021"
+<<<<<<< Updated upstream
 authors = ["Anya Core Contributors"]
 description = "A decentralized AI assistant framework (Open Source Edition)"
 license = "MIT OR Apache-2.0"
@@ -74,6 +75,83 @@ tempfile = "3.2"
 
 [build-dependencies]
 neon-build = "0.9"
+=======
+authors = ["botshelomokoka@gmail.com"]  # Updated author
+description = "Bitcoin-centric AI assistant framework"  # Updated description
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+# Blockchain
+bitcoin = "0.29.2"  # Updated version
+bitcoincore-rpc = "0.16.0"
+lightning = "0.0.116"
+stacks-core = "2.1.0"
+rust-dlc = "0.4.1"
+
+# Identity
+did-key = "0.1"
+verifiable-credentials = "0.1"
+web5 = "0.1.0"
+web5-credentials = "0.1.0"
+neon = { version = "0.10.1", default-features = false, features = ["napi-6"] }
+log = "0.4"
+env_logger = "0.10.0"
+schnorr = "0.2.0"
+chrono = "0.4.24"
+uuid = { version = "1.3.3", features = ["v4"] }
+futures = "0.3.28"
+async-trait = "0.1"
+thiserror = "1.0"
+anyhow = "1.0.71"
+walkdir = "2.3"
+sha2 = "0.10"
+
+# Networking
+libp2p = "0.51"
+
+# Smart Contracts
+clarity-repl = "1.0.1"
+wasmer = "2.3"
+
+# Federated Learning
+openfl = "0.1"
+
+# Privacy
+bulletproofs = "4.0"
+
+# UI
+yew = "0.19"
+clap = "3.2"
+
+# Utility
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+log = "0.4"
+env_logger = "0.10.0"
+thiserror = "1.0"
+
+# New dependencies
+reqwest = { version = "0.11", features = ["json"] }
+chrono = { version = "0.4", features = ["serde"] }
+rust_decimal = { version = "1.25", features = ["serde"] }
+>>>>>>> f959f86c6b13fa23d19557dd0c6c38a4308daf57
+
+[dev-dependencies]
+criterion = "0.4.0"
+tokio-test = "0.4.2"
+mockall = "0.11.3"
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
+
+[features]
+default = ["std"]
+std = []
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
 
 [package.metadata.docs.rs]
 all-features = true
