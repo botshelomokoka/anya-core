@@ -1,6 +1,5 @@
 use thiserror::Error;
 use dlc_btc_lib::{Dlc, DlcManager}; // Assuming DlcManager is also from dlc_btc_lib
-use dlc_btc_lib::DlcManager;
 #[derive(Error, Debug)]
 pub enum DlcError {
     #[error("DLC operation failed: {0}")]
