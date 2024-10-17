@@ -126,6 +126,9 @@ tempfile = "3.2"
 [build-dependencies]
 neon-build = "0.9"
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> b7f32b4 (chore: Update Cargo.toml with new dependencies, authors, and description; implement zero-knowledge proof generation in privacy module)
 =======
 authors = ["botshelomokoka@gmail.com"]  # Updated author
 description = "Bitcoin-centric AI assistant framework"  # Updated description
@@ -203,8 +206,11 @@ std = []
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 >>>>>>> Stashed changes
+<<<<<<< HEAD
 =======
 >>>>>>> b7b9059 (refactor: Clean up imports, enhance struct definitions, and improve error handling across multiple modules)
+=======
+>>>>>>> b7f32b4 (chore: Update Cargo.toml with new dependencies, authors, and description; implement zero-knowledge proof generation in privacy module)
 
 [package.metadata.docs.rs]
 all-features = true
