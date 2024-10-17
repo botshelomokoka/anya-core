@@ -26,7 +26,7 @@ use stacks_rpc_client::{
 use log::{info, error};
 
 pub struct STXSupport {
-    network: StacksNetwork,
+    network: Network,
     rpc_client: StacksRpcClient,
 }
 impl StacksNetwork {
@@ -41,8 +41,14 @@ impl StacksNetwork {
 
 
 impl STXSupport {
+    pub fn get_rpc_url(&self) -> String {
+        match self.network {
+            Network::Mainnet => "https://stacks-node-api.mainnet.stacks.co".to_string(),
+            Network::Testnet => "https://stacks-node-api.testnet.stacks.co".to_string(),
+        }
+    }
     pub fn new(network: StacksNetwork) -> Self {
-        let rpc_client = StacksRpcClient::new(network.get_rpc_url());
+        let rpc_client = StacksRpcClient::new(network.get_rpc_url().as_str());
         info!("Initialized STXSupport with network: {:?}", network);
         Self {
             network,
@@ -56,7 +62,9 @@ impl STXSupport {
         Ok(balance.stx.balance)
     }
     pub async fn get_network_performance(&self) -> Result<f64> {
-        // Implement actual network performance calculation
+        // TODO: Implement actual network performance calculation
+        unimplemented!("Network performance calculation not yet implemented");
+    }   // Implement actual network performance calculation
         // This is a placeholder implementation
         let blocks_per_second = self.rpc_client.get_network_block_rate().await?;
         let transactions_per_block = self.rpc_client.get_average_transactions_per_block().await?;
@@ -85,7 +93,8 @@ impl STXSupport {
 }
 
 #[cfg(test)]
-mod tests {
+        // TODO: Implement contract deployment logic
+        unimplemented!("Contract deployment not yet implemented")
     use super::*;
     use stacks_core::StacksNetwork;
     use stacks_rpc_client::AccountBalanceResponse;
