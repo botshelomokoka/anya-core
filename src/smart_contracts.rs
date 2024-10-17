@@ -6,6 +6,12 @@ use schnorrkel::{Keypair, Signature, Signer, Verifier}; // Import Schnorr signat
 use reqwest; // For HTTP requests to fetch market rates
 use serde::Deserialize; // For deserializing JSON responses
 use log::{info, error}; // For logging
+use std::collections::HashMap;
+use rand::rngs::OsRng; // Import rand for generating keypair
+use schnorrkel::{Keypair, Signature, Signer, Verifier}; // Import Schnorr signature library
+use reqwest; // For HTTP requests to fetch market rates
+use serde::Deserialize; // For deserializing JSON responses
+use log::{info, error}; // For logging
 
 #[derive(Error, Debug)]
 pub enum SmartContractsError {
@@ -22,7 +28,7 @@ pub enum SmartContractsError {
 }
 
 #[derive(Deserialize)]
-struct MarketRateResponse {
+    rate: f64,
     rate: f64, // Assuming the API returns a JSON object with a "rate" field
 }
 
@@ -38,13 +44,16 @@ pub struct SmartContracts {
     stakes: HashMap<String, StakingInfo>, // Store staking information
     keypair: Keypair, // Schnorr keypair for signing
     staking_rate: f64, // Current staking rate
+    stakes: HashMap<String, StakingInfo>, // Store staking information
+    keypair: Keypair, // Schnorr keypair for signing
+    staking_rate: f64, // Current staking rate
 }
 
 impl SmartContracts {
     pub fn new() -> Result<Self, SmartContractsError> {
         let store = Store::default();
-        let staking_rate = Self::fetch_market_rate()?; // Fetch initial market rate keypair
-        let staking_rate = Self::fetch_staking_market_rate()?; // Fetch initial market rate
+        let keypair = Keypair::generate(&mut rand::thread_rng()); // Generate a new Schnorr keypair
+        let staking_rate = Self::fetch_market_rate()?; // Fetch initial market rate
         Ok(Self {
             store,
             stakes: HashMap::new(),
@@ -54,22 +63,18 @@ impl SmartContracts {
     }
 
     // Fetch current market rate for staking
-    pub fn fetch_market_rate() -> Result<f64, SmartContractsError> {
+    fn fetch_market_rate() -> Result<f64, SmartContractsError> {
         // Replace with the actual API endpoint for fetching market rates
-        let response = tokio::runtime::Runtime::new()
-            .unwrap()
-            .block_on(async {
-                let res = reqwest::get("https://api.example.com/market-rate").await;
-                let res = res.map_err(|e| SmartContractsError::MarketRateError(e.to_string()))?;
-                let json = res.json::<MarketRateResponse>().await;
-                json.map_err(|e| SmartContractsError::MarketRateError(e.to_string()))
-            })?;
+        let response: MarketRateResponse = reqwest::blocking::get("https://api.example.com/market-rate")
+            .map_err(|e| SmartContractsError::MarketRateError(e.to_string()))?
+            .json()
+            .map_err(|e| SmartContractsError::MarketRateError(e.to_string()))?;
         Ok(response.rate)
     }
 
     // Update staking rate based on market conditions
+    pub fn update_staking_rate(&mut self) -> Result<(), SmartContractsError> {
         self.staking_rate = Self::fetch_market_rate()?; // Update the staking rate
-        self.staking_rate = Self::fetch_staking_market_rate()?; // Update the staking rate
         Ok(())
     }
 
