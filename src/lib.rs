@@ -41,6 +41,12 @@ impl AnyaConfig {
     }
 }
 
+use std::sync::Arc;
+use tokio::join;
+use crate::tiered_usage::TieredUsage;
+use crate::user_management::{User, UserAction, FeatureAccess};
+use crate::error::Error;
+
 // Update module declarations
 mod identity;
 mod smart_contracts;
@@ -135,23 +141,6 @@ impl Anya {
         self.tiered_usage.get_feature_access(user)
     }
 }
-
-// Update module declarations
-mod identity;
-mod smart_contracts;
-mod interoperability;
-mod privacy;
-mod federated_learning;
-mod bitcoin_core;
-mod lightning;
-mod dlc;
-mod ml_logic;
-mod user_management;
-mod network_discovery;
-mod blockchain;
-mod data_storage;
-mod ui;
-mod tiered_usage;
 
 // Update the Anya struct
 pub struct Anya {

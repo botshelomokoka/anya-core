@@ -2,7 +2,9 @@ use ndarray::{Array1, Array2};
 use ndarray_rand::RandomExt;
 use ndarray_rand::rand_distr::Uniform;
 use std::collections::HashMap;
-use crate::ml_core::{ProcessedData, TrainedModel};
+use crate::ml_core::TrainedModel;
+
+pub struct ProcessedData(pub Vec<f32>);
 
 pub struct ModelTrainer {
     model: Option<TrainedModel>,
@@ -24,7 +26,8 @@ impl ModelTrainer {
 
         let num_iterations: usize = self.config.get("num_iterations")
             .and_then(|s| s.parse().ok())
-            .unwrap_or(1000);
+        let features = Array2::from_shape_vec((data.0.len(), 1), data.0.clone())
+            .expect("Failed to create features array");
 
         let features = Array2::from_shape_vec((data.0.len(), 1), data.0.clone()).unwrap();
         let targets = Array1::from_vec(data.0.clone());

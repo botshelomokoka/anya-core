@@ -20,7 +20,7 @@ impl BitcoinSupport {
     pub fn new(network: BitcoinNetwork, rpc_url: &str, rpc_user: &str, rpc_password: &str) -> Result<Self, Box<dyn Error>> {
         let auth = Auth::UserPass(rpc_user.to_string(), rpc_password.to_string());
         let client = Client::new(rpc_url, auth)?;
-        let secp = Secp256k1::new();
+        let secp = &self.secp;
 
         Ok(Self {
             network,
@@ -44,7 +44,7 @@ impl BitcoinSupport {
             lock_time: 0,
             input: vec![],
             output: vec![],
-        })?;
+        };
 
         // Step 3: Add inputs from UTXOs
         let mut total_input = 0;
@@ -52,7 +52,7 @@ impl BitcoinSupport {
             if total_input >= amount {
                 break;
             }
-            tx_builder.inputs.push(bitcoin::util::psbt::Input {
+            tx_builder.input.push(bitcoin::util::psbt::Input {
                 non_witness_utxo: Some(utxo.tx_out().clone()),
                 ..Default::default()
             });
@@ -60,11 +60,11 @@ impl BitcoinSupport {
         }
 
         if total_input < amount {
-            return Err("Insufficient funds".into());
+            return Err("Insufficient funds to create the transaction".into());
         }
 
         // Step 4: Add outputs
-        tx_builder.outputs.push(bitcoin::util::psbt::Output {
+        tx_builder.unsigned_tx.output.push(bitcoin::TxOut {
             amount: amount,
             script_pubkey: to_address.script_pubkey(),
             ..Default::default()
@@ -128,21 +128,34 @@ impl BitcoinSupport {
         Ok(500.0) // Placeholder value
     }
 
-    pub async fn handle_bitcoin_operations(&self) {
+    pub async fn handle_bitcoin_operations(&self, shutdown: tokio::sync::watch::Receiver<()>) {
+        while let Ok(_) = Ok(()) {
+        let mut sleep_duration = Duration::from_secs(300);
+
         loop {
-            match self.get_network_performance().await {
-                Ok(performance) => info!("Bitcoin network performance: {}", performance),
-                Err(e) => error!("Failed to get Bitcoin network performance: {:?}", e),
+            tokio::select! {
+                _ = shutdown.changed() => {
+                    info!("Shutdown signal received, stopping bitcoin operations.");
+                    break;
+                }
+                _ = tokio::time::sleep(sleep_duration) => {
+                    match self.get_network_performance().await {
+                        Ok(performance) => {
+                            info!("Bitcoin network performance: {}", performance);
+                            // Adjust sleep duration based on performance
+                            sleep_duration = Duration::from_secs((300.0 / performance) as u64);
+                        }
+                        Err(e) => warn!("Failed to get Bitcoin network performance: {:?}", e),
+                    }
+
+                    match self.get_balance_async().await {
+                        Ok(balance) => info!("Current Bitcoin balance: {} BTC", balance),
+                        Err(e) => warn!("Failed to get Bitcoin balance: {:?}", e),
+                    }
+
+                    // Add more Bitcoin-related operations here
+                }
             }
-
-            match self.get_balance_async().await {
-                Ok(balance) => info!("Current Bitcoin balance: {} BTC", balance),
-                Err(e) => error!("Failed to get Bitcoin balance: {:?}", e),
-            }
-
-            // Add more Bitcoin-related operations here
-
-            tokio::time::sleep(Duration::from_secs(300)).await;
         }
     }
 

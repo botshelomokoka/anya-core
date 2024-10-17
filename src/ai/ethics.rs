@@ -43,13 +43,13 @@ impl AnyaEthics {
         let principles_alignment = self.check_principles_alignment(action);
 
         // Analyze the network state
-        let network_analysis = self.network_manager.analyze_network_state().await?;
+        let network_analysis = self.network_manager.analyze_network_state().await.map_err(|e| format!("Network analysis error: {}", e))?;
 
         // Consult the federated learning model
-        let fl_decision = self.fl_model.lock().await.predict(action)?;
+        let fl_decision = self.fl_model.lock().await.map_err(|e| format!("FL model lock error: {}", e))?.predict(action).map_err(|e| format!("FL model prediction error: {}", e))?;
 
         // Generate a zero-knowledge proof of the evaluation process
-        let zk_proof = ZeroKnowledgeProof::generate("action_evaluation", &[action, &principles_alignment.to_string(), &fl_decision.to_string()])?;
+        let zk_proof = ZeroKnowledgeProof::generate("action_evaluation", &[action, &principles_alignment.to_string(), &fl_decision.to_string()]).map_err(|e| format!("Zero-knowledge proof generation error: {}", e))?;
 
         // Make the final decision based on all factors
         let decision = principles_alignment && fl_decision && network_analysis.is_stable();

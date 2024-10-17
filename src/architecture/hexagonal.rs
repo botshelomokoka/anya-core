@@ -3,8 +3,17 @@ use crate::blockchain::BlockchainPort;
 use crate::networking::NetworkingPort;
 use crate::identity::IdentityPort;
 
-pub struct HexagonalArchitecture {
-    domain:   Domain,
+pub trait CloneableBlockchainPort: BlockchainPort + Clone {}
+impl<T> CloneableBlockchainPort for T where T: BlockchainPort + Clone {}
+
+pub trait CloneableNetworkingPort: NetworkingPort + Clone {}
+impl<T> CloneableNetworkingPort for T where T: NetworkingPort + Clone {}
+
+pub trait CloneableIdentityPort: IdentityPort + Clone {}
+impl<T> CloneableIdentityPort for T where T: IdentityPort + Clone {}
+    blockchain: Box<dyn CloneableBlockchainPort>,
+    networking: Box<dyn CloneableNetworkingPort>,
+    identity:   Box<dyn CloneableIdentityPort>,
     ports:    Ports,
     adapters: Adapters,
 }

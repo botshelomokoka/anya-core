@@ -14,17 +14,34 @@ impl PrivacyModule {
     }
 
     pub fn create_coinjoin_transaction(&self, inputs: Vec<Transaction>, outputs: Vec<Address>) -> PartiallySignedTransaction {
-        // Implement CoinJoin transaction creation logic
+        // TODO: Implement CoinJoin transaction creation logic
+        // 1. Gather all inputs and outputs.
+        // 2. Create a new transaction with the combined inputs and outputs.
+        // 3. Ensure that the transaction is balanced (inputs equal outputs).
+        // 4. Sign the transaction with the appropriate private keys.
+        // 5. Return the partially signed transaction.
         PartiallySignedTransaction::new()
     }
 
     pub fn create_confidential_transaction(&self, inputs: Vec<Transaction>, outputs: Vec<Address>) -> PartiallySignedTransaction {
-        // Implement confidential transaction creation logic
+        // TODO: Implement confidential transaction creation logic
+        // 1. Gather all inputs and outputs.
+        // 2. Create a new transaction with the combined inputs and outputs.
+        // 3. Add confidential information to the transaction (e.g., blinding factors).
+        // 4. Ensure that the transaction is balanced (inputs equal outputs).
+        // 5. Sign the transaction with the appropriate private keys.
+        // 6. Return the partially signed transaction.
         PartiallySignedTransaction::new()
     }
 
     pub fn create_payjoin_transaction(&self, inputs: Vec<Transaction>, outputs: Vec<Address>) -> PartiallySignedTransaction {
-        // Implement PayJoin transaction creation logic
+        // TODO: Implement PayJoin transaction creation logic
+        // 1. Gather all inputs and outputs.
+        // 2. Create a new transaction with the combined inputs and outputs.
+        // 3. Ensure that the transaction is balanced (inputs equal outputs).
+        // 4. Add PayJoin-specific logic (e.g., adding an additional input from the receiver).
+        // 5. Sign the transaction with the appropriate private keys.
+        // 6. Return the partially signed transaction.
         PartiallySignedTransaction::new()
     }
 }

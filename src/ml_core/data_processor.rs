@@ -1,9 +1,11 @@
 use crate::error::{AnyaError, AnyaResult};
 use crate::PyConfig;
 use log::{info, error, debug};
-use ndarray::{Array1, Array2};
+use ndarray::{Array1, Array2, Axis};
 use serde::{Serialize, Deserialize};
 use pyo3::prelude::*;
+use pyo3::exceptions::PyValueError;
+use pyo3::types::IntoPyDict;
 
 #[pyclass]
 #[derive(Debug, Serialize, Deserialize)]
@@ -28,7 +30,8 @@ impl DataProcessor {
             normalization_params: None,
         }
     }
-
+        let data = Array2::from_shape_vec((data.len(), data[0].len()), data.into_iter().flatten().collect())
+            .map_err(|e| PyErr::new::<PyValueError, _>(format!("Failed to create Array2: {}", e)))?;
     pub fn preprocess(&mut self, data: Vec<Vec<f64>>) -> PyResult<Vec<Vec<f64>>> {
         let data = Array2::from_shape_vec((data.len(), data[0].len()), data.into_iter().flatten().collect())?;
         info!("Preprocessing data with shape {:?}", data.shape());
@@ -57,9 +60,9 @@ impl DataProcessor {
 }
 
 impl DataProcessor {
-    fn normalize(&mut self, data: &Array2<f64>) -> AnyaResult<Array2<f64>> {
+            let mean = data.mean_axis(Axis(0))Result<Array2<f64>> {
         if self.normalization_params.is_none() {
-            debug!("Computing normalization parameters");
+            let std = data.std_axis(Axis(0), 0.)
             let mean = data.mean_axis(ndarray::Axis(0))
                 .ok_or_else(|| AnyaError::DataProcessing("Failed to compute mean".into()))?;
             let std = data.std_axis(ndarray::Axis(0), 0.)
@@ -71,7 +74,7 @@ impl DataProcessor {
         debug!("Normalizing data");
         let normalized = (data - &params.mean) / &params.std;
         Ok(normalized)
-    }
+        if self.config.get_feature("AdvancedFeatures".to_string()).unwrap_or(false) {
 
     fn extract_features(&self, data: &Array2<f64>) -> AnyaResult<Array2<f64>> {
         if self.config.get_feature("AdvancedFeatures".to_string()) {

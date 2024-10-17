@@ -89,7 +89,7 @@ pub struct ProjectSetup {
     lightning_support:  LightningSupport,
     bitcoin_support:    BitcoinSupport,
     web5_support:       Web5Support,
-    libp2p_support:    Libp2pSupport,
+    libp2p_support:     Libp2pSupport,
     unified_network:    UnifiedNetworkManager,
     cross_chain:       CrossChainManager,
     cross_network_fl:   CrossNetworkFederatedLearning,
@@ -98,7 +98,10 @@ pub struct ProjectSetup {
 
 impl ProjectSetup {
     pub fn new(user_type: UserType, user_data: HashMap<String, String>) -> Result<Self, Box<dyn Error>> {
-        let logger = slog::Logger::root(slog::Discard, slog::o!());
+        let decorator = slog_term::TermDecorator::new().build();
+        let drain = slog_term::FullFormat::new(decorator).build().fuse();
+        let drain = slog_async::Async::new(drain).build().fuse();
+        let logger = slog::Logger::root(drain, slog::o!());
         
         Ok(Self {
             logger,
@@ -151,18 +154,33 @@ impl ProjectSetup {
     pub async fn setup(&mut self) -> Result<(), Box<dyn Error>> {
         self.display_loading_screen();
         info!(self.logger, "Setting up project '{}' for {:?}", self.project_name, self.user_type);
+        self.setup_environment()?;
+        self.setup_networking().await?;
+        self.setup_security()?;
+        self.initialize_components().await?;
+        self.setup_supports().await?;
+        Ok(())
+    }
+
+    fn setup_environment(&self) -> Result<(), Box<dyn Error>> {
         self.setup_common_environment()?;
+        self.setup_user_specific_project()?;
+        self.initialize_project_structure()?;
+        self.configure_environment_variables()?;
+        self.setup_database()?;
+        Ok(())
+    }
+
+    fn setup_user_specific_project(&self) -> Result<(), Box<dyn Error>> {
         match self.user_type {
             UserType::Creator   => self.setup_creator_project()?,
             UserType::Developer => self.setup_developer_project()?,
             UserType::Normal    => self.setup_normal_user_project()?,
         }
-        self.initialize_project_structure()?;
-        self.configure_environment_variables()?;
-        self.setup_database()?;
-        self.setup_networking().await?;
-        self.setup_security()?;
-        self.initialize_components().await?;
+        Ok(())
+    }
+
+    async fn setup_supports(&mut self) -> Result<(), Box<dyn Error>> {
         self.setup_stx_support().await?;
         self.setup_dlc_support().await?;
         self.setup_lightning_support().await?;
@@ -322,14 +340,13 @@ impl ProjectSetup {
 
         Ok(())
     }
-
-    fn setup_security(&self) -> Result<(), Box<dyn Error>> {
-        info!(self.logger, "Setting up security measures");
-        let github_token = std::env::var("GITHUB_TOKEN")
-            .map_err(|_| "GitHub token not found in environment variables.")?;
-        // Implement additional security measures here
-        Ok(())
-    }
+        fn setup_security(&self) -> Result<(), Box<dyn Error>> {
+            info!(self.logger, "Setting up security measures");
+            let github_token = std::env::var("GITHUB_TOKEN")
+                .map_err(|_| Box::<dyn Error>::from("GitHub token not found in environment variables."))?;
+            // Implement additional security measures here
+            Ok(())
+        }
 
     async fn initialize_components(&mut self) -> Result<(), Box<dyn Error>> {
         info!(self.logger, "Initializing system components");
@@ -452,42 +469,6 @@ impl ProjectSetup {
         self.interoperability = InteroperabilityProtocol::new(self.unified_network.clone()).await?;
         Ok(())
     }
-}
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
-    env_logger::init();
-
-    let user_type = UserType::Normal;  // Or determine this dynamically
-    let user_data = HashMap::new();  // Fill this with necessary user data
-    let mut project_setup = ProjectSetup::new(user_type, user_data)?;
-    
-    if !project_setup.check_common_environment() {
-        project_setup.setup_common_environment()?;
-    }
-    
-    match project_setup.user_type {
-        UserType::Creator => {
-            if !project_setup.check_creator_setup() {
-                project_setup.setup_creator_project()?;
-            }
-        },
-        UserType::Developer => {
-            if !project_setup.check_developer_setup() {
-                project_setup.setup_developer_project()?;
-            }
-        },
-        UserType::Normal => {
-            if !project_setup.check_normal_user_setup() {
-                project_setup.setup_normal_user_project()?;
-            }
-        },
-    }
-    
-    project_setup.setup()?;
-    project_setup.main_system.run().await?;
-
-    Ok(())
 }
 
 #[tokio::main]

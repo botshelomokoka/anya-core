@@ -1,3 +1,5 @@
+//! This module provides a wrapper around the Bitcoin Core RPC client to interact with a Bitcoin node.
+
 use bitcoin::Network;
 use bitcoincore_rpc::{Auth, Client, RpcApi};
 use thiserror::Error;
@@ -13,7 +15,7 @@ pub enum BitcoinCoreError {
 pub struct BitcoinCore {
     client: Client,
 }
-
+    pub fn new(url: &str, auth: Auth) -> Result<Self, BitcoinCoreError> {
 impl BitcoinCore {
     pub fn new(url: &str, auth: Auth, network: Network) -> Result<Self, BitcoinCoreError> {
         let client = Client::new(url, auth)
@@ -22,7 +24,7 @@ impl BitcoinCore {
     }
 
     pub fn get_block_count(&self) -> Result<u64, BitcoinCoreError> {
-        self.client.get_block_count().map_err(BitcoinCoreError::from)
+        self.client.get_block_count().map_err(BitcoinCoreError::from);
     }
 
     // Add more Bitcoin Core related methods as needed

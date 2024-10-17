@@ -1,8 +1,7 @@
-use crate::core::NetworkNode;
 use thiserror::Error;
 use bulletproofs::r1cs::R1CSProof;
 use seal_fhe::FheEncoder;
-use web5::{did::{DID, DIDDocument}, dwn::{DataModel, Message}};
+use web5::{did::{DID, DIDDocument}, dwn::{DataModel, Message as Web5Message}};
 use bitcoin::{
     PublicKey, Script, ScriptBuf, Transaction, TxIn, TxOut, Witness,
     secp256k1::{Secp256k1, Message as Secp256k1Message, Signature},
@@ -86,7 +85,7 @@ impl PrivacyModule {
 
     pub fn verify_multisig(&self, script: &Script, signatures: &[Vec<u8>], message: &[u8]) -> Result<bool, PrivacyError> {
         let secp = Secp256k1::verification_only();
-        let msg = Message::from_slice(message)
+        let msg = Secp256k1Message::from_slice(message)
             .map_err(|e| PrivacyError::BitcoinMultisigError(format!("Invalid message: {}", e)))?;
 
         let pubkeys = script.get_multisig_pubkeys()

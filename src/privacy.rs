@@ -1,4 +1,4 @@
-use bulletproofs::ProofGens;
+use bulletproofs::r1cs::BulletproofGens;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -8,12 +8,12 @@ pub enum PrivacyError {
 }
 
 pub struct Privacy {
-    proof_gens: ProofGens,
+    proof_gens: BulletproofGens,
 }
 
 impl Privacy {
     pub fn new() -> Result<Self, PrivacyError> {
-        let proof_gens = ProofGens::new(32, 1);
+        let proof_gens = BulletproofGens::new(32, 1);
         Ok(Self { proof_gens })
     }
 

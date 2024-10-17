@@ -2,6 +2,7 @@ use clarity_repl::repl::Session;
 use stacks_rpc_client::StacksRpc;
 use crate::Result;
 use serde_json::Value;
+use std::num::ParseIntError;
 
 pub struct StacksInterface {
     rpc: StacksRpc,
@@ -23,7 +24,7 @@ impl StacksInterface {
     pub async fn get_balance(&self, address: &str) -> Result<u64> {
         self.validate_input(address)?;
         let account = self.get_account(address).await?;
-        account["balance"].as_str().unwrap().parse().map_err(|e| e.into())
+        account["balance"].as_str().ok_or_else(|| "Invalid balance".into())?.parse().map_err(|e: ParseIntError| e.into())
     }
 
     pub async fn get_nonce(&self, address: &str) -> Result<u64> {

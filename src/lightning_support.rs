@@ -1,11 +1,14 @@
 use std::sync::Arc;
 use anyhow::Result;
 use bitcoin::Network;
-use lightning::ln::channelmanager::{ChannelManager, ChannelManagerReadArgs};
+use lightning::ln::channelmanager::{ChannelManager, ChannelManagerReadArgs, ChainParameters};
 use lightning::ln::peer_handler::{PeerManager, MessageHandler};
-use lightning::routing::router::{Router, RouteHop};
+use lightning::routing::router::Router;
 use lightning::chain::chaininterface::{BroadcasterInterface, FeeEstimator};
-use lightning::chain::keysinterface::KeysManager;
+use lightning::chain::keysinterface::{KeysManager, KeysInterface};
+use lightning::util::logger::Logger;
+use lightning::util::events::Event;
+use bitcoin::secp256k1::PublicKey;
 use lightning::util::logger::Logger;
 use lightning::ln::channelmanager::ChainParameters;
 use lightning::util::events::Event;
@@ -28,23 +31,23 @@ impl LightningSupport {
         chain_params: ChainParameters,
         keys_manager: Arc<KeysManager>,
         logger: Arc<dyn Logger>,
-        fee_estimator: Arc<dyn FeeEstimator>,
-        broadcaster: Arc<dyn BroadcasterInterface>,
-    ) -> Result<Self> {
         let channel_manager = ChannelManager::new(
+            chain_params,
             fee_estimator.clone(),
-            &chain_params,
             logger.clone(),
             keys_manager.clone(),
             broadcaster.clone(),
             ChannelManagerReadArgs::default(),
+        )?; keys_manager.clone(),
+            broadcaster.clone(),
+        let router = Router::new(network, logger.clone(), keys_manager.clone());
         )?;
 
         let router = Router::new(network, logger.clone());
 
         let peer_manager = PeerManager::new(
             MessageHandler {
-                chan_handler: channel_manager.clone(),
+            keys_manager.get_node_secret(Recipient::Node).unwrap(),er.clone(),
                 route_handler: router.clone(),
             },
             keys_manager.get_node_secret(),
@@ -71,8 +74,16 @@ impl LightningSupport {
     pub async fn close_channel(&self, channel_id: &[u8; 32], counterparty_node_id: &PublicKey) -> Result<()> {
         self.channel_manager.close_channel(channel_id, counterparty_node_id)?;
         Ok(())
-    }
-
+        let route = self.router.find_route(
+            &self.keys_manager.get_node_id(),
+            &recipient_node_id,
+            None,
+            &[],
+            amount_msat,
+            0,
+            self.logger.clone(),
+        )?;
+        self.channel_manager.send_payment(&route, payment_hash, &None)?;
     pub async fn send_payment(&self, payment_hash: [u8; 32], recipient_node_id: PublicKey, amount_msat: u64) -> Result<()> {
         let route = self.router.find_route(&self.keys_manager.get_node_id(), &recipient_node_id, amount_msat, 0)?;
         self.channel_manager.send_payment(&route, payment_hash, recipient_node_id)?;

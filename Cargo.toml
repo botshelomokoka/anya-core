@@ -14,69 +14,66 @@ members = [
     "anya-ai",
     "anya-cli"
 ]
-authors = ["Anya Core Contributors"]
-description = "Core functionality for Anya AI Assistant"
-license = "MIT OR Apache-2.0"
 
 [dependencies]
 # Async runtime and networking
-tokio = { version = "*", features = ["full", "test-util"] }
-libp2p = "*"
+tokio = { version = "1", features = ["full", "test-util"] }
+libp2p = "0.40.0"
 
 # Blockchain and cryptocurrencies
-bitcoin = { version = "*", features = ["rand"] }
-lightning = "*"
-stacks-rpc-client = "*"
-rust-dlc = "=0"
-clarity-repl = "*"
-bitcoincore-rpc = "*"
+bitcoin = { version = "0.26", features = ["rand"] }
+lightning = "0.0.100"
+stacks-rpc-client = "0.1"
+rust-dlc = "0.1.0"
+bitcoincore-rpc = "0.15.0"
 
 # Web and UI
-yew = "*"
+yew = "0.18"
 
 # Cryptography and security
-bulletproofs = "*"
-did-key = "*"
-verifiable-credentials = "*"
+bulletproofs = "3.0.0"
+did-key = "0.1"
+verifiable-credentials = "0.1"
 
 # Logging and configuration
-slog = "*"
-slog-term = "*"
-config = "*"
-log = "*"
-env_logger = "*"
+slog = "2.7"
+slog-term = "2.7"
+config = "0.10"
+log = "0.4"
+env_logger = "0.9"
 
 # Serialization and error handling
-serde = { version = "*", features = ["derive"] }
-serde_json = "*"
-thiserror = "*"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
 
 # WebAssembly and AI
-wasmer = "*"
-openfl = "*"
-ndarray = "*"
-rust-bert = "*"
+wasmer = "2.1"
+openfl = "0.1"
+ndarray = "0.15"
+rust-bert = "0.14"
 
 # Distributed systems and storage
-ipfs-api = "*"
-orbit-db = "*"
+ipfs-api = "0.8"
+orbit-db = "0.1"
 
 # Cryptographic protocols
-seal = "*"
-mp-spdz = "*"
+seal = "0.1"
+mp-spdz = "0.1"
 
 # DLC library support
-dlc-btc-lib = { git = "https://github.com/DLC-link/dlc-btc-lib" }
+# Using Git URL to ensure we get the latest version or specific branch not available on crates.io
+dlc-btc-lib = { git = "https://github.com/DLC-link/dlc-btc-lib", branch = "main" }
 
 [dev-dependencies]
-criterion = "*"
-tokio-test = "*"
-mockall = "*"
-proptest = "*"
-tempfile = "*"
+criterion = "0.3"
+tokio-test = "0.4"
+mockall = "0.11"
+proptest = "1.0"
+tempfile = "3.2"
 
 [build-dependencies]
-neon-build = "*"
+neon-build = "0.9"
 
 [package.metadata.docs.rs]
 all-features = true

@@ -54,6 +54,14 @@ struct TradeParams {
     trade_type: String,
 }
 
+#[derive(Clone)]
+struct HighVolumeTrading {
+    asset: String,
+    volume: f64,
+    price: f64,
+    trade_type: String,
+}
+
 pub async fn start_api_server(port: u16) -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
@@ -119,7 +127,12 @@ macro_rules! rate_limited_endpoint {
 }
 
 // Example of using the macro for an endpoint
-// Removed duplicate definition of get_advanced_analytics
+async fn get_advanced_analytics(req: HttpRequest, body: web::Bytes) -> impl Responder {
+    // Implement the logic for advanced analytics here
+    HttpResponse::Ok().json({
+        "message": "Advanced analytics data"
+    })
+}
 
 pub fn config(cfg: &mut web::ServiceConfig) {
     let api_handler = web::Data::new(ApiHandler::new(Arc::new(RateLimiter::new())));
