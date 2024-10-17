@@ -2,58 +2,7 @@ mod architecture;
 mod blockchain;
 mod networking;
 mod identity;
-// ... other mod declarations ...
-
-use log::{info, error};
-use architecture::{PluginManager, HexagonalArchitecture};
-use blockchain::BlockchainPlugin;
-use networking::NetworkingPlugin;
-use identity::IdentityPlugin;
-
-fn main() {
-    env_logger::init();
-    info!("Anya Core Project - Initializing");
-
-    if let Err(e) = run() {
-        error!("Application error: {}", e);
-        std::process::exit(1);
-    }
-}
-
-fn run() -> Result<(), Box<dyn std::error::Error>> {
-    // Initialize core architecture
-    let mut plugin_manager = PluginManager::new();
-
-    // Create and register plugins
-    let blockchain_plugin = Box::new(BlockchainPlugin);
-    let networking_plugin = Box::new(NetworkingPlugin);
-    let identity_plugin = Box::new(IdentityPlugin);
-
-    plugin_manager.register_plugin(blockchain_plugin.clone());
-    plugin_manager.register_plugin(networking_plugin.clone());
-    plugin_manager.register_plugin(identity_plugin.clone());
-
-    // Initialize Hexagonal Architecture
-    let hexagonal = HexagonalArchitecture::new(
-        blockchain_plugin,
-        networking_plugin,
-        identity_plugin,
-    );
-
-    // Initialize architecture
-    architecture::init()?;
-
-    // Initialize plugins
-    plugin_manager.init_all()?;
-
-    // Initialize Hexagonal Architecture
-    hexagonal.init()?;
-
-    // ... initialize other components ...
-
-    info!("Anya Core Project - All components initialized");
-    Ok(())
-}mod network;
+mod network;
 mod ml;
 mod bitcoin;
 mod lightning;
@@ -61,7 +10,17 @@ mod dlc;
 mod stacks;
 
 use log::{info, error};
+use architecture::{PluginManager, HexagonalArchitecture};
+use blockchain::BlockchainPlugin;
+use networking::NetworkingPlugin;
+use identity::IdentityPlugin;
 use std::error::Error;
+use crate::api::ApiHandler;
+use crate::unified_network::UnifiedNetworkManager;
+use crate::rate_limiter::RateLimiter;
+use std::sync::Arc;
+use tokio::time::Duration;
+use actix_web::{App, HttpServer, web};
 
 fn main() -> Result<(), Box<dyn Error>> {
     env_logger::init();
@@ -76,7 +35,32 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn run() -> Result<(), Box<dyn Error>> {
-    // Initialize modules
+    // Initialize core architecture
+    let mut plugin_manager = PluginManager::new();
+
+    // Create and register plugins
+    let blockchain_plugin = Box::new(BlockchainPlugin);
+    let networking_plugin = Box::new(NetworkingPlugin);
+    let identity_plugin = Box::new(IdentityPlugin);
+
+    plugin_manager.register_plugin(blockchain_plugin);
+    plugin_manager.register_plugin(networking_plugin);
+    plugin_manager.register_plugin(identity_plugin);
+
+    let hexagonal = HexagonalArchitecture::new(
+        blockchain_plugin,
+        networking_plugin,
+        identity_plugin,
+    );
+
+    architecture::init()?;
+
+    // Initialize plugins
+    plugin_manager.init_all()?;
+    // Initialize Hexagonal Architecture
+    hexagonal.init()?;
+
+    // Initialize other modules
     network::init()?;
     ml::init()?;
     bitcoin::init()?;
@@ -87,14 +71,9 @@ fn run() -> Result<(), Box<dyn Error>> {
     // Start the main application loop
     // TODO: Implement main loop
 
+    info!("Anya Core Project - All components initialized");
     Ok(())
 }
-
-use crate::api::ApiHandler;
-use crate::unified_network::UnifiedNetworkManager;
-use crate::rate_limiter::RateLimiter;
-use std::sync::Arc;
-use tokio::time::Duration;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -128,4 +107,6 @@ async fn main() -> std::io::Result<()> {
     .bind("127.0.0.1:8080")?
     .run()
     .await
-}
+}"127.0.0.1:8080")?
+    .run()
+    .await

@@ -42,6 +42,7 @@ impl PluginManager {
 }
 
 pub fn init() -> Result<(), Box<dyn std::error::Error>> {
+    env_logger::init();
     info!("Initializing plugin manager");
     let mut manager = PluginManager::new();
     // Register plugins here

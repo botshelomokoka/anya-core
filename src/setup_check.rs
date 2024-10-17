@@ -52,33 +52,39 @@ use web5::{
     credentials::{Credential, CredentialSubject, CredentialStatus},
 };
 
-fn check_requirements() -> Result<Vec<String>, io::Error> {
-    let requirements_path = "requirements.txt";
-    let path = Path::new(requirements_path);
+/// Checks for missing requirements listed in the `requirements.txt` file.
+    let path_str = "requirements.txt";
+    let path = Path::new(path_str);
     if !path.exists() {
-        return Err(io::Error::new(io::ErrorKind::NotFound, format!("Requirements file not found: {}", requirements_path)));
+        return Err(io::Error::new(io::ErrorKind::NotFound, format!("Requirements file not found: {}", path_str)));
     }
+        return Err(io::Error::new(io::ErrorKind::NotFound, format!("Requirements file not found: {requirements_path}")));
+    let file = File::open(path)?;
 
     let file = File::open(path)?;
     let reader = io::BufReader::new(file);
 
-    let mut missing = Vec::new();
+    let mut missing_requirements = Vec::new();
+    fn is_valid_requirement(requirement: &str) -> bool {
+        !requirement.is_empty() && !requirement.starts_with('#')
+    }
+
     for line in reader.lines() {
         let requirement = line?.trim().to_string();
-        if !requirement.is_empty() && !requirement.starts_with('#') {
-            missing.push(requirement);
+        if is_valid_requirement(&requirement) {
+            missing_requirements.push(requirement);
         }
     }
 
-    Ok(missing)
+    Ok(missing_requirements)
 }
 
 pub async fn check_and_fix_setup(user_type: UserType, user_data: HashMap<String, String>) -> Result<(), Box<dyn std::error::Error>> {
     info!("Checking setup for user type: {:?}", user_type);
 
-    let missing_packages = check_requirements()?;
-    if !missing_packages.is_empty() {
-        warn!("Missing packages: {}. Please install them.", missing_packages.join(", "));
+    let missing_requirements = check_requirements()?;
+    if !missing_requirements.is_empty() {
+        warn!("Missing packages: {}. Please install them.", missing_requirements.join(", "));
         return Ok(());
     }
 

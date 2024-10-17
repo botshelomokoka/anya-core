@@ -8,26 +8,59 @@ pub enum MlLogicError {
 }
 
 pub struct MlLogic {
-    // Add fields for ML models and data
+    model: Option<HexagonalHierarchyModel>, // Placeholder for the actual model type
+    data: Option<Array2<f64>>,              // Placeholder for the training data
 }
 
 impl MlLogic {
+    /// Creates a new instance of `MlLogic`.
+    ///
+    /// # Returns
+    ///
+    /// A `Result` containing either a new `MlLogic` instance or an `MlLogicError`.
     pub fn new() -> Result<Self, MlLogicError> {
-        // Initialize ML components
-        Ok(Self {})
+        Ok(Self {
+            model: None,
+            data: None,
+        })
     }
 
+    /// Trains the machine learning model using the provided data.
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - A 2D array of f64 values representing the training data.
+    ///
+    /// # Returns
+    ///
+    /// An empty result on success or an `MlLogicError` on failure.
     pub fn train(&mut self, data: Array2<f64>) -> Result<(), MlLogicError> {
-        // Implement training logic
+        // Implement training logic for HexagonalHierarchyModel
+        self.data = Some(data);
+        // Example: Initialize and train the model
+        self.model = Some(HexagonalHierarchyModel::new());
         Ok(())
     }
 
+    /// Predicts the output for the given input data.
+    ///
+    /// # Parameters
+    ///
+    /// - `input`: An `Array2<f64>` containing the input data for prediction.
+    ///
+    /// # Returns
+    ///
+    /// A `Result` containing either the predicted output as an `Array2<f64>` or an `MlLogicError`.
     pub fn predict(&self, input: Array2<f64>) -> Result<Array2<f64>, MlLogicError> {
-        // Implement prediction logic
-        Ok(Array2::zeros((1, 1)))
+        // Implement prediction logic for HexagonalHierarchyModel
+        if let Some(model) = &self.model {
+            // Example: Use the model to predict
+            Ok(model.predict(input))
+        } else {
+            Err(MlLogicError::OperationError("Model not trained".to_string()))
+        }
     }
 
-    // New method to review and implement BIPs
     pub async fn review_and_implement_bips(&self) {
         // Step 1: Review relevant BIPs
         let relevant_bips = self.fetch_relevant_bips().await;
@@ -50,11 +83,21 @@ impl MlLogic {
         self.monitor_new_bips().await;
     }
 
+    /// Fetches relevant BIPs from the GitHub repository.
+    ///
+    /// # Returns
+    ///
+    /// A `Vec<Bip>` containing the relevant BIPs.
     pub(crate) async fn fetch_relevant_bips(&self) -> Vec<Bip> {
         // Logic to fetch relevant BIPs from the GitHub repository
         // ...
     }
 
+    /// Implements the changes proposed in the given BIP.
+    ///
+    /// # Parameters
+    ///
+    /// - `bip`: A `Bip` instance representing the Bitcoin Improvement Proposal to be implemented.
     pub(crate) async fn implement_bip(&self, bip: Bip) {
         // Logic to implement the changes proposed in the BIP
         // Always test and support stable BIP accepted changes

@@ -1,4 +1,3 @@
-use crate::core::NetworkNode;
 use thiserror::Error;
 use serde::{Serialize, Deserialize};
 

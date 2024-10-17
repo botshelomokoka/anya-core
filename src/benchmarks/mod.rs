@@ -1,4 +1,4 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion};
 
 fn benchmark_federated_learning(c: &mut Criterion) {
     c.bench_function("federated learning", |b| b.iter(|| {

@@ -1,8 +1,9 @@
-pub struct HomomorphicEncryption;
+/// A struct representing homomorphic encryption operations.
+pub struct HomomorphicEncryption {}
 
-impl HomomorphicEncryption {
     pub fn new() -> Result<Self, ()> {
-        Ok(Self)
+        Ok(Self {})
+    }   Ok(Self)
     }
 
     pub fn encrypt(&self, data: &[u8]) -> Result<Vec<u8>, ()> {

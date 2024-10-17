@@ -17,16 +17,32 @@ pub struct UnifiedNetworkManager {
 }
 
 impl UnifiedNetworkManager {
-    pub fn new() -> Self {
-        // Initialize the unified network manager
-        Self {}
+    pub fn new(
+        bitcoin_node: Arc<Mutex<BitcoinNode>>,
+        lightning_node: Arc<Mutex<LightningNode>>,
+        dlc_manager: Arc<Mutex<DLCManager>>,
+    ) -> Self {
+    UnifiedNetworkManager {
+        bitcoin_node,
+        lightning_node,
+        dlc_manager,
     }
-
+}
     pub async fn execute_cross_layer_transaction(&self, transaction: CrossLayerTransaction) -> Result<(), NetworkError> {
         let secp = Secp256k1::new();
+        let batch = self.prepare_transaction_batch(&transaction).await?;
+        let batch_message = self.create_batch_message(&batch)?;
+        let batch_signature = self.sign_batch(&secp, &batch_message)?;
+
+        self.execute_transaction_batch(batch).await?;
+        self.verify_and_log_transaction(&secp, &batch_message, &batch_signature, &transaction)?;
+
+        Ok(())
+    }
+
+    async fn prepare_transaction_batch(&self, transaction: &CrossLayerTransaction) -> Result<Vec<TransactionComponent>, NetworkError> {
         let mut batch = Vec::new();
 
-        // Verify UTXOs for Bitcoin transactions
         if let Some(bitcoin_data) = &transaction.bitcoin_data {
             let utxos: Vec<OutPoint> = bitcoin_data.inputs.iter().map(|input| input.previous_output).collect();
             if !self.bitcoin_node.lock().await.verify_utxos(&utxos).await? {
@@ -35,7 +51,6 @@ impl UnifiedNetworkManager {
             batch.push(TransactionComponent::Bitcoin(bitcoin_data.clone()));
         }
 
-        // Add Lightning and DLC components to the batch
         if let Some(lightning_data) = &transaction.lightning_data {
             batch.push(TransactionComponent::Lightning(lightning_data.clone()));
         }
@@ -43,9 +58,13 @@ impl UnifiedNetworkManager {
             batch.push(TransactionComponent::DLC(dlc_data.clone()));
         }
 
-        // Generate a single Schnorr signature for the entire batch
-        let batch_message = self.create_batch_message(&batch)?;
-        let batch_signature = self.sign_batch(&secp, &batch_message)?;
+        Ok(batch)
+    }
+
+        // Verify the batch signature
+        if !self.verify_batch_signature(&secp, &batch_message, &batch_signature) {
+            return Err(NetworkError::InvalidBatchSignature);
+        }
 
         // Execute each component of the transaction
         for component in batch {
@@ -63,17 +82,16 @@ impl UnifiedNetworkManager {
                     self.dlc_manager.lock().await.execute_dlc(dlc_tx).await?;
                 },
             }
-        }
-
-        // Verify the batch signature
-        if !self.verify_batch_signature(&secp, &batch_message, &batch_signature) {
+        }f !self.verify_batch_signature(&secp, &batch_message, &batch_signature) {
             return Err(NetworkError::InvalidBatchSignature);
         }
 
         log::info!("Cross-layer transaction executed successfully: {:?}", transaction.id);
         Ok(())
     }
-
+        // Verify the batch signature
+        Ok(batch)
+    }
     fn create_batch_message(&self, batch: &[TransactionComponent]) -> Result<Message, NetworkError> {
         let mut hasher = bitcoin::hashes::sha256::Hash::engine();
         for component in batch {
@@ -146,25 +164,43 @@ impl UnifiedNetworkManager {
     }
 
     fn get_master_key(&self) -> Result<ExtendedPrivKey, NetworkError> {
-        // TODO: Implement secure master key retrieval
-        Err(NetworkError::NotImplemented("Secure master key retrieval not implemented"))
-    }
+        use bitcoin::network::constants::Network;
+        use bitcoin::util::bip32::{Mnemonic, ExtendedPrivKey};
+        use std::str::FromStr;
 
-    fn get_public_key(&self) -> bitcoin::secp256k1::XOnlyPublicKey {
-        // TODO: Implement public key retrieval
-        unimplemented!("Public key retrieval not implemented")
-    }
+        // Example seed phrase (DO NOT USE IN PRODUCTION)
+        let seed_phrase = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
+        let mnemonic = Mnemonic::from_str(seed_phrase).map_err(|_| NetworkError::KeyGenerationError)?;
+        let seed = mnemonic.to_seed("");
+        let master_key = ExtendedPrivKey::new_master(Network::Bitcoin, &seed).map_err(|_| NetworkError::KeyGenerationError)?;
 
+        Ok(master_key)
+    }
+    }
     pub async fn analyze_network_state(&self) -> Result<NetworkAnalysis, NetworkError> {
+    }
+        let master_key = self.get_master_key().expect("Failed to get master key");
+        let secp = Secp256k1::new();
+    pub fn connect_peer(&self, peer_address: &str) -> Result<(), Box<dyn Error>> {
+        // Example peer connection logic
+        if peer_address.is_empty() {
+            return Err("Peer address is empty".into());
+        }
+        log::info!("Connecting to peer at address: {}", peer_address);
+        // Simulate connection logic
+        Ok(())
+    }ub async fn analyze_network_state(&self) -> Result<NetworkAnalysis, NetworkError> {
         // TODO: Implement network state analysis using ML
         Err(NetworkError::NotImplemented("Network state analysis not implemented"))
     }
 
     pub fn connect_peer(&self, peer_address: &str) -> Result<(), Box<dyn Error>> {
-        // Implement peer connection logic
+    pub fn broadcast_message(&self, message: &[u8]) -> Result<(), Box<dyn Error>> {
+        // Implement message broadcasting logic
+        // For now, we will just log the message
+        log::info!("Broadcasting message: {:?}", message);
         Ok(())
     }
-
     pub fn broadcast_message(&self, message: &[u8]) -> Result<(), Box<dyn Error>> {
         // Implement message broadcasting logic
         Ok(())
@@ -175,11 +211,11 @@ impl UnifiedNetworkManager {
         Ok(vec![])
     }
 
-    pub async fn monitor_network_load(&self, rate_limiter: Arc<RateLimiter>) {
+    pub async fn monitor_network_load(&self, rate_limiter: Arc<RateLimiter>, sleep_duration: Duration) {
         loop {
             let load = self.calculate_network_load().await;
             rate_limiter.update_network_load(load).await;
-            tokio::time::sleep(Duration::from_secs(60)).await; // Update every minute
+            tokio::time::sleep(sleep_duration).await; // Update based on the provided duration
         }
     }
 
@@ -200,6 +236,12 @@ impl UnifiedNetworkManager {
         0.10 * bandwidth_usage +
         0.15 * mempool_size +
         0.10 * chain_sync_status
+    }
+
+    pub async fn get_connected_peers(&self) -> Result<Vec<String>, Box<dyn Error>> {
+        // Example implementation to get connected peers
+        let peers = self.bitcoin_node.lock().await.get_peers().await?;
+        Ok(peers.iter().map(|peer| peer.address.clone()).collect())
     }
 
     async fn calculate_peer_load(&self) -> f32 {

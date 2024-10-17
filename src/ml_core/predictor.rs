@@ -1,6 +1,6 @@
 use ndarray::{Array1, Array2};
 use std::collections::HashMap;
-use crate::ml_core::{ProcessedData, TrainedModel, Prediction};
+use crate::ml_core::{ProcessedData, TrainedModel};
 
 pub struct Predictor {
     config: HashMap<String, String>,
@@ -33,6 +33,12 @@ impl Predictor {
     pub fn update_config(&mut self, config: &HashMap<String, String>) {
         self.config = config.clone();
     }
+}
+
+pub struct ProcessedData(pub Vec<f32>);
+
+pub struct TrainedModel {
+    pub weights: Array1<f32>,
 }
 
 pub struct Prediction {

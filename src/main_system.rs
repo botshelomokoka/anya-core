@@ -1,6 +1,16 @@
+// Standard library imports
 use std::collections::HashSet;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
+use std::error::Error;
+use std::fs::File;
+use std::io::{self, Read, Write};
+use std::path::Path;
+use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+use std::env;
+use std::cmp::Ordering;
+
+// External crate imports
 use tokio::time;
 use tokio::task;
 use dotenv::dotenv;
@@ -13,11 +23,6 @@ use config::Config;
 use log::{info, error};
 use kademlia::Server as KademliaServer;
 use futures::StreamExt;
-use std::error::Error;
-use std::fs::File;
-use std::io::{self, Read, Write};
-use std::path::Path;
-use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use tokio::net::UdpSocket;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::UnboundedReceiverStream;
@@ -54,11 +59,11 @@ use lightning::{
     util::events::EventHandler,
 };
 use dlc::{DlcManager, OracleInfo};
-use std::env;
 use linear_regression::LinearRegression;
-use std::cmp::Ordering;
 use linfa::prelude::*;
 use ndarray::{Array1, Array2};
+
+// Internal module imports
 use crate::ml_logic::system_evaluation::SystemEvaluator;
 use crate::ml_logic::federated_learning::FederatedLearning;
 
@@ -67,7 +72,10 @@ const BNS_API_BASE_URL: &str = "https://api.bns.xyz";
 async fn get_ipfs_hash(name: &str) -> Result<String, Box<dyn std::error::Error>> {
     let url = format!("{}/v1/names/{}", BNS_API_BASE_URL, name);
     let response = reqwest::get(&url).await?.json::<serde_json::Value>().await?;
-    Ok(response["zonefile_hash"].as_str().unwrap_or("").to_string())
+    match response.get("zonefile_hash").and_then(|v| v.as_str()) {
+        Some(hash) => Ok(hash.to_string()),
+        None => Err("zonefile_hash key not found in response".into()),
+    }
 }
 
 async fn get_names_for_address(address: &str) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
@@ -164,7 +172,13 @@ impl System {
         let rpc_user = env::var("BITCOIN_RPC_USER").expect("BITCOIN_RPC_USER must be set");
         let rpc_pass = env::var("BITCOIN_RPC_PASS").expect("BITCOIN_RPC_PASS must be set");
         BitcoinRpcClient::new(&rpc_url, rpc_user, rpc_pass).expect("Failed to connect to Bitcoin RPC")
-    }
+        let _lock = match self.lock.lock() {
+            Ok(lock) => lock,
+            Err(poisoned) => {
+                error!("Lock poisoned: {:?}", poisoned);
+                poisoned.into_inner()
+            }
+        };
 
     async fn update_state(&mut self) {
         let _lock = self.lock.lock().unwrap();
@@ -330,12 +344,15 @@ impl System {
         // Implement model refinement logic
         Ok(())
     }
-
-    async fn process_epoch_payments(&mut self) -> Result<(), Box<dyn Error>> {
-        // Implement epoch payment processing logic
-        Ok(())
+    async fn run(&mut self) {
+        loop {
+            let start_time = Instant::now();
+            self.update_state().await;
+            let elapsed = start_time.elapsed();
+            let sleep_duration = Duration::from_secs(60).saturating_sub(elapsed);
+            time::sleep(sleep_duration).await;
+        }
     }
-
     async fn run(&mut self) {
         loop {
             self.update_state().await;
@@ -387,7 +404,7 @@ impl System {
         }
     }
 
-    async fn get_value(&self, key: &str) {
+            swarm.behaviour_mut().get_record(&key, Quorum::One).await?;
         if let Some(swarm) = &self.kademlia_swarm {
             let key = Key::new(&key);
             swarm.behaviour_mut().get_record(&key, Quorum::One);
@@ -401,34 +418,46 @@ impl System {
 
     async fn get_from_ipfs(&self, file_hash: &str, target_path: &str) -> Result<(), Box<dyn std::error::Error>> {
         self.ipfs_client.get(file_hash, target_path).await?;
-        Ok(())
-    }
-
     async fn setup_stx_support(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         self.stx_support.initialize().await?;
-        let (stx_address, stx_public_key, stx_private_key) = self.stx_support.generate_keys().await?;
+        let (stx_address, stx_public_key, stx_private_key) = match self.stx_support.generate_keys().await {
+            Ok(keys) => keys,
+            Err(e) => {
+                error!("Failed to generate STX keys: {}", e);
+                return Err(e.into());
+            }
+        };
         self.user_management.user_state.stx_address = Some(stx_address);
         self.user_management.user_state.stx_public_key = Some(stx_public_key);
         self.user_management.user_state.stx_private_key = Some(stx_private_key);
         
         // Initialize STX wallet
-        self.stx_support.initialize_wallet(&stx_address).await?;
+        if let Err(e) = self.stx_support.initialize_wallet(&stx_address).await {
+            error!("Failed to initialize STX wallet: {}", e);
+            return Err(e.into());
+        }
         
         // Get STX balance
-        let stx_balance = self.stx_support.get_balance(&stx_address).await?;
-        info!(self.logger, "STX balance: {}", stx_balance);
-        
-        Ok(())
-    }
-
     async fn setup_dlc_support(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         self.dlc_support.initialize().await?;
-        let (dlc_pubkey, dlc_privkey) = self.dlc_support.generate_keypair().await?;
+        let (dlc_pubkey, dlc_privkey) = match self.dlc_support.generate_keypair().await {
+            Ok(keys) => keys,
+            Err(e) => {
+                error!("Failed to generate DLC keypair: {}", e);
+                return Err(e.into());
+            }
+        };
         self.user_management.user_state.dlc_pubkey = Some(dlc_pubkey.clone());
         
         // Create a sample DLC contract
         let oracle = OracleInfo::new("sample_oracle", "https://example.com/oracle");
-        let contract = self.dlc_support.create_contract(&dlc_pubkey, &oracle, 1_000_000).await?;
+        let contract = match self.dlc_support.create_contract(&dlc_pubkey, &oracle, 1_000_000).await {
+            Ok(contract) => contract,
+            Err(e) => {
+                error!("Failed to create DLC contract: {}", e);
+                return Err(e.into());
+            }
+        };
         self.user_management.user_state.dlc_contracts.push(contract);
         
         info!(self.logger, "DLC environment set up with public key: {}", dlc_pubkey);
@@ -436,25 +465,69 @@ impl System {
         Ok(())
     }
 
+    async fn setup_dlc_support(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        self.dlc_support.initialize().await?;
+        let (dlc_pubkey, dlc_privkey) = self.dlc_support.generate_keypair().await?;
     async fn setup_lightning_support(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         self.lightning_support.initialize().await?;
-        let lightning_node_id = self.lightning_support.initialize_node().await?;
+        let lightning_node_id = match self.lightning_support.initialize_node().await {
+            Ok(node_id) => node_id,
+            Err(e) => {
+                error!("Failed to initialize Lightning node: {}", e);
+                return Err(e.into());
+            }
+        };
         self.user_management.user_state.lightning_node_id = Some(lightning_node_id.clone());
         
         // Open a sample channel
-        let channel = self.lightning_support.open_channel(&lightning_node_id, 1_000_000).await?;
-        self.user_management.user_state.lightning_channels.push(channel);
+        match self.lightning_support.open_channel(&lightning_node_id, 1_000_000).await {
+            Ok(channel) => self.user_management.user_state.lightning_channels.push(channel),
+            Err(e) => {
+                error!("Failed to open Lightning channel: {}", e);
+                return Err(e.into());
+            }
+        };
         
         info!(self.logger, "Lightning node initialized with ID: {}", lightning_node_id);
         
         Ok(())
-    }
-
+    }sync fn setup_lightning_support(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        self.lightning_support.initialize().await?;
+        let lightning_node_id = self.lightning_support.initialize_node().await?;
     async fn setup_bitcoin_support(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         self.bitcoin_support.initialize().await?;
-        let (bitcoin_address, bitcoin_public_key, bitcoin_private_key) = self.bitcoin_support.generate_keys().await?;
-        self.user_management.user_state.bitcoin_address = Some(bitcoin_address);
+        
+        let (bitcoin_address, bitcoin_public_key, bitcoin_private_key) = match self.bitcoin_support.generate_keys().await {
+            Ok(keys) => keys,
+            Err(e) => {
+                error!("Failed to generate Bitcoin keys: {}", e);
+                return Err(e.into());
+            }
+        };
+        
+        self.user_management.user_state.bitcoin_address = Some(bitcoin_address.clone());
         self.user_management.user_state.bitcoin_public_key = Some(bitcoin_public_key);
+        self.user_management.user_state.bitcoin_private_key = Some(bitcoin_private_key);
+        
+        // Initialize Bitcoin wallet
+        if let Err(e) = self.bitcoin_support.initialize_wallet(&bitcoin_address).await {
+            error!("Failed to initialize Bitcoin wallet: {}", e);
+            return Err(e.into());
+        }
+        
+        // Get Bitcoin balance
+        let btc_balance = match self.bitcoin_support.get_balance(&bitcoin_address).await {
+            Ok(balance) => balance,
+            Err(e) => {
+                error!("Failed to get Bitcoin balance: {}", e);
+                return Err(e.into());
+            }
+        };
+        
+        info!(self.logger, "BTC balance: {}", btc_balance);
+        
+        Ok(())
+    }   self.user_management.user_state.bitcoin_public_key = Some(bitcoin_public_key);
         self.user_management.user_state.bitcoin_private_key = Some(bitcoin_private_key);
         
         // Initialize Bitcoin wallet
@@ -609,33 +682,62 @@ impl System {
     }
 
     pub async fn evaluate_system_performance(&self) -> Result<f64> {
-        self.system_evaluator.evaluate_performance(&self.federated_learning).await
-    }
-}
-
-struct ProjectSetup {
-    user_type:  String,
-    user_data:  serde_json::Value,
-    config:     Config,
-}
-
-impl ProjectSetup {
-    fn new(user_type: String, user_data: serde_json::Value, config: Config) -> Self {
-        Self {
-            user_type,
-            user_data,
-            config,
-        }
-    }
     async fn async_setup(&self) -> Result<(), Box<dyn std::error::Error>> {
         info!(self.logger, "Starting async setup for user type: {}", self.user_type);
 
         // Setup STX environment
-        let (stx_address, stx_public_key, stx_private_key) = self.stx_support.generate_keys().await?;
-        self.user_management.user_state.stx_address = Some(stx_address);
-        self.user_management.user_state.stx_public_key = Some(stx_public_key);
-        self.user_management.user_state.stx_private_key = Some(stx_private_key);
-        self.stx_support.initialize_wallet(&stx_address).await?;
+struct ProjectSetup {
+    user_type:  String,
+    user_data:  serde_json::Value,
+    config:     Config,
+    logger:     slog::Logger,
+}               return Err(e.into());
+            }
+impl ProjectSetup {
+    fn new(user_type: String, user_data: serde_json::Value, config: Config, logger: slog::Logger) -> Self {
+        Self {
+            user_type,
+            user_data,
+            config,
+            logger,
+        }
+    }   }
+        let stx_balance = match self.stx_support.get_balance(&stx_address).await {
+            Ok(balance) => balance,
+            Err(e) => {
+                error!("Failed to get STX balance: {}", e);
+                return Err(e.into());
+            }
+        };
+        info!(self.logger, "STX balance: {}", stx_balance);
+
+        // Setup DLC environment
+        let (dlc_pubkey, dlc_privkey) = match self.dlc_support.generate_keypair().await {
+            Ok(keys) => keys,
+            Err(e) => {
+                error!("Failed to generate DLC keypair: {}", e);
+                return Err(e.into());
+            }
+        };
+        self.user_management.user_state.dlc_pubkey = Some(dlc_pubkey.clone());
+        let oracle = OracleInfo::new("sample_oracle", "https://example.com/oracle");
+        let contract = match self.dlc_support.create_contract(&dlc_pubkey, &oracle, 1_000_000).await {
+            Ok(contract) => contract,
+            Err(e) => {
+                error!("Failed to create DLC contract: {}", e);
+                return Err(e.into());
+            }
+        };
+        self.user_management.user_state.dlc_contracts.push(contract);
+        info!(self.logger, "DLC environment set up with public key: {}", dlc_pubkey);
+
+        // Setup project-specific environment
+        let project_setup = ProjectSetup::new(&self.user_type, &self.user_management.get_user_state())?;
+        project_setup.setup()?;
+
+        info!(self.logger, "Async setup completed successfully");
+        Ok(())
+    }   self.stx_support.initialize_wallet(&stx_address).await?;
         let stx_balance = self.stx_support.get_balance(&stx_address).await?;
         info!(self.logger, "STX balance: {}", stx_balance);
 
@@ -646,12 +748,13 @@ impl ProjectSetup {
         let contract = self.dlc_support.create_contract(&dlc_pubkey, &oracle, 1_000_000).await?;
         self.user_management.user_state.dlc_contracts.push(contract);
         info!(self.logger, "DLC environment set up with public key: {}", dlc_pubkey);
-
-        // Setup project-specific environment
-        let project_setup = ProjectSetup::new(&self.user_type, &self.user_management.get_user_state())?;
-        project_setup.setup()?;
-
-        info!(self.logger, "Async setup completed successfully");
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let user_type = determine_user_type().await;
+    let user_data = get_user_data(&user_type).await;
+    let config = Config::default();
+    let logger = slog::Logger::root(slog::Discard, o!());
+    let project_setup = ProjectSetup::new(user_type, user_data, config, logger);
         Ok(())
     }
 

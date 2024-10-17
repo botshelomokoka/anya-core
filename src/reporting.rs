@@ -15,6 +15,23 @@ pub enum ReportType {
     // Add other report types as needed
 }
 
+use crate::ml_core::MLCore;
+
 pub struct SystemWideReporter {
-    // Implement reporter functionality
+    ml_core: MLCore,
+}
+
+impl SystemWideReporter {
+    pub fn new(ml_core: MLCore) -> Self {
+        Self { ml_core }
+    }
+
+    pub fn generate_report(&self) -> Report {
+        let metrics = self.ml_core.get_metrics().clone();
+        Report {
+            report_type: ReportType::Periodic,
+            metrics,
+            operational_status: OperationalStatus::Operational,
+        }
+    }
 }

@@ -9,6 +9,7 @@ use crate::web5_support::Web5Support;
 use crate::libp2p_support::Libp2pSupport;
 use did_key::{DIDKey, KeyMaterial};
 use verifiable_credentials::{Credential, CredentialSubject};
+use slog::Logger;
 
 #[derive(Debug, Clone)]
 pub enum UserType {

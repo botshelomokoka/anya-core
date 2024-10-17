@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use std::time::{Duration, Instant};
@@ -19,25 +18,28 @@ pub struct RateLimiter {
 }
 
 impl RateLimiter {
-    pub fn new(capacity: u32, refill_rate: f64) -> Self {
-        Self {
+    pub fn new(capacity: u32, refill_rate: f64) -> Arc<Mutex<Self>> {
+        Arc::new(Mutex::new(Self {
             capacity,
             refill_rate,
             tokens: capacity as f64,
             last_refill: Instant::now(),
-        }
+        }))
     }
 
-    pub async fn acquire(&mut self, tokens: u32) -> Result<(), RateLimiterError> {
-        self.refill();
-        if self.tokens >= tokens as f64 {
-            self.tokens -= tokens as f64;
+    pub async fn acquire(rate_limiter: Arc<Mutex<Self>>, tokens: u32) -> Result<(), RateLimiterError> {
+        let mut rl = rate_limiter.lock().await;
+        rl.refill();
+        if rl.tokens >= tokens as f64 {
+            rl.tokens -= tokens as f64;
             Ok(())
         } else {
-            let wait_time = Duration::from_secs_f64((tokens as f64 - self.tokens) / self.refill_rate);
+            let wait_time = Duration::from_secs_f64((tokens as f64 - rl.tokens) / rl.refill_rate);
+            drop(rl); // Release the lock before sleeping
             sleep(wait_time).await;
-            self.refill();
-            self.tokens -= tokens as f64;
+            let mut rl = rate_limiter.lock().await;
+            rl.refill();
+            rl.tokens -= tokens as f64;
             Ok(())
         }
     }

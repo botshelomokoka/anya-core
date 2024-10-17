@@ -6,11 +6,15 @@ pub struct FederatedLearningModel {
     weights: HashMap<String, f64>,
 }
 
-pub struct FederatedLearningModule;
+pub struct FederatedLearningModule<'a> {
+    _marker: std::marker::PhantomData<&'a ()>,
+}
 
-impl FederatedLearningModule {
+impl<'a> FederatedLearningModule<'a> {
     pub fn new() -> Self {
-        Self
+        Self {
+            _marker: std::marker::PhantomData,
+        }
     }
 
     pub fn train_model(&self, data: &HashMap<String, f64>) -> FederatedLearningModel {
@@ -24,8 +28,8 @@ impl FederatedLearningModule {
         // Implement model aggregation logic
         let mut aggregated_weights = HashMap::new();
         for model in models {
-            for (key, value) in model.weights {
-                *aggregated_weights.entry(key).or_insert(0.0) += value;
+            for (key, value) in model.weights.iter() {
+                *aggregated_weights.entry(key.clone()).or_insert(0.0) += value;
             }
         }
         FederatedLearningModel {

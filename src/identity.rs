@@ -11,6 +11,7 @@ pub enum IdentityError {
 }
 
 pub struct Identity {
+    // The `did_key` field stores the DID key used for creating and verifying decentralized identifiers.
     did_key: DIDKey,
 }
 
@@ -20,13 +21,16 @@ impl Identity {
         Ok(Self { did_key })
     }
 
+    /// Creates a DID (Decentralized Identifier) from the stored DID key.
     pub fn create_did(&self) -> Result<String, IdentityError> {
         Ok(self.did_key.to_did())
     }
 
     pub fn verify_credential(&self, credential: &str) -> Result<bool, IdentityError> {
-        let vc = VerifiableCredential::from_json_str(credential)
-            .map_err(|e| IdentityError::CredentialVerificationError(e.to_string()))?;
+        let vc = VerifiableCredential::from_json_str(credential).map_err(|e| {
+            IdentityError::CredentialVerificationError(format!("Failed to parse credential: {}", e))
+        })?;
         vc.verify().map_err(|e| IdentityError::CredentialVerificationError(e.to_string()))
     }
+}   }
 }

@@ -6,7 +6,7 @@ pub trait DataFeed {
     async fn request_data(&mut self);
 }
 
-#[derive(Hash, Eq, PartialEq)]
+#[derive(Hash, Eq, PartialEq, Debug)]
 pub enum DataSource {
     Market,
     Blockchain,

@@ -1,12 +1,14 @@
-pub struct NLP;
+pub struct NaturalLanguageProcessor {
+}
 
-impl NLP {
-    pub fn new() -> Result<Self, ()> {
-        Ok(Self)
+impl NaturalLanguageProcessor {
+        pub fn new() -> Self {{
+        Self
     }
 
     pub fn process(&self, text: &str) -> Result<String, ()> {
         // TODO: Implement natural language processing
-        Ok(text.to_string())
+        Ok(text.to_uppercase())
+    }
     }
 }

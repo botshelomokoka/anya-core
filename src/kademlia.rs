@@ -41,6 +41,24 @@ pub struct KademliaBehaviour {
     floodsub: Floodsub,
 }
 
+#[derive(Debug)]
+pub enum KademliaBehaviourEvent {
+    Kademlia(KademliaEvent),
+    Floodsub(FloodsubEvent),
+}
+
+impl From<KademliaEvent> for KademliaBehaviourEvent {
+    fn from(event: KademliaEvent) -> Self {
+        KademliaBehaviourEvent::Kademlia(event)
+    }
+}
+
+impl From<FloodsubEvent> for KademliaBehaviourEvent {
+    fn from(event: FloodsubEvent) -> Self {
+        KademliaBehaviourEvent::Floodsub(event)
+    }
+}
+
 pub struct KademliaServer {
     swarm: Swarm<KademliaBehaviour>,
     user_management: UserManagement,
@@ -181,27 +199,40 @@ impl KademliaInterface for KademliaServer {
     }
 }
 
-use libp2p::kad::{Kademlia, KademliaEvent};
-use crate::core::NetworkNode;
-
 pub struct KademliaModule {
     kademlia: Kademlia<MemoryStore>,
 }
 
 impl KademliaModule {
     pub fn new() -> Self {
-        // Initialize Kademlia DHT
+        let id_keys = identity::Keypair::generate_ed25519();
+        let peer_id = PeerId::from(id_keys.public());
+        let store = MemoryStore::new(peer_id);
+        let kademlia = Kademlia::new(peer_id, store);
+        Self { kademlia }
     }
 
     pub async fn put_value(&mut self, key: &[u8], value: &[u8]) {
-        // Implement value storage in DHT
+        let record = Record {
+            key: RecordKey::new(key),
+            value: value.to_vec(),
+            publisher: None,
+            expires: None,
+        };
+        self.kademlia.put_record(record, libp2p::kad::Quorum::One).unwrap();
     }
 
     pub async fn get_value(&mut self, key: &[u8]) -> Option<Vec<u8>> {
-        // Implement value retrieval from DHT
+        let record_key = RecordKey::new(key);
+        self.kademlia.get_record(&record_key, libp2p::kad::Quorum::One);
+        // Note: This is a simplified example. In a real-world scenario, you'd need to wait for and process the query result.
+        None
     }
 
     pub async fn find_node(&mut self, peer_id: &PeerId) -> Vec<PeerId> {
-        // Implement node discovery
+        let mut found_peers = Vec::new();
+        self.kademlia.get_closest_peers(peer_id.clone());
+        // Note: This is a simplified example. In a real-world scenario, you'd need to wait for and process the query result.
+        found_peers
     }
 }

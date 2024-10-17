@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 use bitcoin::{Address, Network, Transaction, TxIn, TxOut};
-use bitcoin::util::psbt::PartiallySignedTransaction;
+use std::str::FromStr;
+use bitcoin_wallet::{account::Account, wallet::Wallet, mnemonic::Mnemonic};
 use bitcoin_wallet::{account::Account, wallet::Wallet};
 use bitcoincore_rpc::{Auth, Client, RpcApi};
 
@@ -21,7 +22,8 @@ pub struct BitcoinSupport {
 impl BitcoinSupport {
     pub fn new(rpc_url: &str, rpc_user: &str, rpc_pass: &str, network: Network) -> Result<Self, Box<dyn std::error::Error>> {
         let auth = Auth::UserPass(rpc_user.to_string(), rpc_pass.to_string());
-        let client = Client::new(rpc_url, auth)?;
+        let mnemonic = Mnemonic::new_random()?;
+        let wallet = Wallet::new(network, Account::new(0, 0, 0, mnemonic)?);
         let wallet = Wallet::new(network, Account::new(0, 0, 0)?);
         Ok(Self { client, wallet })
     }

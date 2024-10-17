@@ -14,13 +14,17 @@ pub struct FederatedLearning {
 impl FederatedLearning {
     pub fn new() -> Result<Self, FederatedLearningError> {
         // Initialize OpenFL components
-        let fl = OpenFLFederatedLearning::new().map_err(|e| FederatedLearningError::ExecutionError(e.to_string()))?;
+        let fl = OpenFLFederatedLearning::new().map_err(|e| {
+            eprintln!("Failed to initialize OpenFLFederatedLearning: {}", e);
+            FederatedLearningError::ExecutionError(e.to_string())
+        })?;
         Ok(Self { fl })
     }
 
-    pub fn run(&self, model: &str, data: &[u8]) -> Result<Vec<f32>, FederatedLearningError> {
+        let result = self.fl.run(&model, data).map_err(|e| FederatedLearningError::ExecutionError(e.to_string()))?;
         // Implement federated learning using openfl crate
-        // This is a placeholder and needs to be implemented based on your specific requirements
-        Ok(Vec::new())
+        let model = Model::from_bytes(model.as_bytes()).map_err(|e| FederatedLearningError::ExecutionError(e.to_string()))?;
+        let result = self.fl.run(&model, data).map_err(|e| FederatedLearningError::ExecutionError(e.to_string()))?;
+        Ok(result)
     }
 }

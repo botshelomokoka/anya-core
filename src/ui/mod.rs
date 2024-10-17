@@ -1,7 +1,8 @@
 use yew::prelude::*;
 
 pub struct WebInterface {
-    // Fields for managing the web interface
+    rpc: StacksRpc,
+    session: Session,
 }
 
 impl Component for WebInterface {
