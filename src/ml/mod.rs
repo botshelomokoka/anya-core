@@ -25,10 +25,10 @@ pub enum MLError {
     InternalAIError(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
 pub struct MLInput {
     pub timestamp: chrono::DateTime<chrono::Utc>,
     pub features: Vec<f64>,
+    pub label: f64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -144,3 +144,6 @@ pub fn init() -> Result<(), Box<dyn std::error::Error>> {
 
 // TODO: Implement differential privacy techniques
 // TODO: Implement secure aggregation using the SPDZ protocol
+// TODO: Implement advanced aggregation algorithms
+// TODO: Integrate with external AI services for enhanced functionality
+// TODO: Implement natural language processing capabilities

@@ -23,8 +23,13 @@
 
 ## Introduction
 
+This document provides a comprehensive guide to the Anya Core API, detailing the available endpoints, request/response formats, and authentication methods for both open-source and enterprise features.
+
+This document provides a comprehensive guide to the Anya Core API, detailing the available endpoints, request/response formats, and authentication methods.
+
 This document provides a comprehensive guide to the Anya Core API, detailing the available endpoints, request/response formats, and authentication methods. Anya Core is a decentralized AI assistant framework that integrates blockchain technologies, federated learning, and advanced cryptography.
 
 ## Authentication
+
 
 All API requests require authentication using JSON Web Tokens (JWT). Include the JWT in the Authorization header of your requests:
