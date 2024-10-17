@@ -1,13 +1,11 @@
 # Test Plan
 
 ## Feature: Bitcoin Core Integration
-
 - Test Case 1: Node synchronization
   - Steps: ...
   - Expected Result: ...
 
 ## Feature: Lightning Network
-
 - Test Case 1: Channel creation
   - Steps: ...
   - Expected Result: ...
