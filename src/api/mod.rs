@@ -1,40 +1,10 @@
-use actix_web::{web, App, HttpServer, Responder, HttpResponse};
+use actix_web::{web, App, HttpServer, Responder, HttpResponse, HttpRequest};
+use serde::Serialize;
 use crate::ml::{MLModel, MLInput, MLOutput};
 use crate::ai::AIModule;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use crate::rate_limiter::RateLimiter;
-
-async fn get_advanced_analytics(
-    data: web::Data<AdvancedAnalytics>,
-    ai_module: web::Data<Arc<Mutex<AIModule>>>
-) -> impl Responder {
-    let analytics_params = AnalyticsParams {
-        time_range: data.time_range.clone(),
-        metrics: data.metrics.clone(),
-        aggregation_level: data.aggregation_level.clone(),
-    };
-    
-    // Feedback to ML model
-    let ml_input = MLInput {
-        analytics_request: analytics_params.clone(),
-        // Add other relevant input data
-    };
-    
-    if let Ok(prediction) = ai_module.lock().await.predict(&ml_input).await {
-        // Use prediction to potentially adjust analytics parameters
-        // For simplicity, we're just logging it here
-        log::info!("ML prediction for analytics: {:?}", prediction);
-    }
-    
-    // Train the model with this interaction
-    let training_data = vec![ml_input];
-    if let Err(e) = ai_module.lock().await.train(&training_data).await {
-        log::error!("Error training ML model: {}", e);
-    }
-    
-    web::Json(analytics_params)
-}
 
 async fn execute_high_volume_trade(
     data: web::Data<HighVolumeTrading>,
@@ -53,19 +23,20 @@ async fn execute_high_volume_trade(
         // Add other relevant input data
     };
     
-    if let Ok(prediction) = ai_module.lock().await.predict(&ml_input).await {
-        // Use prediction to potentially adjust trade parameters
-        // For simplicity, we're just logging it here
-        log::info!("ML prediction for trade: {:?}", prediction);
-    }
-    
-    // Train the model with this interaction
+    let mut ai_module = ai_module.lock().await;
+    let prediction = ai_module.predict(&ml_input).await;
     let training_data = vec![ml_input];
-    if let Err(e) = ai_module.lock().await.train(&training_data).await {
+    if let Err(e) = ai_module.train(&training_data).await {
         log::error!("Error training ML model: {}", e);
     }
+    let prediction_result = prediction;
     
-    web::Json(trade_params)
+    match prediction_result {
+        Ok(prediction) => log::info!("ML prediction for trade: {:?}", prediction),
+        Err(e) => log::error!("Error during ML prediction: {}", e),
+    }
+    
+    HttpResponse::Ok().json(trade_params)
 }
 
 #[derive(Serialize, Clone)]
@@ -92,10 +63,9 @@ pub async fn start_api_server(port: u16) -> std::io::Result<()> {
     .bind(("127.0.0.1", port))?
     .run()
     .await
-<<<<<<< HEAD
 }
 
-pub struct ApiHandler {
+struct ApiHandler {
     rate_limiter: Arc<RateLimiter>,
 }
 
@@ -105,18 +75,29 @@ impl ApiHandler {
     }
 
     pub async fn rate_limit_middleware(&self, req: HttpRequest, body: web::Bytes) -> Result<HttpResponse, actix_web::Error> {
-        let identifier = self.get_identifier(&req);
-        if !self.rate_limiter.check_rate_limit(&identifier).await {
-            return Ok(HttpResponse::TooManyRequests().json({
-                "error": "Rate limit exceeded",
-                "retry_after": 60 // Suggest retry after 60 seconds
-            }));
+        if self.is_rate_limited(&req).await {
+            return Ok(self.rate_limit_exceeded_response());
         }
-        // If rate limit is not exceeded, pass the request to the next handler
+        self.pass_request(body)
+    }
+
+    async fn is_rate_limited(&self, req: &HttpRequest) -> bool {
+        let identifier = self.get_identifier(req).await;
+        self.rate_limiter.is_limited(&identifier).await
+    }
+
+    fn rate_limit_exceeded_response(&self) -> HttpResponse {
+        HttpResponse::TooManyRequests().json({
+            "error": "Rate limit exceeded",
+            "retry_after": 60 // Suggest retry after 60 seconds
+        })
+    }
+
+    fn pass_request(&self, body: web::Bytes) -> Result<HttpResponse, actix_web::Error> {
         Ok(HttpResponse::Ok().body(body))
     }
 
-    fn get_identifier(&self, req: &HttpRequest) -> String {
+    async fn get_identifier(&self, req: &HttpRequest) -> String {
         // Implement logic to get a unique identifier (IP, wallet address, app ID, etc.)
         req.connection_info().realip_remote_addr()
             .unwrap_or("unknown")
@@ -125,28 +106,25 @@ impl ApiHandler {
 }
 
 // Wrap each endpoint with rate limiting middleware
+// This macro takes an endpoint handler and wraps it with rate limiting logic.
 macro_rules! rate_limited_endpoint {
     ($handler:expr) => {
         |api_handler: web::Data<ApiHandler>, req: HttpRequest, body: web::Bytes| async move {
-            match api_handler.rate_limit_middleware(req, body).await {
-                Ok(HttpResponse::Ok(_)) => $handler.await,
-                Ok(response) => response,
-                Err(e) => HttpResponse::InternalServerError().json({"error": e.to_string()}),
+            if api_handler.is_rate_limited(&req).await {
+                return Ok(api_handler.rate_limit_exceeded_response());
             }
+            $handler(req, body).await
         }
     };
 }
 
 // Example of using the macro for an endpoint
-async fn get_advanced_analytics(data: web::Json<AnalyticsParams>) -> impl Responder {
-    // Implementation...
-}
+// Removed duplicate definition of get_advanced_analytics
 
 pub fn config(cfg: &mut web::ServiceConfig) {
     let api_handler = web::Data::new(ApiHandler::new(Arc::new(RateLimiter::new())));
     cfg.app_data(api_handler.clone())
         .route("/analytics", web::post().to(rate_limited_endpoint!(get_advanced_analytics)))
         // Add other routes here, wrapped with rate_limited_endpoint! macro
-=======
->>>>>>> 1b4f7ce (Align project structure with updated architecture)
+        .route("/trade", web::post().to(rate_limited_endpoint!(execute_high_volume_trade)));
 }

@@ -1,7 +1,5 @@
 # Contributing to Anya Core
 
-
-
 ## Table of Contents
 
 1. [Code of Conduct](#code-of-conduct)
@@ -9,13 +7,13 @@
 3. [Coding Standards](#coding-standards)
 4. [Making Changes](#making-changes)
 5. [Project Structure](#project-structure)
-5. [Submitting Changes](#submitting-changes)
 6. [Code Review](#code-review)
 7. [Pull Requests](#pull-requests)
 8. [Documentation](#documentation)
 9. [Reporting Issues](#reporting-issues)
 10. [Key Areas for Contribution](#key-areas-for-contribution)
-11. [Community](#community) [Code of Conduct](CODE_OF_CONDUCT.md) to foster an open and welcoming environment.
+11. [Community](#community)
+[Code of Conduct](CODE_OF_CONDUCT.md) to foster an open and welcoming environment.
 
 ## Getting Started
 
@@ -75,10 +73,6 @@ Join our community channels to discuss the project, ask questions, and get help:
 
 Thank you for contributing to Anya Core!
 
-
-
-
-
 ## Project Structure
 
 Familiarize yourself with the project structure:
@@ -116,14 +110,6 @@ anya-core/
     ├── setup.sh
     └── run_tests.sh
 
-## Submitting Changes
-
-1. Push your changes to your fork on GitHub.
-2. Create a pull request from your branch to the main Anya Core repository.
-3. Describe your changes in the pull request description.
-4. Reference any related issues in the pull request description.
-5. Ensure your code aligns with the project structure and follows the established patterns.
-
 ## Code Review
 
 Your pull request will be reviewed by the maintainers. They may suggest changes or improvements. Please be patient and responsive during this process.
@@ -145,11 +131,3 @@ If you find a bug or have a suggestion for improvement:
 - Optimizing the Kademlia DHT implementation for better network discovery
 - Enhancing privacy features and security measures
 - Improving documentation and test coverage
-
-## Community
-
-Join our community channels to discuss the project, ask questions, and get help:
-
-- [Discord](https://discord.gg/anyacore)
-- [Telegram](https://t.me/anyacore)
-Thank you for contributing to Anya Core and helping build a revolutionary Bitcoin intelligence platform!

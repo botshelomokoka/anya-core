@@ -31,5 +31,4 @@ This document provides a comprehensive guide to the Anya Core API, detailing the
 
 ## Authentication
 
-
 All API requests require authentication using JSON Web Tokens (JWT). Include the JWT in the Authorization header of your requests:

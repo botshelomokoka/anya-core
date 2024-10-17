@@ -1,15 +1,11 @@
 use bitcoin::{
     Network, Address, Transaction, TxIn, TxOut, OutPoint, Script, ScriptBuf,
     util::psbt::PartiallySignedTransaction,
-    secp256k1::{Secp256k1, SecretKey, PublicKey},
+    secp256k1::{Secp256k1, SecretKey, PublicKey, Signature},
     hashes::Hash,
+    util::bip32::{ExtendedPrivKey, ExtendedPubKey},
 };
 use bitcoincore_rpc::{Auth, Client, RpcApi};
-use bitcoin::secp256k1::{Secp256k1, Signature};
-use bitcoin::util::address::Address;
-use bitcoin::hashes::Hash;
-use bitcoin::Transaction;
-use bitcoin::util::bip32::{ExtendedPrivKey, ExtendedPubKey};
 use dlc_btc_lib::{Dlc, ...}; // Import necessary modules from the DLC library
 
 pub struct BitcoinModule {
@@ -33,7 +29,7 @@ impl BitcoinModule {
         }
     }
 
-    pub fn sign_transaction(&self, psbt: &mut PartiallySignedTransaction, private_keys: &[SecretKey]) -> Result<(), bitcoin::Error> {
+    pub fn sign_transaction(&self, psbt: &mut PartiallySignedTransaction, private_keys: &[SecretKey]) -> Result<(), bitcoin::util::psbt::Error> {
         let secp = Secp256k1::new();
         for key in private_keys {
             psbt.sign(key, &secp)?;
@@ -42,20 +38,21 @@ impl BitcoinModule {
     }
 
     pub fn broadcast_transaction(&self, tx: &Transaction) -> Result<String, bitcoincore_rpc::Error> {
-        self.client.send_raw_transaction(tx)
+        let txid = self.client.send_raw_transaction(tx)?;
+        Ok(txid.to_string())
     }
 }
 
 // Ensure all necessary modules and functionalities are implemented and up-to-date
-pub mod bitcoin_core;
-pub mod lightning_network;
-pub mod taproot;
-pub mod bitcoin_script;
-pub mod privacy;
-pub mod scalability;
 pub mod advanced_analytics;
+pub mod bitcoin_core;
+pub mod bitcoin_script;
 pub mod defi_integration;
 pub mod enterprise_features;
-pub mod quantum_resistance;
 pub mod federated_learning;
 pub mod identity_authentication;
+pub mod lightning_network;
+pub mod privacy;
+pub mod quantum_resistance;
+pub mod scalability;
+pub mod taproot;
