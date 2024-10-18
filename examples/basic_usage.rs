@@ -5,11 +5,18 @@ use anya_core::{
 };
 use log::{info, error};
 use bitcoin::Network;
-use anyhow::Result;e() -> Result<PrivacyModule, anyhow::Error> {
-    PrivacyModule::new(vec![]).map_err(handle_error("PrivacyModule"))
+use anyhow::Result;
+
+fn handle_error(module: &str) -> impl Fn(anyhow::Error) -> anyhow::Error {
+    move |err| {
+        error!("Error initializing {}: {}", module, err);
+        err
+    }
 }
 
-fn create_bitcoin_module() -> Result<BitcoinModule, anyhow::Error> {
+fn create_privacy_module() -> Result<PrivacyModule, anyhow::Error> {
+    PrivacyModule::new(vec![]).map_err(handle_error("PrivacyModule"))
+}n create_bitcoin_module() -> Result<BitcoinModule, anyhow::Error> {
     BitcoinModule::new(
         Network::Testnet,
         "http://localhost:18332",
@@ -20,13 +27,8 @@ fn create_bitcoin_module() -> Result<BitcoinModule, anyhow::Error> {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let bitcoin_module = BitcoinModule::new(
-        Network::Testnet,
-        "http://localhost:18332",
-        "rpcuser",
-        "rpcpassword",
-    )
-    .map_err(handle_error("BitcoinModule"))?;
+    let bitcoin_module = create_bitcoin_module()?;
+    let privacy_module = create_privacy_module()?;
     let api_server = ApiServer::new(privacy_module, bitcoin_module);
     info!("Starting API server on 127.0.0.1:8080");
     api_server.run("127.0.0.1", 8080).await.map_err(|e| {
@@ -35,5 +37,4 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     })?;
 
     Ok(())
-}   Ok(())
 }
