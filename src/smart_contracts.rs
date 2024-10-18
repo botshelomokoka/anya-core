@@ -6,12 +6,6 @@ use schnorrkel::{Keypair, Signature, Signer, Verifier}; // Import Schnorr signat
 use reqwest; // For HTTP requests to fetch market rates
 use serde::Deserialize; // For deserializing JSON responses
 use log::{info, error}; // For logging
-use std::collections::HashMap;
-use rand::rngs::OsRng; // Import rand for generating keypair
-use schnorrkel::{Keypair, Signature, Signer, Verifier}; // Import Schnorr signature library
-use reqwest; // For HTTP requests to fetch market rates
-use serde::Deserialize; // For deserializing JSON responses
-use log::{info, error}; // For logging
 
 #[derive(Error, Debug)]
 pub enum SmartContractsError {
@@ -41,9 +35,6 @@ pub struct StakingInfo {
 
 pub struct SmartContracts {
     store: Store,
-    stakes: HashMap<String, StakingInfo>, // Store staking information
-    keypair: Keypair, // Schnorr keypair for signing
-    staking_rate: f64, // Current staking rate
     stakes: HashMap<String, StakingInfo>, // Store staking information
     keypair: Keypair, // Schnorr keypair for signing
     staking_rate: f64, // Current staking rate

@@ -82,15 +82,10 @@ impl UnifiedNetworkManager {
                     self.dlc_manager.lock().await.execute_dlc(dlc_tx).await?;
                 },
             }
-        }f !self.verify_batch_signature(&secp, &batch_message, &batch_signature) {
-            return Err(NetworkError::InvalidBatchSignature);
         }
 
         log::info!("Cross-layer transaction executed successfully: {:?}", transaction.id);
         Ok(())
-    }
-        // Verify the batch signature
-        Ok(batch)
     }
     fn create_batch_message(&self, batch: &[TransactionComponent]) -> Result<Message, NetworkError> {
         let mut hasher = bitcoin::hashes::sha256::Hash::engine();
@@ -181,6 +176,11 @@ impl UnifiedNetworkManager {
     }
         let master_key = self.get_master_key().expect("Failed to get master key");
         let secp = Secp256k1::new();
+    pub async fn analyze_network_state(&self) -> Result<NetworkAnalysis, NetworkError> {
+        // TODO: Implement network state analysis using ML
+        Err(NetworkError::NotImplemented("Network state analysis not implemented"))
+    }
+
     pub fn connect_peer(&self, peer_address: &str) -> Result<(), Box<dyn Error>> {
         // Example peer connection logic
         if peer_address.is_empty() {
@@ -189,20 +189,12 @@ impl UnifiedNetworkManager {
         log::info!("Connecting to peer at address: {}", peer_address);
         // Simulate connection logic
         Ok(())
-    }ub async fn analyze_network_state(&self) -> Result<NetworkAnalysis, NetworkError> {
-        // TODO: Implement network state analysis using ML
-        Err(NetworkError::NotImplemented("Network state analysis not implemented"))
     }
 
-    pub fn connect_peer(&self, peer_address: &str) -> Result<(), Box<dyn Error>> {
     pub fn broadcast_message(&self, message: &[u8]) -> Result<(), Box<dyn Error>> {
         // Implement message broadcasting logic
         // For now, we will just log the message
         log::info!("Broadcasting message: {:?}", message);
-        Ok(())
-    }
-    pub fn broadcast_message(&self, message: &[u8]) -> Result<(), Box<dyn Error>> {
-        // Implement message broadcasting logic
         Ok(())
     }
 
