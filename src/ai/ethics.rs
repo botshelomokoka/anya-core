@@ -3,7 +3,7 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 use std::time::Duration;
 use crate::unified_network::UnifiedNetworkManager;
-use crate::ai::federated_learning::FederatedLearningModel;
+use crate::ai::federated_learning::{FederatedLearningModel, PredictionResult};
 use crate::privacy::zero_knowledge::ZeroKnowledgeProof;
 
 pub struct AnyaEthics {
@@ -46,7 +46,10 @@ impl AnyaEthics {
         let network_analysis = self.network_manager.analyze_network_state().await.map_err(|e| format!("Network analysis error: {}", e))?;
 
         // Consult the federated learning model
-        let fl_decision = self.fl_model.lock().await.map_err(|e| format!("FL model lock error: {}", e))?.predict(action).map_err(|e| format!("FL model prediction error: {}", e))?;
+        let fl_decision = match self.fl_model.lock().await.map_err(|e| format!("FL model lock error: {}", e))?.predict(action).map_err(|e| format!("FL model prediction error: {}", e))? {
+            PredictionResult::Approved => true,
+            PredictionResult::Rejected => false,
+        };
 
         // Generate a zero-knowledge proof of the evaluation process
         let zk_proof = ZeroKnowledgeProof::generate("action_evaluation", &[action, &principles_alignment.to_string(), &fl_decision.to_string()]).map_err(|e| format!("Zero-knowledge proof generation error: {}", e))?;

@@ -11,7 +11,8 @@ impl Component for WebInterface {
 
     fn create(_props: Self::Properties, _link: ComponentLink<Self>) -> Self {
         Self {
-            // Initialize web interface
+            rpc: StacksRpc::new(), // Assuming StacksRpc has a new() method
+            session: Session::new(), // Assuming Session has a new() method
         }
     }
 

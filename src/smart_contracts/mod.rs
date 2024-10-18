@@ -11,7 +11,7 @@ pub enum SmartContractError {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Contract {
-    id: String,
+    contract_id: String,
     code: String,
     abi: serde_json::Value,
 }
@@ -37,12 +37,12 @@ impl SmartContractModule {
             abi: serde_json::json!({}),
         };
         self.contracts.push(new_contract);
-        Ok(id)
+        Ok(new_contract.id)
     }
 
     pub async fn execute_wasm_contract(&self, contract_id: &str, function: &str, params: &[u8]) -> Result<Vec<u8>, SmartContractError> {
         // Implement WebAssembly contract execution
         // This is a placeholder implementation and should be replaced with actual WASM execution
-        Ok(vec![])
+        unimplemented!("WebAssembly contract execution is not yet implemented");
     }
 }

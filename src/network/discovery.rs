@@ -13,12 +13,14 @@ use async_trait::async_trait;
 
 #[derive(NetworkBehaviour)]
 #[behaviour(event_process = true)]
-struct AnyadiscoveryBehaviour {
+struct AnyaDiscoveryBehaviour {
     floodsub: Floodsub,
     mdns: Mdns,
 }
 
-impl NetworkBehaviourEventProcess<FloodsubEvent> for AnyadiscoveryBehaviour {
+impl NetworkBehaviourEventProcess<FloodsubEvent> for AnyaDiscoveryBehaviour {
+    /// Handles incoming Floodsub events.
+    /// Specifically, it processes messages received via the Floodsub protocol.
     fn inject_event(&mut self, event: FloodsubEvent) {
         if let FloodsubEvent::Message(message) = event {
             info!(
@@ -28,39 +30,28 @@ impl NetworkBehaviourEventProcess<FloodsubEvent> for AnyadiscoveryBehaviour {
             );
         }
     }
-}
+// This method handles MdnsEvent, updating the floodsub's view of the network
+// by adding or removing peers based on discovery events.work
+// by adding or removing peers based on discovery events.
+impl NetworkBehaviourEventProcess<MdnsEvent> for AnyaDiscoveryBehaviour {
 
-impl NetworkBehaviourEventProcess<MdnsEvent> for AnyadiscoveryBehaviour {
-    fn inject_event(&mut self, event: MdnsEvent) {
-        match event {
-            MdnsEvent::Discovered(list) => {
-                for (peer, _) in list {
-                    self.floodsub.add_node_to_partial_view(peer);
-                }
-            }
-            MdnsEvent::Expired(list) => {
-                for (peer, _) in list {
-                    if !self.mdns.has_node(&peer) {
-                        self.floodsub.remove_node_from_partial_view(&peer);
-                    }
-                }
-            }
-        }
-    }
-}
-
+impl NetworkBehaviourEventProcess<MdnsEvent> for AnyaDiscoveryBehaviour {
 pub struct NetworkDiscovery {
-    swarm: Swarm<AnyadiscoveryBehaviour>,
+    swarm: Swarm<AnyaDiscoveryBehaviour>,
 }
 
+impl NetworkDiscovery {scoveryBehaviour>,
 impl NetworkDiscovery {
+    /// Creates a new instance of `NetworkDiscovery`.
+    /// This method initializes the local peer ID, transport, and network behaviour,
+    /// and subscribes to the "anya-network" topic.
     pub async fn new() -> Result<Self, Box<dyn Error>> {
         let local_key = libp2p::identity::Keypair::generate_ed25519();
         let local_peer_id = PeerId::from(local_key.public());
 
         let transport = libp2p::development_transport(local_key).await?;
 
-        let mut behaviour = AnyadiscoveryBehaviour {
+        let mut behaviour = AnyaDiscoveryBehaviour {
             floodsub: Floodsub::new(local_peer_id),
             mdns: Mdns::new(Default::default()).await?,
         };
@@ -68,9 +59,14 @@ impl NetworkDiscovery {
         let topic = Topic::new("anya-network");
         behaviour.floodsub.subscribe(topic);
 
-        let swarm = Swarm::new(transport, behaviour, local_peer_id);
 
         Ok(Self { swarm })
+    }
+    /// Runs the network discovery process, handling incoming events and messages.
+    /// Runs the main event loop for the unified mesh network.
+    /// This method continuously discovers new peers, optimizes the network topology,
+    /// and handles message routing and periodic maintenance tasks.
+    pub async fn run(&mut self) -> Result<(), Box<dyn Error>> {
     }
 
     pub async fn run(&mut self) -> Result<(), Box<dyn Error>> {
@@ -284,7 +280,8 @@ impl UnifiedMeshNetwork {
 
             // Periodic cleanup and health checks
             // ...
-        }
+    /// Sends a message from the source node to the target node using the current network topology.
+    pub async fn send_message(&self, source: &dyn core::NetworkNode, target: &dyn core::NetworkNode, message: &[u8]) -> Result<(), Box<dyn Error>> {
     }
 
     pub async fn send_message(&self, source: &dyn core::NetworkNode, target: &dyn core::NetworkNode, message: &[u8]) -> Result<(), Box<dyn Error>> {

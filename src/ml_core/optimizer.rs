@@ -3,7 +3,7 @@ use crate::blockchain::Transaction;
 use crate::management::ManagementAction;
 use crate::data_feed::DataSource;
 use crate::reporting::ReportType;
-use crate::ml_core::{Prediction, TrainedModel, OptimizedAction, Transaction};
+use crate::ml_core::{Prediction, TrainedModel, OptimizedAction};
 
 pub struct Optimizer {
     config: HashMap<String, String>,
@@ -24,16 +24,16 @@ impl Optimizer {
         if prediction.confidence > threshold {
             let action_type = self.determine_action_type(&prediction);
             match action_type {
-                ActionType::Blockchain => {
+                ActionType::BlockchainTransaction => {
                     OptimizedAction::BlockchainTransaction(self.create_transaction(&prediction))
                 },
-                ActionType::System => {
+                ActionType::SystemAction => {
                     OptimizedAction::SystemAction(self.create_management_action(&prediction))
                 },
-                ActionType::Data => {
+                ActionType::DataRequest => {
                     OptimizedAction::DataRequest(self.determine_data_source(&prediction))
                 },
-                ActionType::Model => {
+                ActionType::ModelUpdate => {
                     OptimizedAction::ModelUpdate(self.suggest_model_update(&prediction))
                 },
             }
@@ -72,23 +72,24 @@ impl Optimizer {
 
     fn determine_data_source(&self, prediction: &Prediction) -> DataSource {
         // Logic to determine which data source to request based on the prediction
-        DataSource::Market
-        TrainedModel {
-            model_id: "model123".to_string(),
-            accuracy: 0.95,
-        }
-
-    fn suggest_model_update(&self, prediction: &Prediction) -> TrainedModel {
-        // Logic to suggest model updates based on the prediction
+        DataSource::Market/ Logic to suggest model updates based on the prediction
         TrainedModel { /* fields */ }
     }
 
-    pub fn update_config(&mut self, config: &HashMap<String, String>) {
-        self.config = config.clone();
-    }
-}
-
+        TrainedModel {
+        TrainedModel {
+            // Replace these with actual fields and values
+            field1: value1,
+            field2: value2,
+            // Add all required fields here
+        }tring(),
+            accuracy: 0.95,
 enum ActionType {
+    BlockchainTransaction,
+    SystemAction,
+    DataRequest,
+    ModelUpdate,
+}num ActionType {
     Blockchain,
     System,
     Data,

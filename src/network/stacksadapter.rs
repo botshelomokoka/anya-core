@@ -13,6 +13,7 @@ pub enum StacksAdapterError {
     TransactionError(String),
     #[error("Block error: {0}")]
     BlockError(String),
+sleep_duration: std::time::Duration,
 }
 
 pub struct StacksNode {
@@ -28,12 +29,12 @@ impl NetworkNode for StacksNode {
 
 pub struct StacksAdapter {
     network: StacksNetwork,
-    peers: Arc<Mutex<HashMap<String, StacksNode>>>>,
+    peers: Arc<Mutex<HashMap<String, StacksNode>>>,
     max_connections: usize,
 }
 
 impl StacksAdapter {
-    pub fn new(network: StacksNetwork, max_connections: usize) -> Self {
+    pub fn new(network: StacksNetwork, max_connections: usize, sleep_duration: std::time::Duration) -> Self {
         Self {
             network,
             peers: Arc::new(Mutex::new(HashMap::new())),
@@ -52,7 +53,7 @@ impl StacksAdapter {
             quality_score: 1.0,
         };
 
-        self.peers.lock().await.insert(address.to_string(), node.clone());
+        self.peers.lock().await.insert(node.id.clone(), node.clone());
         Ok(node)
     }
 
@@ -72,7 +73,7 @@ impl StacksAdapter {
             }
 
             drop(peers);
-            tokio::time::sleep(std::time::Duration::from_secs(60)).await;
+            tokio::time::sleep(self.sleep_duration).await;
         }
     }
 
@@ -84,7 +85,7 @@ impl StacksAdapter {
 
     async fn get_block(&self, block_hash: &str) -> Result<StacksBlock, StacksAdapterError> {
         // Implement block retrieval logic for Stacks
-        // ...
+        let block = self.retrieve_block(block_hash).await?;
         Ok(block)
     }
 }

@@ -1,10 +1,10 @@
 # Anya Core
 
-Anya Core is the foundational framework that provides essential functionalities for various applications, including blockchain integrations and trading operations.
+Anya Core is a foundational framework that provides essential functionalities for various applications. It includes blockchain integrations and trading operations.
 
 ## Key Features
 
-- **Blockchain Integrations**: Supports various blockchain platforms, including Bitcoin.
+- **Blockchain Integrations**: Supports various blockchain platforms, including Bitcoin
 - **Trading Operations**: Provides tools for executing and managing trades.
 - **Networking and P2P**: Robust networking and peer-to-peer communication capabilities.
 - **Privacy and Security**: Advanced privacy and security measures.

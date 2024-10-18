@@ -61,11 +61,6 @@ impl UnifiedNetworkManager {
         Ok(batch)
     }
 
-        // Verify the batch signature
-        if !self.verify_batch_signature(&secp, &batch_message, &batch_signature) {
-            return Err(NetworkError::InvalidBatchSignature);
-        }
-
         // Execute each component of the transaction
         for component in batch {
             match component {
@@ -82,6 +77,11 @@ impl UnifiedNetworkManager {
                     self.dlc_manager.lock().await.execute_dlc(dlc_tx).await?;
                 },
             }
+        }
+
+        // Verify the batch signature
+        if !self.verify_batch_signature(&secp, &batch_message, &batch_signature) {
+            return Err(NetworkError::InvalidBatchSignature);
         }
 
         log::info!("Cross-layer transaction executed successfully: {:?}", transaction.id);
@@ -173,9 +173,11 @@ impl UnifiedNetworkManager {
     }
     }
     pub async fn analyze_network_state(&self) -> Result<NetworkAnalysis, NetworkError> {
-    }
         let master_key = self.get_master_key().expect("Failed to get master key");
-        let secp = Secp256k1::new();
+
+        // TODO: Implement network state analysis using ML
+        Err(NetworkError::NotImplemented("Network state analysis not implemented"))
+    }
     pub async fn analyze_network_state(&self) -> Result<NetworkAnalysis, NetworkError> {
         // TODO: Implement network state analysis using ML
         Err(NetworkError::NotImplemented("Network state analysis not implemented"))
@@ -198,9 +200,10 @@ impl UnifiedNetworkManager {
         Ok(())
     }
 
-    pub fn get_connected_peers(&self) -> Result<Vec<String>, Box<dyn Error>> {
-        // Implement logic to get connected peers
-        Ok(vec![])
+    pub async fn get_connected_peers(&self) -> Result<Vec<String>, Box<dyn Error>> {
+        // Example implementation to get connected peers
+        let peers = self.bitcoin_node.lock().await.get_peers().await?;
+        Ok(peers.iter().map(|peer| peer.address.clone()).collect())
     }
 
     pub async fn monitor_network_load(&self, rate_limiter: Arc<RateLimiter>, sleep_duration: Duration) {
@@ -229,11 +232,7 @@ impl UnifiedNetworkManager {
         0.15 * mempool_size +
         0.10 * chain_sync_status
     }
-
-    pub async fn get_connected_peers(&self) -> Result<Vec<String>, Box<dyn Error>> {
-        // Example implementation to get connected peers
-        let peers = self.bitcoin_node.lock().await.get_peers().await?;
-        Ok(peers.iter().map(|peer| peer.address.clone()).collect())
+    // Removed duplicate function   Ok(peers.iter().map(|peer| peer.address.clone()).collect())
     }
 
     async fn calculate_peer_load(&self) -> f32 {

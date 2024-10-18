@@ -18,29 +18,31 @@ pub struct RateLimiter {
 }
 
 impl RateLimiter {
-    pub fn new(capacity: u32, refill_rate: f64) -> Arc<Mutex<Self>> {
-        Arc::new(Mutex::new(Self {
+    pub fn new(capacity: u32, refill_rate: f64) -> Self {
+        Self {
             capacity,
             refill_rate,
             tokens: capacity as f64,
             last_refill: Instant::now(),
-        }))
+        }
+    }
+
+    pub fn wrapped(capacity: u32, refill_rate: f64) -> Arc<Mutex<Self>> {
+        Arc::new(Mutex::new(Self::new(capacity, refill_rate)))
     }
 
     pub async fn acquire(rate_limiter: Arc<Mutex<Self>>, tokens: u32) -> Result<(), RateLimiterError> {
-        let mut rl = rate_limiter.lock().await;
-        rl.refill();
-        if rl.tokens >= tokens as f64 {
-            rl.tokens -= tokens as f64;
-            Ok(())
-        } else {
-            let wait_time = Duration::from_secs_f64((tokens as f64 - rl.tokens) / rl.refill_rate);
-            drop(rl); // Release the lock before sleeping
-            sleep(wait_time).await;
+        loop {
             let mut rl = rate_limiter.lock().await;
             rl.refill();
-            rl.tokens -= tokens as f64;
-            Ok(())
+            if rl.tokens >= tokens as f64 {
+                rl.tokens -= tokens as f64;
+                return Ok(());
+            } else {
+                let wait_time = Duration::from_secs_f64((tokens as f64 - rl.tokens) / rl.refill_rate);
+                drop(rl); // Release the lock before sleeping
+                sleep(wait_time).await;
+            }
         }
     }
 

@@ -1,13 +1,17 @@
 use ndarray::{Array1, Array2};
 use ndarray_rand::RandomExt;
+use rand::SeedableRng;
+use rand::rngs::StdRng;
 use ndarray_rand::rand_distr::Uniform;
 use std::collections::HashMap;
-use crate::ml_core::TrainedModel;
+pub struct TrainingData(pub Vec<f32>);
 
 pub struct ProcessedData(pub Vec<f32>);
 
 pub struct ModelTrainer {
+    // Holds the trained model after the training process is complete
     model: Option<TrainedModel>,
+    // Configuration parameters for the model training process
     config: HashMap<String, String>,
 }
 
@@ -19,26 +23,31 @@ impl ModelTrainer {
         }
     }
 
-    pub fn train(&mut self, data: &ProcessedData) -> TrainedModel {
+    pub fn train(&mut self, data: &TrainingData) -> TrainedModel {
         let learning_rate: f32 = self.config.get("learning_rate")
-            .and_then(|s| s.parse().ok())
-            .unwrap_or(0.01);
+            .expect("learning_rate not found in config")
+            .parse()
+            .expect("Failed to parse learning_rate");
 
         let num_iterations: usize = self.config.get("num_iterations")
-            .and_then(|s| s.parse().ok())
+            .expect("num_iterations not found in config")
+            .parse()
+            .expect("Failed to parse num_iterations");
+
         let features = Array2::from_shape_vec((data.0.len(), 1), data.0.clone())
             .expect("Failed to create features array");
 
-        let features = Array2::from_shape_vec((data.0.len(), 1), data.0.clone()).unwrap();
-        let targets = Array1::from_vec(data.0.clone());
-
-        let mut weights = Array1::random(features.ncols(), Uniform::new(0., 1.));
+        let mut rng = StdRng::seed_from_u64(42); // Seed the RNG for reproducibility
+        let mut weights = Array1::random_using(features.ncols(), Uniform::new(0., 1.), &mut rng);
+        // Assuming targets are the same length as data and initialized here for demonstration
+        let targets = Array1::from_vec(vec![0.0; data.0.len()]);
 
         for _ in 0..num_iterations {
             let predictions = features.dot(&weights);
             let errors = &predictions - &targets;
             let gradient = features.t().dot(&errors) / features.nrows() as f32;
             weights = &weights - learning_rate * &gradient;
+        }   weights = &weights - learning_rate * &gradient;
         }
 
         let model = TrainedModel { weights };
