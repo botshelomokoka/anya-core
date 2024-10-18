@@ -118,6 +118,4 @@
 - Developed basic CoinJoin functionality for enhanced privacy
 - Expanded AI-driven market analysis capabilities
 
-
-
 This roadmap is subject to change based on technological advancements, community feedback, and shifting priorities in the Bitcoin ecosystem.
