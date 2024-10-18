@@ -21,6 +21,7 @@ pub enum LightningAdapterError {
     PaymentError(String),
 }
 
+#[derive(Clone)]
 pub struct LightningNode {
     id: String,
     address: String,
@@ -43,8 +44,18 @@ pub struct LightningAdapter {
 
 impl LightningAdapter {
     pub fn new(config: UserConfig, network: Network, max_connections: usize) -> Self {
-        // Initialize Lightning components
-        // ...
+        let secp_ctx = Secp256k1::new();
+        let network_graph = Arc::new(NetworkGraph::new(network.clone(), &secp_ctx));
+        let peer_manager = Arc::new(PeerManager::new(
+            MessageHandler {
+                chan_handler: Arc::new(ChannelManager::new(...)), // Initialize properly
+                route_handler: Arc::new(network_graph.clone()),
+            },
+            0, // Replace with actual node secret
+            &secp_ctx,
+            config.clone(),
+        ));
+        let channel_manager = Arc::new(ChannelManager::new(...)); // Initialize properly
 
         Self {
             peer_manager,
@@ -67,15 +78,23 @@ impl LightningAdapter {
             quality_score: 1.0,
         };
 
-        self.peers.lock().await.insert(node_id.to_string(), node.clone());
+        let mut peers = self.peers.lock().await;
+        if !peers.contains_key(node_id) {
+            peers.insert(node_id.to_string(), node.clone());
+        }
         Ok(node)
     }
 
+    fn should_retain_node(&self, node: &LightningNode) -> bool {
+        node.last_seen.elapsed() < std::time::Duration::from_secs(3600) && node.quality_score > 0.3
+    }
+
     async fn manage_connections(&self) {
+        let mut interval = tokio::time::interval(std::time::Duration::from_secs(60));
         loop {
-            let mut peers = self.peers.lock().await;
-            
-            // Prune inactive or low-quality connections
+            interval.tick().await;
+
+            peers.retain(|_, node| self.should_retain_node(node));Prune inactive or low-quality connections
             peers.retain(|_, node| {
                 node.last_seen.elapsed() < std::time::Duration::from_secs(3600) && node.quality_score > 0.3
             });
@@ -87,11 +106,10 @@ impl LightningAdapter {
             }
 
             drop(peers);
-            tokio::time::sleep(std::time::Duration::from_secs(60)).await;
         }
-    }
-
     async fn handle_network_event(&self, event: Event) {
+        match event {
+            Event::PeerConnected { peer_id, .. } => {
         match event {
             Event::PeerConnected { peer_id, .. } => {
                 info!("Peer connected: {}", peer_id);
@@ -106,7 +124,16 @@ impl LightningAdapter {
                 // Handle channel closure
             }
             // Handle other event types
+            _ => {
+                debug!("Unhandled event type: {:?}", event);
+            }
+        }       info!("Channel closed: {}", channel_id);
+                // Handle channel closure
+            }
+            // Handle other event types
             _ => {}
+        }
+    }       _ => {}
         }
     }
 

@@ -5,7 +5,7 @@ use chrono::{DateTime, Utc, Duration};
 use ndarray::{Array1, Array2};
 use linfa::prelude::*;
 use linfa_linear::LinearRegression;
-use std::collections::VecDeque;
+use std::collections::{VecDeque, BTreeMap};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration as StdDuration, Instant};
 use crate::error::AnyaError;
@@ -25,14 +25,15 @@ use super::peer_discovery::PeerDiscoveryService;
 use super::transaction_analysis::TransactionAnalyzer;
 use super::lightning_network_optimization::LightningNetworkOptimizer;
 use super::dlc_contract_evaluation::DLCContractEvaluator;
-use log::{info, error}; // Add logging imports
+use log::{info, error};
 
 pub struct MLFeeManager {
-    fee_estimator: Box<dyn FeeEstimator>,
+    fee_rate_estimator: Box<dyn FeeEstimator>,
     operational_fee_pool: Satoshis,
-    fee_history: VecDeque<(DateTime<Utc>, Satoshis)>,
-    fee_model: Option<LinearRegression>,
+    fee_history: BTreeMap<DateTime<Utc>, Satoshis>,
+    linear_fee_model: Option<LinearRegression>,
     last_model_update: Instant,
+    model_needs_update: bool,
     model_update_interval: StdDuration,
     dao_rules: DAORules,
     learning_rate: f64,
@@ -73,13 +74,14 @@ impl MLFeeManager {
         dlc_contract_evaluator: DLCContractEvaluator,
     ) -> Self {
         Self {
-            fee_estimator,
+            fee_rate_estimator,
             operational_fee_pool: Satoshis(0),
-            fee_history: VecDeque::with_capacity(1000),
+            fee_history: BTreeMap::new(),
             fee_model: None,
             last_model_update: Instant::now(),
-            model_update_interval: StdDuration::from_hours(24),
+            model_update_interval: StdDuration::from_secs(86400),
             dao_rules,
+            model_needs_update: false,
             learning_rate: 0.01,
             fee_volatility: 0.0,
             federated_learning,
@@ -101,7 +103,7 @@ impl MLFeeManager {
 
     pub async fn estimate_fee(&mut self, tx_vsize: usize) -> Result<Satoshis, AnyaError> {
         let current_time = Utc::now();
-        let network_fee = self.fee_estimator.estimate_fee_rate(2)
+        let network_fee = self.fee_rate_estimator.estimate_fee_rate(2)
             .map_err(|e| AnyaError::FeeEstimationError(e.to_string()))?
             .fee_for_weight(tx_vsize * 4);
         
@@ -109,6 +111,9 @@ impl MLFeeManager {
         let final_fee = self.combine_fee_estimates(Satoshis(network_fee.as_sat()), predicted_fee);
 
         self.update_fee_history(current_time, final_fee);
+        if self.last_model_update.elapsed() >= self.model_update_interval {
+            self.model_needs_update = true;
+        }
         self.update_model_if_needed().await?;
         self.update_fee_volatility();
 
@@ -116,34 +121,40 @@ impl MLFeeManager {
     }
 
     async fn predict_fee(&self, time: DateTime<Utc>) -> Result<Satoshis, AnyaError> {
-        if let Some(model) = &self.fee_model {
+        if let Some(model) = &self.linear_fee_model {
             let features = Array1::from_vec(vec![time.timestamp() as f64]);
             let prediction = model.predict(&features);
-            Ok(Satoshis(prediction[0] as u64))
+            if !prediction.is_empty() {
+                Ok(Satoshis(prediction[0] as u64))
+            } else {
+                Err(AnyaError::PredictionError("Prediction array is empty".to_string()))
+            }
         } else {
             self.federated_learning.lock().await.request_model_update().await
                 .map_err(|e| AnyaError::ModelUpdateError(e.to_string()))?;
-            Err(AnyaError::ModelNotTrainedError)
-        }
-    }
+    const NETWORK_WEIGHT: f64 = 0.7;
+    const PREDICTED_WEIGHT: f64 = 0.3;
 
     fn combine_fee_estimates(&self, network_fee: Satoshis, predicted_fee: Satoshis) -> Satoshis {
-        let network_weight = 0.7;
-        let predicted_weight = 0.3;
         Satoshis(
+            (network_fee.0 as f64 * Self::NETWORK_WEIGHT +
+             predicted_fee.0 as f64 * Self::PREDICTED_WEIGHT) as u64
+        )
+    }   Satoshis(
             (network_fee.0 as f64 * network_weight +
              predicted_fee.0 as f64 * predicted_weight) as u64
         )
     }
 
     fn update_fee_history(&mut self, time: DateTime<Utc>, fee: Satoshis) {
-        self.fee_history.push_back((time, fee));
+        self.fee_history.insert(time, fee);
         if self.fee_history.len() > 1000 {
-            self.fee_history.pop_front();
+            let first_key = *self.fee_history.keys().next().unwrap();
+            self.fee_history.remove(&first_key);
         }
     }
 
-    async fn update_model_if_needed(&mut self) -> Result<(), AnyaError> {
+        if self.model_needs_update {
         if self.last_model_update.elapsed() >= self.model_update_interval {
             let (features, targets): (Vec<f64>, Vec<f64>) = self.fee_history
                 .iter()
@@ -159,7 +170,7 @@ impl MLFeeManager {
                 .map_err(|e| AnyaError::ModelTrainingError(e.to_string()))?;
 
             // Adjust learning rate based on model performance
-            if let Some(old_model) = &self.fee_model {
+            if let Some(old_model) = &self.linear_fee_model {
                 let old_error = self.calculate_model_error(old_model, &features, &targets);
                 let new_error = self.calculate_model_error(&model, &features, &targets);
                 if new_error < old_error {
@@ -168,12 +179,18 @@ impl MLFeeManager {
                     self.learning_rate *= 0.9; // Decrease learning rate
                 }
             }
-
-            self.fee_model = Some(model.clone());
-            self.last_model_update = Instant::now();
-
-            // Update the federated learning model
-            self.federated_learning.lock().await.update_model(model).await
+            use tokio::time::timeout;
+            
+            let update_result = timeout(StdDuration::from_secs(10), self.federated_learning.lock().await.update_model(model)).await;
+            match update_result {
+                Ok(Ok(())) => {},
+                Ok(Err(e)) => return Err(match e {
+                    ModelUpdateError::NetworkError(msg) => AnyaError::NetworkError(msg),
+                    ModelUpdateError::ValidationError(msg) => AnyaError::ValidationError(msg),
+                    ModelUpdateError::ConsensusError(msg) => AnyaError::ConsensusError(msg),
+                }),
+                Err(_) => return Err(AnyaError::TimeoutError("Model update timed out".to_string())),
+            }erated_learning.lock().await.update_model(model).await
                 .map_err(|e| match e {
                     ModelUpdateError::NetworkError(msg) => AnyaError::NetworkError(msg),
                     ModelUpdateError::ValidationError(msg) => AnyaError::ValidationError(msg),
@@ -214,8 +231,11 @@ impl MLFeeManager {
         self.fee_volatility = variance.sqrt();
     }
 
-    pub fn allocate_fee(&mut self, required_fee: Satoshis) -> Result<Satoshis, AnyaError> {
-        if self.operational_fee_pool < self.dao_rules.min_fee_pool {
+        if required_fee > available_fee {
+            return Err(AnyaError::InsufficientFeePool);
+        }
+        let allocated_fee = available_fee.min(required_fee);
+        self.operational_fee_pool -= allocated_fee;es.min_fee_pool {
             return Err(AnyaError::InsufficientFeePool);
         }
 
@@ -236,17 +256,20 @@ impl MLFeeManager {
                 self.update_model_if_needed().await?;
             }
         }
-        Ok(())
-    }
-
     pub fn detect_fee_spike(&self) -> bool {
         if self.fee_history.len() < 10 {
             return false;
         }
 
         let recent_fees: Vec<u64> = self.fee_history.iter().rev().take(10).map(|(_, fee)| fee.0).collect();
+        if recent_fees.len() < 5 {
+            return false;
+        }
         let median = recent_fees[4];
         let latest = recent_fees[0];
+
+        latest > median * 2
+    }   let latest = recent_fees[0];
 
         latest > median * 2
     }
@@ -269,10 +292,14 @@ impl MLFeeManager {
             .iter()
             .rev()
             .take(24)
-            .cloned()
-            .collect();
+        if hourly_fees.is_empty() {
+            return Err(AnyaError::OptimalTimeNotFound);
+        }
 
         let (optimal_time, _) = hourly_fees
+            .iter()
+            .min_by_key(|(_, fee)| fee.0)
+            .ok_or(AnyaError::OptimalTimeNotFound)?;
             .iter()
             .min_by_key(|(_, fee)| fee.0)
             .ok_or(AnyaError::OptimalTimeNotFound)?;
@@ -281,11 +308,10 @@ impl MLFeeManager {
     }
 
     pub fn adjust_fee_strategy(&mut self, factor: f64) {
-        self.dao_rules.fee_allocation_ratio *= factor;
-    }
-
-    pub fn get_collected_fees_since(&self, since: DateTime<Utc>) -> Result<Satoshis, AnyaError> {
         let collected_fees = self.fee_history
+            .range(since..)
+            .map(|(_, fee)| fee.0)
+            .sum();ed_fees = self.fee_history
             .iter()
             .filter(|(time, _)| *time >= since)
             .map(|(_, fee)| fee.0)

@@ -1,26 +1,28 @@
 use std::error::Error;
+
 use bitcoin::{
     Network as BitcoinNetwork,
     Address as BitcoinAddress,
     util::key::PrivateKey,
     util::psbt::PartiallySignedTransaction,
 };
+
 use bitcoincore_rpc::{Auth, Client, RpcApi};
 use secp256k1::Secp256k1;
-use log::{info, error};
+use log::{info, error, warn};
 use tokio::time::Duration;
 
 pub struct BitcoinSupport {
     network: BitcoinNetwork,
     client: Client,
-    secp: Secp256k1<bitcoin::secp256k1::All>,
+    secp: Secp256k1<secp256k1::All>,
 }
 
 impl BitcoinSupport {
     pub fn new(network: BitcoinNetwork, rpc_url: &str, rpc_user: &str, rpc_password: &str) -> Result<Self, Box<dyn Error>> {
-        let auth = Auth::UserPass(rpc_user.to_string(), rpc_password.to_string());
+        let auth = Auth::UserPass(rpc_user.to_owned(), rpc_password.to_owned());
         let client = Client::new(rpc_url, auth)?;
-        let secp = &self.secp;
+        let secp = Secp256k1::new();
 
         Ok(Self {
             network,
@@ -28,25 +30,35 @@ impl BitcoinSupport {
             secp,
         })
     }
+}
 
+impl BitcoinSupport {
     pub fn get_balance(&self, address: &BitcoinAddress) -> Result<u64, Box<dyn Error>> {
         let balance = self.client.get_received_by_address(address, None)?;
         Ok(balance)
     }
 
     pub fn create_and_sign_transaction(&self, from_address: &BitcoinAddress, to_address: &BitcoinAddress, amount: u64, private_key: &PrivateKey) -> Result<PartiallySignedTransaction, Box<dyn Error>> {
-        // Step 1: List unspent transaction outputs (UTXOs) for the from_address
-        let utxos = self.client.list_unspent(None, None, Some(&[from_address]), None, None)?;
+        let utxos = self.list_unspent_utxos(from_address)?;
+        let (mut tx_builder, total_input) = self.create_transaction_builder(&utxos, amount)?;
+        self.add_outputs(&mut tx_builder, from_address, to_address, amount, total_input)?;
+        let psbt = self.sign_transaction(tx_builder, private_key)?;
+        Ok(psbt)
+    }
 
-        // Step 2: Create a transaction builder
+    fn list_unspent_utxos(&self, address: &BitcoinAddress) -> Result<Vec<bitcoin::util::psbt::Input>, Box<dyn Error>> {
+        let utxos = self.client.list_unspent(None, None, Some(&[address]), None, None)?;
+        Ok(utxos)
+    }
+
+    fn create_transaction_builder(&self, utxos: &[bitcoin::util::psbt::Input], amount: u64) -> Result<(bitcoin::util::psbt::PartiallySignedTransaction, u64), Box<dyn Error>> {
         let mut tx_builder = bitcoin::util::psbt::PartiallySignedTransaction::from_unsigned_tx(bitcoin::Transaction {
             version: 2,
             lock_time: 0,
             input: vec![],
             output: vec![],
-        };
+        });
 
-        // Step 3: Add inputs from UTXOs
         let mut total_input = 0;
         for utxo in utxos {
             if total_input >= amount {
@@ -63,28 +75,32 @@ impl BitcoinSupport {
             return Err("Insufficient funds to create the transaction".into());
         }
 
-        // Step 4: Add outputs
+        Ok((tx_builder, total_input))
+    }
+
+    fn add_outputs(&self, tx_builder: &mut bitcoin::util::psbt::PartiallySignedTransaction, from_address: &BitcoinAddress, to_address: &BitcoinAddress, amount: u64, total_input: u64) -> Result<(), Box<dyn Error>> {
         tx_builder.unsigned_tx.output.push(bitcoin::TxOut {
             amount: amount,
             script_pubkey: to_address.script_pubkey(),
             ..Default::default()
         });
 
-        // Add change output if necessary
         let change = total_input - amount;
         if change > 0 {
-            tx_builder.outputs.push(bitcoin::util::psbt::Output {
+            tx_builder.unsigned_tx.output.push(bitcoin::TxOut {
                 amount: change,
                 script_pubkey: from_address.script_pubkey(),
                 ..Default::default()
             });
         }
 
-        // Step 5: Sign the transaction
+        Ok(())
+    }
+
+    fn sign_transaction(&self, tx_builder: bitcoin::util::psbt::PartiallySignedTransaction, private_key: &PrivateKey) -> Result<PartiallySignedTransaction, Box<dyn Error>> {
         let mut psbt = bitcoin::util::psbt::PartiallySignedTransaction::from(tx_builder);
         let secp = Secp256k1::new();
         psbt.sign(&private_key, &secp)?;
-
         Ok(psbt)
     }
 
@@ -108,53 +124,69 @@ impl BitcoinSupport {
         Ok(0.4 * transaction_throughput + 0.3 * (1.0 / block_time) + 0.3 * (1.0 / fee_rate))
     }
 
-    async fn get_transaction_throughput(&self) -> Result<f64, Box<dyn Error>> {
-        // Implement logic to get transaction throughput
-        Ok(7.0) // Transactions per second, placeholder value
-    }
-
     async fn get_average_block_time(&self) -> Result<f64, Box<dyn Error>> {
         // Implement logic to get average block time
         Ok(600.0) // Seconds, placeholder value
     }
 
     async fn get_average_fee_rate(&self) -> Result<f64, Box<dyn Error>> {
-        // Implement logic to get average fee rate
-        Ok(5.0) // Satoshis per byte, placeholder value
-    }
-
-    pub async fn get_balance_async(&self) -> Result<f64, Box<dyn Error>> {
-        // Implement method to get Bitcoin balance
-        Ok(500.0) // Placeholder value
-    }
-
     pub async fn handle_bitcoin_operations(&self, shutdown: tokio::sync::watch::Receiver<()>) {
-        while let Ok(_) = Ok(()) {
         let mut sleep_duration = Duration::from_secs(300);
 
-        loop {
-            tokio::select! {
-                _ = shutdown.changed() => {
-                    info!("Shutdown signal received, stopping bitcoin operations.");
-                    break;
-                }
-                _ = tokio::time::sleep(sleep_duration) => {
-                    match self.get_network_performance().await {
-                        Ok(performance) => {
-                            info!("Bitcoin network performance: {}", performance);
-                            // Adjust sleep duration based on performance
-                            sleep_duration = Duration::from_secs((300.0 / performance) as u64);
-                        }
-                        Err(e) => warn!("Failed to get Bitcoin network performance: {:?}", e),
-                    }
+        tokio::select! {
+            _ = shutdown.changed() => {
+                self.handle_shutdown().await;
+            }
+            _ = tokio::time::sleep(sleep_duration) => {
+                self.perform_bitcoin_operations(&mut sleep_duration).await;
+            }
+        }
+    }
 
-                    match self.get_balance_async().await {
-                        Ok(balance) => info!("Current Bitcoin balance: {} BTC", balance),
+    async fn handle_shutdown(&self) {
+        info!("Shutdown signal received, stopping bitcoin operations.");
+    }
+
+    async fn perform_bitcoin_operations(&self, sleep_duration: &mut Duration) {
+        match self.get_network_performance().await {
+            Ok(performance) => {
+                info!("Bitcoin network performance: {}", performance);
+                // Adjust sleep duration based on performance
+                *sleep_duration = Duration::from_secs((300.0 / performance) as u64);
+            }
+            Err(e) => warn!("Failed to get Bitcoin network performance: {:?}", e),
+        }
+
+        match self.get_balance_async().await {
+            Ok(balance) => info!("Current Bitcoin balance: {} BTC", balance),
+            Err(e) => warn!("Failed to get Bitcoin balance: {:?}", e),
+        }
+
+        // Add more Bitcoin-related operations here
+    }
+                match self.get_balance_async().await {
+                    Ok(balance) => info!("Current Bitcoin balance: {} BTC", balance),
+                    Err(e) => warn!("Failed to get Bitcoin balance: {:?}", e),
+                }
+
+                // Add more Bitcoin-related operations here
+            }
+        }
+    }
+
+    // Add more Bitcoin-related operations as needed
+}                       Ok(balance) => info!("Current Bitcoin balance: {} BTC", balance),
                         Err(e) => warn!("Failed to get Bitcoin balance: {:?}", e),
                     }
 
                     // Add more Bitcoin-related operations here
                 }
+            }
+        }
+    }
+
+    // Add more Bitcoin-related operations as needed
+}               }
             }
         }
     }

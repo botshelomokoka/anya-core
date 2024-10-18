@@ -31,64 +31,69 @@ pub struct PrivacyModule {
     did: DID,
     did_document: DIDDocument,
     multisig_pubkeys: Vec<PublicKey>,
+    encoder: FheEncoder, // Add this field
 }
 
 impl PrivacyModule {
     pub fn new(multisig_pubkeys: Vec<PublicKey>) -> Result<Self, PrivacyError> {
-        let did = DID::new().map_err(|e| PrivacyError::Web5Error(e.to_string()))?;
-        let did_document = DIDDocument::new(&did).map_err(|e| PrivacyError::Web5Error(e.to_string()))?;
+        let did = Self::create_did()?;
+        let did_document = Self::create_did_document(&did)?;
+        let encoder = Self::create_encoder();
         Ok(Self {
             did,
             did_document,
             multisig_pubkeys,
+            encoder,
         })
     }
 
-    pub async fn generate_zero_knowledge_proof(&self, statement: &str, witness: &str) -> Result<R1CSProof, PrivacyError> {
+    fn create_did() -> Result<DID, PrivacyError> {
+        DID::new().map_err(|e| PrivacyError::Web5Error(format!("Failed to create DID: {}", e)))
+    }
+
+    fn create_did_document(did: &DID) -> Result<DIDDocument, PrivacyError> {
+        DIDDocument::new(did).map_err(|e| PrivacyError::Web5Error(format!("Failed to create DIDDocument: {}", e)))
+    }
+
+    fn create_encoder() -> FheEncoder {
+        FheEncoder::default()
+    }
+
+    pub async fn generate_zk_proof(&self, data: &str, witness: &str) -> Result<R1CSProof, PrivacyError> {
         // Implement zero-knowledge proof generation using bulletproofs
         // This is a placeholder implementation and should be replaced with actual bulletproofs logic
-        Err(PrivacyError::ZKProofError("Not implemented".to_string()))
+        Err(PrivacyError::ZKProofError("Zero-knowledge proof generation is not yet implemented".to_string()))
     }
 
-    pub async fn homomorphic_encrypt(&self, data: &[u8]) -> Result<Vec<u8>, PrivacyError> {
+    pub async fn homomorphic_encrypt(&self, input_data: &[u8]) -> Result<Vec<u8>, PrivacyError> {
         // Implement homomorphic encryption using SEAL
         // This is a placeholder implementation and should be replaced with actual SEAL logic
-        let encoder = FheEncoder::default();
-        Ok(encoder.encode(data))
+        Ok(self.encoder.encode(input_data))
     }
 
-    pub async fn secure_multiparty_computation(&self, inputs: Vec<Vec<u8>>) -> Result<Vec<u8>, PrivacyError> {
+    pub async fn secure_mpc(&self, inputs: Vec<Vec<u8>>) -> Result<Vec<u8>, PrivacyError> {
         // Implement secure multi-party computation using MP-SPDZ
         // This is a placeholder implementation and should be replaced with actual MP-SPDZ logic
-        Err(PrivacyError::MPCError("Not implemented".to_string()))
+        Err(PrivacyError::MPCError("Secure multi-party computation is not yet implemented".to_string()))
     }
 
-    pub async fn create_dwn_message(&self, data: &[u8]) -> Result<Message, PrivacyError> {
+    pub async fn create_message(&self, data: &[u8]) -> Result<Message, PrivacyError> {
         let data_model = DataModel::new(data).map_err(|e| PrivacyError::Web5Error(e.to_string()))?;
         Message::new(&self.did, data_model).map_err(|e| PrivacyError::Web5Error(e.to_string()))
     }
 
-    pub async fn verify_dwn_message(&self, message: &Message) -> Result<bool, PrivacyError> {
+    pub async fn verify_message(&self, message: &Message) -> Result<bool, PrivacyError> {
         message.verify(&self.did_document).map_err(|e| PrivacyError::Web5Error(e.to_string()))
     }
-
-    pub fn create_multisig_script(&self, m: usize) -> Result<ScriptBuf, PrivacyError> {
-        if m > self.multisig_pubkeys.len() {
-            return Err(PrivacyError::BitcoinMultisigError("Invalid number of required signatures".to_string()));
-        }
-
-        let script = Script::new_multisig(m, &self.multisig_pubkeys)
-            .map_err(|e| PrivacyError::BitcoinMultisigError(e.to_string()))?;
-        
-        Ok(script.into_script_buf())
-    }
-
-    pub fn verify_multisig(&self, script: &Script, signatures: &[Vec<u8>], message: &[u8]) -> Result<bool, PrivacyError> {
+    pub fn verify_multisig(&self, tx: &Script, input_index: &[Vec<u8>], utxo: &[u8]) -> Result<bool, PrivacyError> {
         let secp = Secp256k1::verification_only();
+        let message = &utxo[..32]; // Assuming the message is the first 32 bytes of the UTXO
+        let signatures: Vec<Vec<u8>> = input_index.to_vec(); // Assuming input_index contains the signatures
+
         let msg = Secp256k1Message::from_slice(message)
             .map_err(|e| PrivacyError::BitcoinMultisigError(format!("Invalid message: {}", e)))?;
 
-        let pubkeys = script.get_multisig_pubkeys()
+        let pubkeys = tx.get_multisig_pubkeys()
             .map_err(|e| PrivacyError::BitcoinMultisigError(e.to_string()))?;
 
         if signatures.len() != pubkeys.len() {
@@ -105,30 +110,28 @@ impl PrivacyModule {
         }
 
         Ok(true)
-    }
+    }   }
 
-    pub fn verify_script(&self, tx: &Transaction, input_index: usize, utxo: &TxOut) -> Result<bool, PrivacyError> {
-        let input = tx.input.get(input_index).ok_or(PrivacyError::ScriptVerificationError("Invalid input index".to_string()))?;
-        
-        let script_sig = &input.script_sig;
-        let script_pubkey = &utxo.script_pubkey;
-        let witness = input.witness.clone();
-
-        let mut stack = Vec::new();
-        
-        // Execute script_sig
-        for instruction in script_sig.instructions() {
-            match instruction.map_err(|e| PrivacyError::ScriptVerificationError(e.to_string()))? {
-                Instruction::PushBytes(data) => stack.push(data.to_vec()),
-                Instruction::Op(op) => self.execute_op(op, &mut stack)?,
+        for (signature, pubkey) in signatures.iter().zip(pubkeys.iter()) {
+            let sig = Signature::from_der(signature)
+                .map_err(|e| PrivacyError::BitcoinMultisigError(format!("Invalid signature: {}", e)))?;
+            
+            if secp.verify(&msg, &sig, pubkey).is_err() {
+                return Ok(false);
             }
         }
 
-        // Execute script_pubkey
-        for instruction in script_pubkey.instructions() {
+        Ok(true)
+    }
+
+    pub fn verify_script(&self, script: &Script, signatures: &[Vec<u8>], message: &[u8]) -> Result<bool, PrivacyError> {
+        let mut stack = Vec::new();
+        
+        // Execute script_sig
+                Instruction::Op(opcode) => self.execute_op(opcode, &mut stack, message)?,
             match instruction.map_err(|e| PrivacyError::ScriptVerificationError(e.to_string()))? {
                 Instruction::PushBytes(data) => stack.push(data.to_vec()),
-                Instruction::Op(op) => self.execute_op(op, &mut stack)?,
+                Instruction::Op(op) => self.execute_op(op, &mut stack, message)?,
             }
         }
 
@@ -140,7 +143,7 @@ impl PrivacyModule {
         Ok(true)
     }
 
-    fn execute_op(&self, op: OpCode, stack: &mut Vec<Vec<u8>>) -> Result<(), PrivacyError> {
+    fn execute_op(&self, opcode: OpCode, stack: &mut Vec<Vec<u8>>, message: &[u8]) -> Result<(), PrivacyError> {
         match op {
             OpCode::OP_DUP => {
                 if let Some(top) = stack.last() {
@@ -152,7 +155,7 @@ impl PrivacyModule {
             OpCode::OP_HASH160 => {
                 if let Some(top) = stack.pop() {
                     let mut hasher = sha256::Hash::engine();
-                    hasher.input(&top);
+                    hasher.update(&top);
                     let sha256 = sha256::Hash::from_engine(hasher);
                     let hash160 = ripemd160::Hash::hash(&sha256[..]);
                     stack.push(hash160.to_vec());
@@ -174,11 +177,11 @@ impl PrivacyModule {
                 if stack.len() < 2 {
                     return Err(PrivacyError::ScriptVerificationError("Stack underflow".to_string()));
                 }
-                let pubkey = stack.pop().unwrap();
                 let signature = stack.pop().unwrap();
-                
+                let pubkey = stack.pop().unwrap();
                 // Use the bitcoin library's check_signature function
-                let message = Secp256k1Message::from_slice(&[0; 32]).unwrap(); // Placeholder message
+                let message = Secp256k1Message::from_slice(&[0; 32])
+                    .map_err(|_| PrivacyError::ScriptVerificationError("Invalid message".to_string()))?;
                 let secp = Secp256k1::verification_only();
                 
                 let public_key = PublicKey::from_slice(&pubkey)
@@ -196,7 +199,7 @@ impl PrivacyModule {
         Ok(())
     }
 
-    fn cast_to_bool(&self, data: &[u8]) -> bool {
-        !data.is_empty() && data.iter().any(|&byte| byte != 0)
+    fn cast_to_bool(&self, input_data: &[u8]) -> bool {
+        !input_data.is_empty() && input_data.iter().any(|&byte| byte != 0)
     }
 }

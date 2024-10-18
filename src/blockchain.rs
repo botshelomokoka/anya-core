@@ -1,9 +1,10 @@
 use async_trait::async_trait;
 use std::collections::HashMap;
+use std::error::Error;
 
 #[async_trait]
 pub trait BlockchainInterface {
-    async fn submit_transaction(&self, transaction: Transaction) -> Result<TransactionResult, BlockchainError>;
+    async fn submit_transaction_async(&self, transaction: Transaction) -> Result<TransactionResult, BlockchainError>;
     async fn update_config(&mut self, config: &HashMap<String, String>) -> Result<(), BlockchainError>;
 }
 
@@ -26,3 +27,11 @@ pub enum BlockchainError {
     NetworkError,
     UnknownError,
 }
+
+impl std::fmt::Display for BlockchainError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+impl Error for BlockchainError {}

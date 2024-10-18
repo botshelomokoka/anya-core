@@ -94,7 +94,6 @@ impl AnyaCore {
     }
 
     async fn handle_data(&mut self, data: Vec<f32>) {
-        // Process data through the ML Core pipeline
         let processed_data = self.ml_core.process_data(data);
         let trained_model = self.ml_core.train_model(&processed_data);
         let prediction = self.ml_core.make_prediction(&trained_model, &processed_data);
@@ -106,7 +105,15 @@ impl AnyaCore {
     async fn execute_action(&mut self, action: OptimizedAction) {
         match action {
             OptimizedAction::BlockchainTransaction(transaction) => {
-                self.execute_blockchain_transaction(transaction).await.unwrap();
+                match self.execute_blockchain_transaction(transaction).await {
+                    Ok(_) => {
+                        // Handle success case if needed
+                    }
+                    Err(e) => {
+                        eprintln!("Failed to execute blockchain transaction: {}", e);
+                        // Handle error case if needed
+                    }
+                }
             }
             OptimizedAction::SystemAction(management_action) => {
                 self.handle_management_action(management_action).await;
@@ -234,14 +241,14 @@ mod tests {
     use super::*;
     use crate::blockchain::MockBlockchainInterface;
 
-    async fn setup_test_environment() -> AnyaCore {
+    async fn setup_anya_core_test_environment() -> AnyaCore {
         let mock_blockchain = MockBlockchainInterface::new();
         AnyaCore::new(mock_blockchain)
     }
 
     #[tokio::test]
     async fn test_ml_core_pipeline() {
-        let mut anya_core = setup_test_environment().await;
+        let mut anya_core = setup_anya_core_test_environment().await;
         
         // Simulate data input
         let test_data = vec![1.0, 2.0, 3.0];
@@ -257,7 +264,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_blockchain_integration() {
-        let mut anya_core = setup_test_environment().await;
+        let mut anya_core = setup_anya_core_test_environment().await;
 
         let transaction = Transaction { /* fields */ };
         anya_core.execute_blockchain_transaction(transaction).await.unwrap();
@@ -298,6 +305,11 @@ pub struct DAORules {
     metrics: HashMap<MetricType, Metric>,
 }
 
+const WEIGHT_FACTOR: f32 = 0.3;
+const TIME_FACTOR: f32 = 0.2;
+const FEES_FACTOR: f32 = 0.3;
+const SECURITY_FACTOR: f32 = 0.2;
+
 impl DAORules {
     pub fn new(blockchain: BlockchainInterface) -> Self {
         Self {
@@ -307,17 +319,23 @@ impl DAORules {
             blockchain,
             batch_processor: BatchProcessor::new(BATCH_SIZE),
             opcode_executor: OpCodeExecutor::new(MAX_OPCODE_BITS),
-            info_pipe: InfoPipe::new(),
-            metrics: HashMap::new(),
-        }
-    }
-
     pub async fn apply_federated_learning(&mut self, data: &[f32]) -> Result<Model, Box<dyn std::error::Error>> {
         let batches = self.batch_processor.create_batches(data);
         let mut aggregated_model = Model::new();
 
+        let mut tasks = Vec::new();
         for batch in batches {
-            let local_model = self.federated_learning.train(&batch);
+            let federated_learning = self.federated_learning.clone();
+            let secure_aggregation = self.secure_aggregation.clone();
+            let task = tokio::spawn(async move {
+                let local_model = federated_learning.train(&batch);
+                secure_aggregation.aggregate(vec![local_model])
+            });
+            tasks.push(task);
+        }
+
+        for task in tasks {
+            let local_model = task.await??;
             aggregated_model = self.secure_aggregation.aggregate(vec![aggregated_model, local_model])?;
         }
 
@@ -326,18 +344,23 @@ impl DAORules {
     }
 
     pub fn apply_differential_privacy(&self, data: &[f32], epsilon: f64) -> Result<Vec<f32>, Box<dyn std::error::Error>> {
-        let epsilon = Epsilon::new(epsilon);
-        self.differential_privacy.add_noise(data, epsilon)
+        match self.differential_privacy.add_noise(data, epsilon) {
+            Ok(noised_data) => Ok(noised_data),
+            Err(e) => Err(Box::new(e)),
+        }
     }
-
-    pub async fn perform_secure_aggregation(&self, inputs: Vec<Vec<f32>>) -> Result<Vec<f32>, Box<dyn std::error::Error>> {
-        self.secure_aggregation.aggregate(inputs)
+    pub async fn execute_dao_blockchain_transaction(&mut self, transaction: Transaction) -> Result<(), Box<dyn std::error::Error>> {
+        let opcode = self.opcode_executor.encode_transaction(&transaction);
+        let result = self.blockchain.submit_transaction(opcode).await?;
+        self.update_metric(MetricType::TransactionFee, result.fee);
+        Ok(())
+    }   self.secure_aggregation.aggregate(inputs)
     }
 
     pub async fn execute_blockchain_transaction(&mut self, transaction: Transaction) -> Result<(), Box<dyn std::error::Error>> {
         let opcode = self.opcode_executor.encode_transaction(&transaction);
         let result = self.blockchain.submit_transaction(opcode).await?;
-        self.update_metric(MetricType::TransactionFee, result.fee);
+    }nFee, result.fee);
         Ok(())
     }
 
@@ -348,12 +371,7 @@ impl DAORules {
     }
 
     pub fn perform_dimensional_analysis(&self, weight: f32, time: f32, fees: f32, security: f32) -> f32 {
-        let weight_factor = 0.3;
-        let time_factor = 0.2;
-        let fees_factor = 0.3;
-        let security_factor = 0.2;
-
-        weight * weight_factor + time * time_factor + fees * fees_factor + security * security_factor
+        weight * WEIGHT_FACTOR + time * TIME_FACTOR + fees * FEES_FACTOR + security * SECURITY_FACTOR
     }
 
     fn update_metric(&mut self, metric_type: MetricType, value: f64) {
@@ -399,7 +417,7 @@ mod tests {
     use crate::blockchain::MockBlockchainInterface;
 
     #[tokio::test]
-    async fn test_federated_learning() {
+    async fn test_apply_federated_learning() {
         let mock_blockchain = MockBlockchainInterface::new();
         let mut rules = DAORules::new(mock_blockchain);
         let data = vec![1.0, 2.0, 3.0];
@@ -421,12 +439,12 @@ mod tests {
         let mock_blockchain = MockBlockchainInterface::new();
         let rules = DAORules::new(mock_blockchain);
         let inputs = vec![vec![1.0, 2.0], vec![3.0, 4.0]];
-        let result = rules.perform_secure_aggregation(inputs).await.unwrap();
+        let result = rules.apply_secure_aggregation(inputs).await.unwrap();
         assert_eq!(result.len(), 2);
     }
 
     #[tokio::test]
-    async fn test_blockchain_transaction() {
+    async fn test_execute_blockchain_transaction() {
         let mut mock_blockchain = MockBlockchainInterface::new();
         mock_blockchain.expect_submit_transaction()
             .returning(|_| Ok(Transaction { fee: 0.001 }));

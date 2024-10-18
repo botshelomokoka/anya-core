@@ -136,9 +136,35 @@ impl BitcoinAdapter {
 
     async fn send_message(&self, stream: &TcpStream, message: NetworkMessage) -> Result<(), BitcoinAdapterError> {
         use bitcoin::consensus::encode::Encodable;
+        use tokio::io::AsyncWriteExt;
+
         let mut buffer = Vec::new();
         message.encode(&mut buffer)?;
-        stream.write_all(&buffer).await?;
+
+        let mut written = 0;
+    async fn receive_message(&self, stream: &TcpStream) -> Result<NetworkMessage, BitcoinAdapterError> {
+        use bitcoin::consensus::encode::Decodable;
+        use tokio::io::AsyncReadExt;
+
+        let mut buffer = [0u8; 1024];
+        let mut data = Vec::new();
+
+        loop {
+            let n = stream.read(&mut buffer).await?;
+            if n == 0 {
+                break;
+            }
+            data.extend_from_slice(&buffer[..n]);
+            if let Ok(message) = NetworkMessage::consensus_decode(&mut data.as_slice()) {
+                return Ok(message);
+            }
+        }
+
+        Err(BitcoinAdapterError::ProtocolError("Failed to decode message".to_string()))
+    }           )));
+            }
+            written += n;
+        }
         Ok(())
     }
 
@@ -151,14 +177,20 @@ impl BitcoinAdapter {
     }
 
     async fn manage_connections(&self) {
+        let mut sleep_duration = std::time::Duration::from_secs(1);
         loop {
             let peer_count = self.peers.lock().await.len();
             if peer_count < self.max_connections {
                 if let Err(e) = self.discover_and_connect_peers().await {
                     error!("Error discovering peers: {}", e);
+                    sleep_duration = std::cmp::min(sleep_duration * 2, std::time::Duration::from_secs(60));
+                } else {
+                    sleep_duration = std::time::Duration::from_secs(1);
                 }
+            } else {
+                sleep_duration = std::time::Duration::from_secs(60);
             }
-            tokio::time::sleep(std::time::Duration::from_secs(60)).await;
+            tokio::time::sleep(sleep_duration).await;
         }
     }
 
@@ -195,8 +227,15 @@ impl BitcoinAdapter {
                     self.peers.lock().await.insert(node.id.clone(), node);
                 }
                 Err(e) => {
-                    error!("Failed to connect to Bitcoin peer {}: {}", addr, e);
-                }
+        match response {
+            NetworkMessage::Addr(addrs) => {n peer {}: {}", addr, e);
+    Ok(addrs.iter().map(|addr| addr.address).collect())
+}
+_ => Err(BitcoinAdapterError::ProtocolError("Expected Addr message".to_string())),
+}
+}
+
+async fn handle_incoming_messages(&self, node: &BitcoinNode) {
             }
         }
 
@@ -209,17 +248,18 @@ impl BitcoinAdapter {
         // Wait for Addr message
         let response = self.receive_message(&peer.stream).await?;
         if let NetworkMessage::Addr(addrs) = response {
-            Ok(addrs.addresses.into_iter().map(|addr| addr.socket_addr()).collect())
-        } else {
-            Err(BitcoinAdapterError::ProtocolError("Expected Addr message".to_string()))
-        }
-    }
-
     async fn handle_incoming_messages(&self, node: &BitcoinNode) {
         loop {
             match self.receive_message(&node.stream).await {
                 Ok(message) => self.process_message(node, message).await,
                 Err(e) => {
+                    error!("Error receiving message from {}: {}", node.id, e);
+                    // Implement a retry mechanism with a delay
+                    tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+                }
+            }
+        }
+    }           Err(e) => {
                     error!("Error receiving message from {}: {}", node.id, e);
                     break;
                 }
@@ -264,15 +304,16 @@ impl BitcoinAdapter {
 
     async fn handle_block(&self, block: bitcoin::Block) {
         // Validate and process incoming blocks
-        // Optionally propagate to other peers
-    }
-
-    async fn handle_addr(&self, addrs: bitcoin::network::message_network::AddrMessage) {
-        // Process and store new peer addresses
-    }
-
     async fn broadcast_transaction(&self, transaction: bitcoin::Transaction) -> Result<(), BitcoinAdapterError> {
         let message = NetworkMessage::Tx(transaction);
+        let peers = self.peers.lock().await.clone();
+        for peer in peers.values() {
+            if let Err(e) = self.send_message(&peer.stream, message.clone()).await {
+                error!("Failed to send transaction to {}: {}", peer.id, e);
+            }
+        }
+        Ok(())
+    }   let message = NetworkMessage::Tx(transaction);
         for peer in self.peers.lock().await.values() {
             if let Err(e) = self.send_message(&peer.stream, message.clone()).await {
                 error!("Failed to send transaction to {}: {}", peer.id, e);
@@ -280,39 +321,34 @@ impl BitcoinAdapter {
         }
         Ok(())
     }
-
     async fn broadcast_block(&self, block: bitcoin::Block) -> Result<(), BitcoinAdapterError> {
         let message = NetworkMessage::Block(block);
-        for peer in self.peers.lock().await.values() {
+        let peers = self.peers.lock().await.clone();
+        for peer in peers.values() {
             if let Err(e) = self.send_message(&peer.stream, message.clone()).await {
                 error!("Failed to send block to {}: {}", peer.id, e);
             }
         }
         Ok(())
+    }   Ok(())
     }
 }
-
 #[async_trait]
 impl NetworkDiscovery for BitcoinAdapter {
     async fn discover_peers(&self) -> Vec<Box<dyn NetworkNode>> {
         let mut peers = Vec::new();
-        let discovered_addrs = self.discover_and_connect_peers().await.unwrap_or_else(|e| {
+        if let Err(e) = self.discover_and_connect_peers().await {
             error!("Error discovering peers: {}", e);
-            vec![]
-        });
+        }
 
-        for addr in discovered_addrs {
-            match self.connect_to_peer(addr).await {
-                Ok(node) => {
-                    self.peers.lock().await.insert(node.id.clone(), node.clone());
-                    peers.push(Box::new(node) as Box<dyn NetworkNode>);
-                }
-                Err(e) => error!("Failed to connect to Bitcoin peer {}: {}", addr, e),
-            }
+        let connected_peers = self.peers.lock().await.clone();
+        for (_, peer) in connected_peers {
+            peers.push(Box::new(peer) as Box<dyn NetworkNode>);
         }
 
         peers
     }
+}   }
 }
 
 // Implement a background task to manage connections and handle incoming messages
@@ -328,8 +364,23 @@ pub async fn run_bitcoin_adapter(adapter: Arc<BitcoinAdapter>) {
             let adapter_clone = adapter.clone();
             tokio::spawn(async move {
                 adapter_clone.handle_incoming_messages(&peer).await;
-            });
+    let mut running_tasks = HashMap::new();
+
+    loop {
+        let peers = adapter.peers.lock().await.clone();
+        for (id, peer) in peers {
+            if !running_tasks.contains_key(&id) {
+                let adapter_clone = adapter.clone();
+                let task = tokio::spawn(async move {
+                    adapter_clone.handle_incoming_messages(&peer).await;
+                });
+                running_tasks.insert(id.clone(), task);
+            }
         }
+
+        // Clean up completed tasks
+        running_tasks.retain(|_, task| !task.is_finished());
+
         tokio::time::sleep(std::time::Duration::from_secs(10)).await;
     }
 }

@@ -24,6 +24,6 @@ pub mod lightning_network_optimization;
 pub mod dlc_contract_evaluation;
 pub mod data_processing;
 
-pub use federated_learning::FederatedLearning;
+pub use crate::federated_learning::FederatedLearning;
 pub use system_evaluation::SystemEvaluation;
 pub use data_processing::process_market_data;
