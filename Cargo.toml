@@ -1,8 +1,7 @@
 [package]
 name = "anya-core"
-version = "0.3.0"
-edition = "2021"
-<<<<<<< Updated upstream
+version = "0.1.0"
+edition = "2024"
 authors = ["Anya Core Contributors"]
 description = "A decentralized AI assistant framework (Open Source Edition)"
 license = "MIT OR Apache-2.0"
@@ -18,197 +17,66 @@ members = [
 
 [dependencies]
 # Async runtime and networking
-<<<<<<< HEAD
-<<<<<<< HEAD
-tokio = { version = "1.32", features = ["full", "test-util"] }
-libp2p = "0.51"
+tokio = { version = "*", features = ["full", "test-util"] }
+libp2p = "*"
 
 # Blockchain and cryptocurrencies
-bitcoin = { version = "0.29", features = ["rand"] }
-lightning = "0.0.115"
-stacks-rpc-client = "0.1"
-rust-dlc = "0.1.0"
-bitcoincore-rpc = "0.18.0"
+bitcoin = { version = "*", features = ["rand"] }
+lightning = "*"
+stacks-rpc-client = "*"
+rust-dlc = { git = "https://github.com/p2pderivatives/rust-dlc", branch = "main" }
+bitcoincore-rpc = "*"
 
 # Web and UI
-yew = "0.20"
+yew = "*"
 
 # Cryptography and security
-bulletproofs = "4.0.0"
-did-key = "0.4"
-verifiable-credentials = "0.2"
+bulletproofs = "*"
+did-key = "*"
+verifiable-credentials = "*"
 
 # Logging and configuration
-slog = "2.7.0"
-slog-term = "2.9.0"
-config = "0.13"
-log = "0.4.20"
-env_logger = "0.10"
+slog = "*"
+slog-term = "*"
+config = "*"
+log = "*"
+env_logger = "*"
 
 # Serialization and error handling
-serde = { version = "1.0.188", features = ["derive"] }
-serde_json = "1.0.104"
-thiserror = "1.0.40"
+serde = { version = "*", features = ["derive"] }
+serde_json = "*"
+thiserror = "*"
 
 # WebAssembly and AI
-wasmer = "3.2"
-openfl = "0.1"
-ndarray = "0.15.5"
-rust-bert = "0.21"
+wasmer = "*"
+openfl = "*"
+ndarray = "*"
+rust-bert = "*"
 
 # Distributed systems and storage
-ipfs-api = "0.9"
-=======
-tokio = { version = "1", features = ["full", "test-util"] }
-libp2p = "0.40.0"
-=======
-tokio = { version = "1.32", features = ["full", "test-util"] }
-libp2p = "0.51"
->>>>>>> 256d3df (chore: Update dependencies in Cargo.toml and improve API response formatting)
-
-# Blockchain and cryptocurrencies
-bitcoin = { version = "0.29", features = ["rand"] }
-lightning = "0.0.115"
-stacks-rpc-client = "0.1"
-rust-dlc = "0.1.0"
-bitcoincore-rpc = "0.18.0"
-
-# Web and UI
-yew = "0.20"
-
-# Cryptography and security
-bulletproofs = "4.0.0"
-did-key = "0.4"
-verifiable-credentials = "0.2"
-
-# Logging and configuration
-slog = "2.7.0"
-slog-term = "2.9.0"
-config = "0.13"
-log = "0.4.20"
-env_logger = "0.10"
-
-# Serialization and error handling
-serde = { version = "1.0.188", features = ["derive"] }
-serde_json = "1.0.104"
-thiserror = "1.0.40"
-
-# WebAssembly and AI
-wasmer = "3.2"
-openfl = "0.1"
-ndarray = "0.15.5"
-rust-bert = "0.21"
-
-# Distributed systems and storage
-<<<<<<< HEAD
-ipfs-api = "0.8"
->>>>>>> b7b9059 (refactor: Clean up imports, enhance struct definitions, and improve error handling across multiple modules)
-=======
-ipfs-api = "0.9"
->>>>>>> 256d3df (chore: Update dependencies in Cargo.toml and improve API response formatting)
-orbit-db = "0.1"
+ipfs-api = "*"
+orbit-db = "*"
 
 # Cryptographic protocols
-seal = "0.1"
-mp-spdz = "0.1"
+seal = "*"
+mp-spdz = "*"
 
 # DLC library support
 # Using Git URL to ensure we get the latest version or specific branch not available on crates.io
 dlc-btc-lib = { git = "https://github.com/DLC-link/dlc-btc-lib", branch = "main" }
 
+# Web5-rust dependency
+web5 = { git = "https://github.com/TBD54566975/web5-rust", branch = "main" }
+
 [dev-dependencies]
-criterion = "0.3"
-tokio-test = "0.4"
-mockall = "0.11"
-proptest = "1.0"
-tempfile = "3.2"
+criterion = "*"
+tokio-test = "*"
+mockall = "*"
+proptest = "*"
+tempfile = "*"
 
 [build-dependencies]
-neon-build = "0.9"
-<<<<<<< HEAD
-=======
-authors = ["botshelomokoka@gmail.com"]  # Updated author
-description = "Bitcoin-centric AI assistant framework"  # Updated description
-license = "MIT OR Apache-2.0"
-
-[dependencies]
-# Blockchain
-bitcoin = "0.29.2"  # Updated version
-bitcoincore-rpc = "0.16.0"
-lightning = "0.0.116"
-stacks-core = "2.1.0"
-rust-dlc = "0.4.1"
-
-# Identity
-did-key = "0.1"
-verifiable-credentials = "0.1"
-web5 = "0.1.0"
-web5-credentials = "0.1.0"
-neon = { version = "0.10.1", default-features = false, features = ["napi-6"] }
-log = "0.4"
-env_logger = "0.10.0"
-schnorr = "0.2.0"
-chrono = "0.4.24"
-uuid = { version = "1.3.3", features = ["v4"] }
-futures = "0.3.28"
-async-trait = "0.1"
-thiserror = "1.0"
-anyhow = "1.0.71"
-walkdir = "2.3"
-sha2 = "0.10"
-
-# Networking
-libp2p = "0.51"
-
-# Smart Contracts
-clarity-repl = "1.0.1"
-wasmer = "2.3"
-
-# Federated Learning
-openfl = "0.1"
-
-# Privacy
-bulletproofs = "4.0"
-
-# UI
-yew = "0.19"
-clap = "3.2"
-
-# Utility
-tokio = { version = "1.0", features = ["full"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-log = "0.4"
-env_logger = "0.10.0"
-thiserror = "1.0"
-
-# New dependencies
-reqwest = { version = "0.11", features = ["json"] }
-chrono = { version = "0.4", features = ["serde"] }
-rust_decimal = { version = "1.25", features = ["serde"] }
->>>>>>> f959f86c6b13fa23d19557dd0c6c38a4308daf57
-
-[dev-dependencies]
-criterion = "0.4.0"
-tokio-test = "0.4.2"
-mockall = "0.11.3"
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-
-[features]
-default = ["std"]
-std = []
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> b7b9059 (refactor: Clean up imports, enhance struct definitions, and improve error handling across multiple modules)
-
-[package.metadata.docs.rs]
-all-features = true
-rustdoc-args = ["--cfg", "docsrs"]
+neon-build = "*"
 
 [features]
 default = ["std"]
@@ -220,3 +88,7 @@ high_volume_trading = []
 [[bench]]
 name = "core_benchmarks"
 harness = false
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
