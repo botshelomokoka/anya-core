@@ -41,11 +41,100 @@ impl AnyaConfig {
     }
 }
 
-use std::sync::Arc;
-use tokio::join;
-use crate::tiered_usage::TieredUsage;
-use crate::user_management::{User, UserAction, FeatureAccess};
-use crate::error::Error;
+// Update module declarations
+mod identity;
+mod smart_contracts;
+mod interoperability;
+mod privacy;
+mod federated_learning;
+mod bitcoin_core;
+mod lightning;
+mod dlc;
+mod ml_logic;
+mod user_management;
+mod network_discovery;
+mod blockchain;
+mod data_storage;
+mod ui;
+mod tiered_usage;
+
+// Update the Anya struct
+pub struct Anya {
+    config: AnyaConfig,
+    logger: Logger,
+    identity: identity::Identity,
+    smart_contracts: smart_contracts::SmartContracts,
+    interoperability: interoperability::Interoperability,
+    privacy: privacy::Privacy,
+    federated_learning: federated_learning::FederatedLearning,
+    bitcoin_core: bitcoin_core::BitcoinCore,
+    lightning: lightning::Lightning,
+    dlc: dlc::Dlc,
+    ml_logic: ml_logic::MlLogic,
+    tiered_usage: TieredUsage,
+    // Add other fields as necessary
+}
+
+impl Anya {
+    pub fn new(config: AnyaConfig) -> Result<Self, Error> {
+        let logger = init_logger();
+        Ok(Anya {
+            config: config.clone(),
+            logger,
+            identity: identity::Identity::new()?,
+            smart_contracts: smart_contracts::SmartContracts::new()?,
+            interoperability: interoperability::Interoperability::new()?,
+            privacy: privacy::Privacy::new()?,
+            federated_learning: federated_learning::FederatedLearning::new()?,
+            bitcoin_core: bitcoin_core::BitcoinCore::new(&config.bitcoin_rpc_url, config.bitcoin_auth, config.bitcoin_network)?,
+            lightning: lightning::Lightning::new(config.lightning_config)?,
+            dlc: dlc::Dlc::new()?,
+            ml_logic: ml_logic::MlLogic::new()?,
+            tiered_usage: TieredUsage::new(),
+            // Initialize other fields
+        })
+    }
+
+    // ... (keep existing methods)
+
+    pub fn create_did(&self) -> Result<String, Error> {
+        self.identity.create_did()
+    }
+
+    pub fn verify_credential(&self, credential: &str) -> Result<bool, Error> {
+        self.identity.verify_credential(credential)
+    }
+
+    pub fn execute_wasm_contract(&self, contract: &[u8], input: &[u8]) -> Result<Vec<u8>, Error> {
+        self.smart_contracts.execute_wasm(contract, input)
+    }
+
+    pub fn send_ibc_message(&self, message: &[u8], destination: &str) -> Result<(), Error> {
+        self.interoperability.send_ibc_message(message, destination)
+    }
+
+    pub fn generate_zero_knowledge_proof(&self, statement: &str) -> Result<Vec<u8>, Error> {
+        self.privacy.generate_zk_proof(statement)
+    }
+
+    pub fn run_federated_learning(&self, model: &str, data: &[u8]) -> Result<Vec<f32>, Error> {
+        self.federated_learning.run(model, data)
+    }
+
+    pub fn get_bitcoin_block_count(&self) -> Result<u64, Error> {
+        self.bitcoin_core.get_block_count().map_err(Error::from)
+    }
+
+    // Add methods for Lightning, DLC, and ML logic as needed
+
+    pub fn update_user_metrics(&mut self, user: &User, action: UserAction) {
+        self.tiered_usage.update_metrics(user, action);
+    }
+
+    pub fn get_user_feature_access(&self, user: &User) -> FeatureAccess {
+        self.tiered_usage.get_feature_access(user)
+    }
+}
 
 // Update module declarations
 mod identity;

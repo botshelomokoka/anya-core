@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::collections::HashMap;
 use std::error::Error;
 use log::{info, error};
 use dlc::{DlcParty, Oracle, Announcement, Contract, Outcome};
@@ -35,6 +36,8 @@ pub struct DLCSupport {
 }
 
 impl DLCSupport {
+    pub fn new(network: BitcoinNetwork) -> Self {
+        Self {
     pub fn new(network: BitcoinNetwork) -> Self {
         Self {
             network,

@@ -60,6 +60,8 @@ orbit-db = "*"
 # Cryptographic protocols
 seal = "*"
 mp-spdz = "*"
+aes-gcm = "0.9"
+rand = "0.8"
 
 # DLC library support
 # Using Git URL to ensure we get the latest version or specific branch not available on crates.io

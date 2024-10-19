@@ -5,6 +5,8 @@ use bitcoin::{
     Address as BitcoinAddress,
     util::key::PrivateKey,
     util::psbt::PartiallySignedTransaction,
+    util::key::PrivateKey,
+    util::psbt::PartiallySignedTransaction,
 };
 
 use bitcoincore_rpc::{Auth, Client, RpcApi};
@@ -26,6 +28,8 @@ impl BitcoinSupport {
 
         Ok(Self {
             network,
+            client,
+            secp,
             client,
             secp,
         })
@@ -62,6 +66,7 @@ impl BitcoinSupport {
         let mut total_input = 0;
         for utxo in utxos {
             if total_input >= amount {
+            if total_input >= amount {
                 break;
             }
             tx_builder.input.push(bitcoin::util::psbt::Input {
@@ -84,12 +89,15 @@ impl BitcoinSupport {
             script_pubkey: to_address.script_pubkey(),
             ..Default::default()
         });
+            ..Default::default()
+        });
 
         let change = total_input - amount;
         if change > 0 {
             tx_builder.unsigned_tx.output.push(bitcoin::TxOut {
                 amount: change,
                 script_pubkey: from_address.script_pubkey(),
+                ..Default::default()
                 ..Default::default()
             });
         }
