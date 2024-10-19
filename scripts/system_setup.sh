@@ -10,7 +10,7 @@ print_status() {
 # Function to check disk space
 check_disk_space() {
     local drive=$1
-    local available_space=$(df -BG $drive | awk 'NR==2 {print $4}' | sed 's/G//')
+    local available_space=$(df -B1G $drive | awk 'NR==2 {print $4+0}')
     echo $available_space
 }
 
@@ -19,7 +19,7 @@ find_suitable_drive() {
     local drives=$(lsblk -ndo NAME,TYPE | awk '$2=="disk" {print "/dev/"$1}')
     for drive in $drives; do
         local space=$(check_disk_space $drive)
-        if [ $space -gt 50 ]; then
+        if [ "$space" -gt 50 ]; then
             echo $drive
             return 0
         fi
@@ -41,6 +41,7 @@ move_data() {
     sudo rsync -avz --exclude='/mnt/newdrive' / /mnt/newdrive/
     
     # Update fstab
+    sudo cp /etc/fstab /etc/fstab.bak
     sudo sed -i "s|$old_drive|$new_drive|g" /etc/fstab
     
     print_status "Data moved successfully. Please reboot to apply changes."
@@ -52,7 +53,11 @@ INSTANCE_ID="9111727350091981557"
 PROJECT_ID="anya-433919"
 USERNAME="botshelomokoka@gmail.com"
 
-# Detect instance name and zone
+INSTANCE_NAME=$(curl -s "http://metadata.google.internal/computeMetadata/v1/instance/name" -H "Metadata-Flavor: Google")
+if [ $? -ne 0 ]; then
+    echo "Error: Unable to retrieve instance name from metadata server."
+    exit 1
+fi
 INSTANCE_NAME=$(curl -s "http://metadata.google.internal/computeMetadata/v1/instance/name" -H "Metadata-Flavor: Google")
 ZONE=$(curl -s "http://metadata.google.internal/computeMetadata/v1/instance/zone" -H "Metadata-Flavor: Google" | awk -F/ '{print $NF}')
 
@@ -115,7 +120,7 @@ sed -i "s/INSTANCE_ID=.*/INSTANCE_ID=$INSTANCE_ID/" .env
 sed -i "s/USERNAME=.*/USERNAME=$USERNAME/" .env
 
 # Set up database
-print_status "Setting up database..."
+sed -i "s|DATABASE_URL=.*|DATABASE_URL=postgres://postgres:anya_core_password@localhost/anya_core|" .env
 sudo apt-get install -y postgresql postgresql-contrib
 sudo -u postgres createdb anya_core
 sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'anya_core_password';"

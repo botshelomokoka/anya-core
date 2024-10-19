@@ -60,6 +60,8 @@ orbit-db = "*"
 # Cryptographic protocols
 seal = "*"
 mp-spdz = "*"
+
+# Additional cryptographic dependencies
 aes-gcm = "0.9"
 rand = "0.8"
 

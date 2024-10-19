@@ -77,14 +77,3 @@ wallet_data.json
 
 # Backup files
 *.backup
-# Generated files
-*.generated.*
-
-# Debug files
-*.debug
-
-# Profiling files
-*.prof
-
-# Backup files
-*.backup

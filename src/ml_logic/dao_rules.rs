@@ -2,7 +2,6 @@ use crate::ml_core::{
     MLCore, ProcessedData, TrainedModel, Prediction, OptimizedAction, MetricType,
     DataProcessor, ModelTrainer, Predictor, Optimizer
 };
-<<<<<<< HEAD
 use crate::blockchain::{BlockchainInterface, Transaction};
 use crate::data_feed::{DataFeed, DataSource};
 use crate::reporting::{Report, ReportType, SystemWideReporter};
@@ -278,8 +277,6 @@ mod tests {
 use crate::federated_learning::{FederatedLearning, Model};
 use crate::privacy::{DifferentialPrivacy, Epsilon};
 use crate::secure_multiparty_computation::SecureAggregation;
-=======
->>>>>>> 73719fd69dc5deae81358f465a7c0b572919e2d3
 use crate::blockchain::{BlockchainInterface, Transaction};
 use crate::data_feed::{DataFeed, DataSource};
 use crate::reporting::{Report, ReportType, SystemWideReporter};
@@ -293,19 +290,18 @@ use async_trait::async_trait;
 #[derive(Serialize, Deserialize)]
 pub struct AnyaCore {
     blockchain: BlockchainInterface,
-    // ... other fields ...
+    batch_processor: BatchProcessor,
+    opcode_executor: OpCodeExecutor,
+    info_pipe: InfoPipe,
+    metrics: HashMap<MetricType, Metric>,
 }
 
-<<<<<<< HEAD
 const WEIGHT_FACTOR: f32 = 0.3;
 const TIME_FACTOR: f32 = 0.2;
 const FEES_FACTOR: f32 = 0.3;
 const SECURITY_FACTOR: f32 = 0.2;
 
 impl DAORules {
-=======
-impl AnyaCore {
->>>>>>> 73719fd69dc5deae81358f465a7c0b572919e2d3
     pub fn new(blockchain: BlockchainInterface) -> Self {
         let (report_sender, report_receiver) = mpsc::channel(100);
         let (action_sender, action_receiver) = mpsc::channel(100);
@@ -313,7 +309,6 @@ impl AnyaCore {
         Self {
             ml_core: MLCore::new(),
             blockchain,
-<<<<<<< HEAD
             batch_processor: BatchProcessor::new(BATCH_SIZE),
             opcode_executor: OpCodeExecutor::new(MAX_OPCODE_BITS),
     pub async fn apply_federated_learning(&mut self, data: &[f32]) -> Result<Model, Box<dyn std::error::Error>> {
@@ -359,127 +354,6 @@ impl AnyaCore {
         let result = self.blockchain.submit_transaction(opcode).await?;
     }nFee, result.fee);
         Ok(())
-=======
-            system_reporter: SystemWideReporter::new(report_receiver),
-            system_manager: SystemManager::new(action_sender),
-            data_feeds: HashMap::new(),
-            operational_status: OperationalStatus::Normal,
-        }
-    }
-
-    pub async fn run(&mut self) {
-        loop {
-            tokio::select! {
-                Some(action) = self.system_manager.receive_action() => {
-                    self.handle_management_action(action).await;
-                }
-                Some(data) = self.process_data_feeds().await => {
-                    self.handle_data(data).await;
-                }
-                _ = tokio::time::interval(std::time::Duration::from_secs(60)).tick() => {
-                    self.send_periodic_report().await;
-                }
-            }
-
-            if self.operational_status == OperationalStatus::Shutdown {
-                break;
-            }
-        }
-    }
-
-    async fn handle_management_action(&mut self, action: ManagementAction) {
-        match action {
-            ManagementAction::UpdateConfig(config) => {
-                self.update_config(config).await;
-            }
-            ManagementAction::RequestReport(report_type) => {
-                self.send_report(report_type).await;
-            }
-            ManagementAction::Shutdown => {
-                self.operational_status = OperationalStatus::Shutdown;
-            }
-            ManagementAction::AddDataFeed(source, feed) => {
-                self.data_feeds.insert(source, feed);
-            }
-            ManagementAction::RemoveDataFeed(source) => {
-                self.data_feeds.remove(&source);
-            }
-        }
-    }
-
-    async fn update_config(&mut self, config: HashMap<String, String>) {
-        self.ml_core.update_config(&config);
-        self.blockchain.update_config(&config).await;
-        self.send_report(ReportType::ConfigUpdate).await;
-    }
-
-    async fn process_data_feeds(&mut self) -> Option<Vec<f32>> {
-        let mut combined_data = Vec::new();
-        for feed in self.data_feeds.values_mut() {
-            if let Some(data) = feed.get_data().await {
-                combined_data.extend(data);
-            }
-        }
-        if combined_data.is_empty() {
-            None
-        } else {
-            Some(combined_data)
-        }
-    }
-
-    async fn handle_data(&mut self, data: Vec<f32>) {
-        // Process data through the ML Core pipeline
-        let processed_data = self.ml_core.process_data(data);
-        let trained_model = self.ml_core.train_model(&processed_data);
-        let prediction = self.ml_core.make_prediction(&trained_model, &processed_data);
-        let optimized_action = self.ml_core.optimize_action(prediction);
-
-        self.execute_action(optimized_action).await;
-    }
-
-    async fn execute_action(&mut self, action: OptimizedAction) {
-        match action {
-            OptimizedAction::BlockchainTransaction(transaction) => {
-                self.execute_blockchain_transaction(transaction).await.unwrap();
-            }
-            OptimizedAction::SystemAction(management_action) => {
-                self.handle_management_action(management_action).await;
-            }
-            OptimizedAction::DataRequest(source) => {
-                if let Some(feed) = self.data_feeds.get_mut(&source) {
-                    feed.request_data().await;
-                }
-            }
-            OptimizedAction::ModelUpdate(model) => {
-                self.ml_core.update_model(model);
-            }
-            OptimizedAction::NoAction => {}
-        }
-    }
-
-    async fn send_periodic_report(&self) {
-        let report = Report {
-            report_type: ReportType::Periodic,
-            metrics: self.ml_core.get_metrics(),
-            operational_status: self.operational_status,
-        };
-        self.system_reporter.send_report(report).await;
-    }
-
-    async fn send_report(&self, report_type: ReportType) {
-        let report = Report {
-            report_type,
-            metrics: self.ml_core.get_metrics(),
-            operational_status: self.operational_status,
-        };
-        self.system_reporter.send_report(report).await;
-    }
-
-    pub async fn execute_blockchain_transaction(&mut self, transaction: Transaction) -> Result<(), Box<dyn std::error::Error>> {
-        let result = self.blockchain.submit_transaction(transaction).await?;
-        self.ml_core.update_metric(MetricType::TransactionFee, result.fee);
-        self.send_report(ReportType::BlockchainUpdate).await;
-        Ok(())
     }
 }
 
@@ -511,26 +385,14 @@ impl MLCore {
         self.model_trainer.train(data)
     }
 
-    pub fn make_prediction(&self, model: &TrainedModel, data: &ProcessedData) -> Prediction {
-        self.predictor.predict(model, data)
-    }
-
-    pub fn optimize_action(&self, prediction: Prediction) -> OptimizedAction {
-        self.optimizer.optimize(prediction)
->>>>>>> 73719fd69dc5deae81358f465a7c0b572919e2d3
-    }
-
-    pub fn update_model(&mut self, model: TrainedModel) {
-        self.model_trainer.update_model(model);
-    }
-
-<<<<<<< HEAD
     pub fn perform_dimensional_analysis(&self, weight: f32, time: f32, fees: f32, security: f32) -> f32 {
         weight * WEIGHT_FACTOR + time * TIME_FACTOR + fees * FEES_FACTOR + security * SECURITY_FACTOR
-=======
-    pub fn update_metric(&mut self, metric_type: MetricType, value: f64) {
-        self.metrics.insert(metric_type, value);
->>>>>>> 73719fd69dc5deae81358f465a7c0b572919e2d3
+    }
+
+    fn update_metric(&mut self, metric_type: MetricType, value: f64) {
+        self.metrics.entry(metric_type)
+            .and_modify(|m| m.update(value))
+            .or_insert_with(|| Metric::new(metric_type, value));
     }
 
     pub fn get_metrics(&self) -> &HashMap<MetricType, f64> {
@@ -574,18 +436,13 @@ mod tests {
     use super::*;
     use crate::blockchain::MockBlockchainInterface;
 
-<<<<<<< HEAD
     #[tokio::test]
     async fn test_apply_federated_learning() {
-=======
-    async fn setup_test_environment() -> AnyaCore {
->>>>>>> 73719fd69dc5deae81358f465a7c0b572919e2d3
         let mock_blockchain = MockBlockchainInterface::new();
         AnyaCore::new(mock_blockchain)
     }
 
     #[tokio::test]
-<<<<<<< HEAD
     async fn test_secure_aggregation() {
         let mock_blockchain = MockBlockchainInterface::new();
         let rules = DAORules::new(mock_blockchain);
@@ -603,31 +460,6 @@ mod tests {
         let transaction = Transaction { fee: 0.001 };
         rules.execute_blockchain_transaction(transaction).await.unwrap();
         assert!(rules.get_metrics().contains_key(&MetricType::TransactionFee));
-=======
-    async fn test_ml_core_pipeline() {
-        let mut anya_core = setup_test_environment().await;
-        
-        // Simulate data input
-        let test_data = vec![1.0, 2.0, 3.0];
-        anya_core.handle_data(test_data).await;
-
-        // Check if metrics were updated
-        let metrics = anya_core.ml_core.get_metrics();
-        assert!(metrics.contains_key(&MetricType::ModelAccuracy));
-        assert!(metrics.contains_key(&MetricType::ProcessingTime));
-        assert!(metrics.contains_key(&MetricType::PredictionConfidence));
-        assert!(metrics.contains_key(&MetricType::OptimizationScore));
-    }
-
-    #[tokio::test]
-    async fn test_blockchain_integration() {
-        let mut anya_core = setup_test_environment().await;
-
-        let transaction = Transaction { /* fields */ };
-        anya_core.execute_blockchain_transaction(transaction).await.unwrap();
-
-        assert!(anya_core.ml_core.get_metrics().contains_key(&MetricType::TransactionFee));
->>>>>>> 73719fd69dc5deae81358f465a7c0b572919e2d3
     }
 
     // Add more tests for other functionalities
