@@ -54,6 +54,7 @@ pub struct InternalAIEngine {
 
 impl InternalAIEngine {
     pub fn new() -> Self {
+        info!("Initializing InternalAIEngine...");
         Self {
             global_model: LinearRegression::default(),
             local_models: Vec::new(),
@@ -64,6 +65,7 @@ impl InternalAIEngine {
     }
 
     pub fn update_model(&mut self, local_model: Array1<f64>) -> Result<(), MLError> {
+        info!("Updating model with new local model...");
         self.local_models.push(local_model);
         if self.should_aggregate() {
             self.aggregate_models()?;

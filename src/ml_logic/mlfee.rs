@@ -106,11 +106,15 @@ impl MLFeeManager {
 
         Ok(best_time)
     }
+<<<<<<< HEAD
         let error = if estimated_fee.0 != 0 {
             (actual_fee.0 as f64 - estimated_fee.0 as f64).abs() / estimated_fee.0 as f64
         } else {
             0.0
         };
+=======
+
+>>>>>>> 73719fd69dc5deae81358f465a7c0b572919e2d3
     pub fn update_fee_model_performance(&mut self, tx_hash: &str, actual_fee: Amount) -> Result<(), AnyaError> {
         info!("Updating fee model performance for transaction: {}", tx_hash);
         let estimated_fee = self.estimate_fee(250)?;

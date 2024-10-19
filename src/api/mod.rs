@@ -71,6 +71,7 @@ pub async fn start_api_server(port: u16) -> std::io::Result<()> {
     .bind(("127.0.0.1", port))?
     .run()
     .await
+<<<<<<< HEAD
 }
 
 struct ApiHandler {
@@ -139,5 +140,6 @@ pub fn config(cfg: &mut web::ServiceConfig) {
     cfg.app_data(api_handler.clone())
         .route("/analytics", web::post().to(rate_limited_endpoint!(get_advanced_analytics)))
         // Add other routes here, wrapped with rate_limited_endpoint! macro
-        .route("/trade", web::post().to(rate_limited_endpoint!(execute_high_volume_trade)));
+=======
+>>>>>>> 1b4f7ce (Align project structure with updated architecture)
 }

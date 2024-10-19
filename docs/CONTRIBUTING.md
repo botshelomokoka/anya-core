@@ -1,5 +1,7 @@
 # Contributing to Anya Core
 
+We welcome contributions to the Anya Core project! This document provides guidelines for contributing to the project.
+
 ## Table of Contents
 
 1. [Code of Conduct](#code-of-conduct)

@@ -1,4 +1,4 @@
-use rust_dlc::contract::Contract;
+use dlc_btc_lib::{Dlc, Contract};
 
 pub struct DLCManager {
     contracts: Vec<Contract>,
