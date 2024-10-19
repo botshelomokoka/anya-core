@@ -1,27 +1,6 @@
-<<<<<<< HEAD
-# Anya Core
-
-Anya Core is a foundational framework that provides essential functionalities for various applications. It includes blockchain integrations and trading operations.
-
-## Key Features
-
-- **Blockchain Integrations**: Supports various blockchain platforms, including Bitcoin
-- **Trading Operations**: Provides tools for executing and managing trades.
-- **Networking and P2P**: Robust networking and peer-to-peer communication capabilities.
-- **Privacy and Security**: Advanced privacy and security measures.
-- **Scalability Solutions**: Solutions for scaling blockchain applications.
-- **Advanced Analytics and AI**: Tools for data analysis and AI-driven strategies.
-- **DeFi Integration**: Integration with decentralized finance protocols.
-- **Enterprise Features**: Additional features for enterprise-grade applications.
-- **Quantum Resistance**: Research and implementation of quantum-resistant cryptography.
-
-## Installation
-
-To install Anya Core, follow these steps:
-=======
 # Anya Core Project
 
-Anya Core is a decentralized AI assistant framework leveraging blockchain technologies, federated learning, and advanced cryptography, with enhanced open standards support.
+Anya Core is a decentralized AI assistant framework. It leverages blockchain technologies, federated learning, and advanced cryptography. The framework also supports enhanced open standards such as OpenAPI, OAuth, and W3C Verifiable Credentials.
 
 ## Current Status
 
@@ -64,22 +43,11 @@ For more details on our development plan and future phases, please see the DEVPL
 
 ## Getting Started
 
-To get started with Anya Core:
 To run the project:
->>>>>>> 73719fd69dc5deae81358f465a7c0b572919e2d3
 
 1. Clone the repository:
 
    ```bash
-<<<<<<< HEAD
-   git clone https://github.com/botshelomokoka/anya-core.git
-   ```
-
-2. Navigate to the project directory:
-
-   ```bash
-   cd anya-core
-=======
    git clone https://github.com/botshelomokoka/anya.git
    cd anya
    ```
@@ -89,7 +57,6 @@ To run the project:
    ```bash
    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
    rustup update
->>>>>>> 73719fd69dc5deae81358f465a7c0b572919e2d3
    ```
 
 3. Build the project:
@@ -98,18 +65,6 @@ To run the project:
    cargo build --release
    ```
 
-<<<<<<< HEAD
-## Usage
-
-To use Anya Core, follow these steps:
-
-1. Configure the application settings as needed.
-2. Start the application and begin using the core features.
-
-## License
-
-Anya Core is available under an open-source license. Please refer to the LICENSE file for more information.
-=======
 4. Run the project:
 
    ```bash
@@ -117,16 +72,6 @@ Anya Core is available under an open-source license. Please refer to the LICENSE
    ```
 
 For more detailed instructions, refer to the project documentation.
-
-1. Clone the repository
-2. Install Rust and Cargo
-3. Run `cargo build` to build the project
-4. Run `cargo run` to start the application
-
-For development:
-
-1. Run `cargo test` to run the test suite
-2. Use `cargo doc` to generate documentation
 
 ## Contributing
 
@@ -149,78 +94,55 @@ Key points:
 - Follow the Rust style guide
 
 For more information on our project structure and ongoing development, check the `ROADMAP.md` file.
-Please see the CONTRIBUTING.md file for details on how to contribute to this project.
 
 ## License
 
-1. Set up the Stacks blockchain locally (follow Stacks documentation).
-2. Clone the repository:
+1. Clone the repository:
 
    ```bash
    git clone https://github.com/botshelomokoka/anya.git
    cd anya
    ```
 
-3. Build the project:
-
-   ```bash
-   git clone https://github.com/your-org/anya-enterprise.git
-   cd anya-enterprise
-   ```
-
-4. Run the installer:
-
-   ````bash
-   cargo build --release
-   ```
-
-## Running the Full System
-
-To run the complete Anya Core System:
-
-1. Ensure all dependencies are installed and configured correctly.
-2. Start the Stacks blockchain node (if not already running).
-3. Initialize the Bitcoin node:
+2. Initialize the Bitcoin node:
 
    ```bash
    bitcoind -daemon
    ```
 
-4. Start the Lightning Network daemon:
+3. Start the Lightning Network daemon:
 
    ```bash
    lnd
    ```
 
-5. Run the main Anya system:
+4. Run the main Anya system:
 
    ```bash
    cargo run --bin anya-core
    ```
 
-6. Initialize the network discovery module:
+5. Initialize the network discovery module:
 
    ```bash
    cargo run --bin network_discovery
    ```
 
-7. Start the Web5 integration:
+6. Start the Web5 integration:
 
    ```bash
    cargo run --bin web5_integration
    ```
 
-8. Launch the user management interface:
+7. Launch the user management interface:
 
    ```bash
    cargo run --bin user_management
    ```
 
-9. For development and debugging, you can use the provided VS Code launch configurations in `.vscode/launch.json`.
+8. For development and debugging, you can use the provided VS Code launch configurations in `.vscode/launch.json`.
 
 ## Testing
-
-Run the complete test suite:
 
 Run the complete test suite:
 
@@ -300,88 +222,6 @@ We follow a structured development process with multiple branches:
 For more details on contributing and the development process, please see the `CONTRIBUTING.md` file.
 Anya Core is a decentralized AI assistant framework leveraging blockchain technologies, federated learning, and advanced cryptography, with enhanced open standards support.
 
-## Current Status (Phase 1)
-
-- Basic project structure implemented
-- User management system in place
-- STX, DLC, Lightning, and Bitcoin support integrated
-- Kademlia-based network discovery implemented
-- Federated learning module added
-- Basic CLI and testing infrastructure set up
-- Modular architecture with init() functions for all core components
-- Basic error handling and logging implemented
-- AI ethics module with Bitcoin principles added
-- Networking module placeholder created
-- Test structure for core modules established
-
-## Roadmap (Phase 1)
-
-We are currently working on Phase 1 of our development plan, which includes:
-
-1. Implementing a modular, plugin-based architecture (In Progress)
-2. Applying the Hexagonal Architecture pattern
-3. Implementing a standardized API layer using OpenAPI 3.0
-4. Developing an internal metrics and function awareness system
-5. Fully implementing libp2p for P2P communications
-6. Enhancing Kademlia DHT implementation
-7. Integrating IPFS support
-
-For more details on our development plan and future phases, please see the DEVPLAN.md file.
-
-## Features (Planned for Phase 1)
-
-- Decentralized user management with DIDs and Verifiable Credentials (W3C standards)
-- Multi-blockchain support (Bitcoin, Lightning Network, Stacks, IBC, Cosmos, Polkadot)
-- Advanced federated learning with differential privacy (OpenFL, OpenDP)
-- Peer-to-peer networking using libp2p and IPFS
-- Smart contract support with Clarity and WebAssembly
-- Cross-chain interoperability (IBC, Cosmos SDK, Polkadot XCMP)
-- Enhanced privacy and security measures (Zero-knowledge proofs, Homomorphic encryption, Secure multi-party computation)
-- Web, CLI, and mobile interfaces
-
-## Getting Started with Anya Core
-
-To get started with Anya Core:
-To run the project:
-
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/your-repo/anya-core.git
-   cd anya-core
-   ```
-
-2. Install Rust and required dependencies:
-
-   ```bash
-   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-   rustup update
-   ```
-
-3. Build the project:
-
-   ```bash
-   cargo build --release
-   ```
-
-4. Run the project:
-
-   ```bash
-   cargo run --release
-   ```
-
-For more detailed instructions, refer to the project documentation.
-
-1. Clone the Anya Core repository
-2. Install Rust and Cargo
-3. Run `cargo build` to build the project
-4. Run `cargo run` to start the application
-
-For development:
-
-1. Run `cargo test` to run the test suite
-2. Use `cargo doc` to generate documentation
-
 ## Contributing to Anya Core
 
 We welcome contributions to Anya Core! Here's how you can contribute:
@@ -407,26 +247,12 @@ Please see the CONTRIBUTING.md file for details on how to contribute to this pro
 
 ## License Information
 
-1. Set up the Stacks blockchain locally (follow Stacks documentation).
-2. Clone the repository:
+This project is licensed under either of
 
-   ```bash
-   git clone https://github.com/botshelomokoka/anya-core-main.git
-   cd anya-core-main
-   ```
+- Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or <http://www.apache.org/licenses/LICENSE-2.0>)
+- MIT license ([LICENSE-MIT](LICENSE-MIT) or <http://opensource.org/licenses/MIT>)
 
-3. Build the project:
-
-   ```bash
-   git clone https://github.com/your-org/anya-enterprise.git
-   cd anya-enterprise
-   ```
-
-4. Run the installer:
-
-   ````bash
-   cargo build --release
-   ```
+at your option.
 
 ## Running the Full Anya Core System
 
@@ -473,8 +299,6 @@ To run the complete Anya Core System:
 9. For development and debugging, you can use the provided VS Code launch configurations in `.vscode/launch.json`.
 
 ## Running Tests
-
-Run the complete test suite:
 
 Run the complete test suite:
 
@@ -552,4 +376,3 @@ We follow a structured development process with multiple branches:
 4. A new tag is created for each release, following semantic versioning (e.g., v1.0.0).
 
 For more details on contributing and the development process, please see the `CONTRIBUTING.md` file.
->>>>>>> 73719fd69dc5deae81358f465a7c0b572919e2d3

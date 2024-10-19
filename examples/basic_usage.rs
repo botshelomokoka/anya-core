@@ -16,7 +16,9 @@ fn handle_error(module: &str) -> impl Fn(anyhow::Error) -> anyhow::Error {
 
 fn create_privacy_module() -> Result<PrivacyModule, anyhow::Error> {
     PrivacyModule::new(vec![]).map_err(handle_error("PrivacyModule"))
-}n create_bitcoin_module() -> Result<BitcoinModule, anyhow::Error> {
+}
+
+fn create_bitcoin_module() -> Result<BitcoinModule, anyhow::Error> {
     BitcoinModule::new(
         Network::Testnet,
         "http://localhost:18332",

@@ -30,8 +30,6 @@ impl BitcoinSupport {
             network,
             client,
             secp,
-            client,
-            secp,
         })
     }
 }

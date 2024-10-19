@@ -14,6 +14,7 @@ use crate::dlc::DLCInterface;
 use crate::ordinals::OrdinalInterface;
 
 pub struct AdvancedBitcoinPricePredictor {
+    vs: nn::VarStore,
     model: nn::Sequential,
     optimizer: Box<dyn nn::Optimizer>,
     user_metrics: UserMetrics,
@@ -22,32 +23,95 @@ pub struct AdvancedBitcoinPricePredictor {
     research_db: ResearchPaperDatabase,
     library_manager: LibraryVersionManager,
     blockchain: BlockchainInterface,
+    model_upgrader: AIModelUpgrader,
 }
 
 impl AdvancedBitcoinPricePredictor {
-    pub fn new(user_metrics: UserMetrics, blockchain: BlockchainInterface) -> Self {
+    fn should_upgrade_model(&self) -> bool {
+        // Implement your criteria for upgrading the model
+        // For example, upgrade every 100 updates or based on performance metrics
+        self.user_metrics.update_count % 100 == 0
+    }
+}
+
+impl AdvancedBitcoinPricePredictor {
+    pub fn new(user_metrics: UserMetrics, blockchain: BlockchainInterface) -> Result<Self, MLError> {
         let vs = nn::VarStore::new(Device::Cpu);
-        let model = nn::seq()
-            .add(nn::linear(&vs.root(), 30, 128, Default::default()))
-            .add_fn(|x| x.relu())
-            .add(nn::dropout(&vs.root(), 0.2))
-            .add(nn::linear(&vs.root(), 128, 64, Default::default()))
-            .add_fn(|x| x.relu())
-            .add(nn::dropout(&vs.root(), 0.2))
-            .add(nn::linear(&vs.root(), 64, 1, Default::default()));
-
-        let optimizer = Box::new(nn::Adam::default().build(&vs, 1e-4).unwrap());
-
-        Self {
+        let model = Self::initialize_model(&vs);
+        let optimizer = Self::initialize_optimizer(&vs, 1e-4, false)?;
+    
+        Ok(Self {
+            vs,
             model,
             optimizer,
             user_metrics,
-            internal_data: InternalDataProvider::new(),
-            historical_analyzer: HistoricalDataAnalyzer::new(),
-            research_db: ResearchPaperDatabase::new(),
-            library_manager: LibraryVersionManager::new(),
+            internal_data: Self::initialize_internal_data(),
+            historical_analyzer: Self::initialize_historical_analyzer(),
+            research_db: Self::initialize_research_db(),
+            library_manager: Self::initialize_library_manager(),
             blockchain,
-        }
+            model_upgrader: Self::initialize_model_upgrader(),
+        })
+    }
+
+    /// Initializes the optimizer. If `sophisticated` is true, uses RMSProp; otherwise, uses Adam.
+    /// Initializes the optimizer.
+    /// 
+    /// # Parameters
+    /// - `vs`: The variable store for the model.
+    /// - `lr`: The learning rate for the optimizer.
+    /// - `sophisticated`: If true, uses RMSProp optimizer; otherwise, uses Adam optimizer.
+    /// 
+    /// # Returns
+    /// A result containing the initialized optimizer or an error.
+    fn initialize_optimizer(vs: &nn::VarStore, lr: f64, sophisticated: bool) -> Result<Box<dyn nn::Optimizer>, MLError> {
+        if sophisticated {
+            nn::RmsProp::default().build(vs, lr).map(Box::new).map_err(MLError::from)
+        } else {
+            nn::Adam::default().build(vs, lr).map(Box::new).map_err(MLError::from)
+    /// Initializes the HistoricalDataAnalyzer.
+    ///
+    /// # Returns
+    /// A new instance of `HistoricalDataAnalyzer`.
+    fn initialize_historical_analyzer() -> HistoricalDataAnalyzer {
+    }
+}
+}
+
+    /// Initializes the HistoricalDataAnalyzer.
+    /// 
+    /// # Returns
+    /// A new instance of HistoricalDataAnalyzer.
+    fn initialize_historical_analyzer() -> HistoricalDataAnalyzer {
+        HistoricalDataAnalyzer::new()
+    }
+
+    /// Initializes the LibraryVersionManager.
+    ///
+    /// # Returns
+    /// A new instance of LibraryVersionManager.
+    fn initialize_library_manager() -> LibraryVersionManager {
+    ///
+    /// # Returns
+    /// A new instance of `LibraryVersionManager`.
+    /// Initializes the research database.
+    ///
+    /// # Returns
+    /// A new instance of `ResearchPaperDatabase`.
+    fn initialize_research_db() -> ResearchPaperDatabase {
+        ResearchPaperDatabase::new()
+    }// # Returns
+    /// A new instance of `ResearchPaperDatabase`.
+    fn initialize_research_db() -> ResearchPaperDatabase {
+        ResearchPaperDatabase::new()
+    }
+
+    /// Initializes the model upgrader.
+    ///
+    /// # Returns
+    /// A new instance of `AIModelUpgrader`.
+    fn initialize_model_upgrader() -> AIModelUpgrader {
+        AIModelUpgrader::new()
     }
 
     fn adjust_learning_rate(&mut self) {
@@ -58,24 +122,24 @@ impl AdvancedBitcoinPricePredictor {
         self.optimizer.set_lr(adjusted_lr);
     }
 
-    fn upgrade_model(&mut self) {
-        let latest_research = self.research_db.get_latest_bitcoin_prediction_papers();
-        let model_upgrader = AIModelUpgrader::new();
-        self.model = model_upgrader.upgrade_model(&self.model, &latest_research);
+    fn upgrade_model(&mut self, latest_bitcoin_research: &Tensor) {
+        self.model = self.model_upgrader.upgrade_model(&self.model, &latest_bitcoin_research);
+        self.optimizer = Box::new(nn::Adam::default().build(&self.vs, 1e-4)?);
     }
 }
 
 impl MLModel for AdvancedBitcoinPricePredictor {
     fn update(&mut self, input: &[MLInput]) -> Result<(), MLError> {
         self.adjust_learning_rate();
-        self.upgrade_model();
-        self.library_manager.update_libraries();
-
+        let latest_bitcoin_research = self.research_db.get_latest_research();
+        if self.should_upgrade_model() {
+            self.upgrade_model(&latest_bitcoin_research);
+        }
         let additional_features = self.internal_data.get_additional_features();
         let x = Tensor::of_slice(&input.iter()
             .flat_map(|i| i.features.iter()
                 .chain(additional_features.iter())
-                .cloned()
+
                 .collect::<Vec<f64>>())
             .collect::<Vec<f64>>())
             .view([-1, 30]);
@@ -95,13 +159,10 @@ impl MLModel for AdvancedBitcoinPricePredictor {
             .collect::<Vec<f64>>())
             .view([1, -1]);
         let output = self.model.forward(&x);
-        let prediction = output.double_value(&[0]);
         
-        let confidence = self.calculate_confidence(prediction);
-
         Ok(MLOutput {
-            prediction,
-            confidence,
+            prediction: output.double_value(&[0]),
+            confidence: self.calculate_confidence(output.double_value(&[0])),
         })
     }
 
@@ -109,9 +170,8 @@ impl MLModel for AdvancedBitcoinPricePredictor {
         let params: Vec<f64> = self.model
             .parameters()
             .iter()
-            .flat_map(|t| t.flatten(0, -1).into_iter::<f64>().unwrap().collect::<Vec<f64>>())
+            .flat_map(|t| t.flatten(0, -1).iter().cloned().collect::<Vec<f64>>())
             .collect();
-
         let mean = params.iter().sum::<f64>() / params.len() as f64;
         let variance = params.iter().map(|&x| (x - mean).powi(2)).sum::<f64>() / params.len() as f64;
         
@@ -123,6 +183,9 @@ impl MLModel for AdvancedBitcoinPricePredictor {
         
         if historical_performance < 0.7 {
             // Restructure the model based on historical performance
+            // If the historical performance is below a threshold (e.g., 0.7),
+            // we increase the model complexity by adding more layers and neurons.
+            // This helps the model to better capture complex patterns in the data.
             let vs = nn::VarStore::new(Device::Cpu);
             self.model = nn::seq()
                 .add(nn::linear(&vs.root(), 30, 256, Default::default()))
@@ -131,18 +194,7 @@ impl MLModel for AdvancedBitcoinPricePredictor {
                 .add(nn::linear(&vs.root(), 256, 128, Default::default()))
                 .add_fn(|x| x.relu())
                 .add(nn::dropout(&vs.root(), 0.3))
-                .add(nn::linear(&vs.root(), 128, 64, Default::default()))
-                .add_fn(|x| x.relu())
-                .add(nn::linear(&vs.root(), 64, 1, Default::default()));
-        }
-
-        let optimizer: Box<dyn nn::Optimizer> = if self.user_metrics.usage_level > 3 {
-            // Use a more sophisticated optimizer for high-usage users
-            Box::new(nn::RmsProp::default().build(&self.model.vs(), 1e-4).unwrap())
-        } else {
-            // Use default optimizer for lower-usage users
-            Box::new(nn::Adam::default().build(&self.model.vs(), 1e-3).unwrap())
-        };
+        let optimizer = Self::initialize_optimizer(&self.vs, if self.user_metrics.usage_level > 3 { 1e-4 } else { 1e-3 }, self.user_metrics.usage_level > 3)?;
         self.optimizer = optimizer;
 
         Ok(())
@@ -150,6 +202,13 @@ impl MLModel for AdvancedBitcoinPricePredictor {
 }
 
 impl AdvancedBitcoinPricePredictor {
+    /// Calculates the confidence level of a given prediction.
+    ///
+    /// # Parameters
+    /// - `prediction`: The predicted value for which the confidence is calculated.
+    ///
+    /// # Returns
+    /// A confidence score between 0.0 and 1.0.
     fn calculate_confidence(&self, prediction: f64) -> f64 {
         let base_confidence = 0.9;
         let usage_factor = 1.0 + (self.user_metrics.usage_level as f64 * 0.02);
@@ -167,25 +226,20 @@ pub struct AdvancedMarketSentimentAnalyzer {
     user_metrics: UserMetrics,
     optimizer: Box<dyn nn::Optimizer>,
     internal_data: InternalDataProvider,
-    research_db: ResearchPaperDatabase,
-    blockchain: BlockchainInterface,
-    tokenizer: Tokenizer,
-    embedding: Embedding,
-}
-
-impl AdvancedMarketSentimentAnalyzer {
+    /// Creates a new instance of `AdvancedMarketSentimentAnalyzer`.
     fn new(user_metrics: UserMetrics, blockchain: BlockchainInterface) -> Self {
         let vs = nn::VarStore::new(Device::Cpu);
+        let embedding = Embedding::new(); // Initialize the embedding field
         let sentiment_model = nn::seq()
             .add(nn::linear(&vs.root(), 768, 512, Default::default()))
-            .add(nn::func(|xs| xs.relu()))
+            .add(nn::linear(&vs.root(), 256, 3, Default::default()))
             .add(nn::dropout(&vs.root(), 0.2))
             .add(nn::linear(&vs.root(), 512, 256, Default::default()))
             .add(nn::func(|xs| xs.relu()))
             .add(nn::dropout(&vs.root(), 0.2))
             .add(nn::linear(&vs.root(), 256, 3, Default::default()));
         
-        let optimizer = Box::new(nn::Adam::default().build(&vs, 1e-4).unwrap());
+        let optimizer = nn::Adam::default().build(&vs, 1e-4).map(Box::new).map_err(MLError::from)?;
 
         Self {
             sentiment_model,
@@ -195,10 +249,44 @@ impl AdvancedMarketSentimentAnalyzer {
             research_db: ResearchPaperDatabase::new(),
             blockchain,
             tokenizer: Tokenizer::new(),
-            embedding: Embedding::new(),
+            embedding, // Add the initialized embedding field
+        }
+    }       blockchain,
+            tokenizer: Tokenizer::new(),
+            embedding, // Add the initialized embedding field
         }
     }
+}
 
+impl AdvancedMarketSentimentAnalyzer {
+    fn new(user_metrics: UserMetrics, blockchain: BlockchainInterface) -> Self {
+        let vs = nn::VarStore::new(Device::Cpu);
+        let embedding = Embedding::new(); // Initialize the embedding field
+        let sentiment_model = nn::seq()
+            .add(nn::linear(&vs.root(), 768, 512, Default::default()))
+            .add(nn::linear(&vs.root(), 256, 3, Default::default()))
+            .add(nn::dropout(&vs.root(), 0.2))
+            .add(nn::linear(&vs.root(), 512, 256, Default::default()))
+            .add(nn::func(|xs| xs.relu()))
+            .add(nn::dropout(&vs.root(), 0.2))
+            .add(nn::linear(&vs.root(), 256, 3, Default::default()));
+        
+        let optimizer = nn::Adam::default().build(&vs, 1e-4).map(Box::new).map_err(MLError::from).unwrap();
+
+        Self {
+            sentiment_model,
+            user_metrics,
+            optimizer,
+            internal_data: InternalDataProvider::new(),
+            research_db: ResearchPaperDatabase::new(),
+            blockchain,
+    /// Analyzes the sentiment of the given text.
+    ///
+    /// # Parameters
+    /// - `text`: The input text to analyze.
+    ///
+    /// # Returns
+    /// A result containing the sentiment analysis output or an error.
     fn analyze_sentiment(&self, text: &str) -> Result<MLOutput, MLError> {
         let input_tensor = self.preprocess_text(text);
         let output = self.sentiment_model.forward(&input_tensor);
@@ -207,6 +295,20 @@ impl AdvancedMarketSentimentAnalyzer {
         let confidence = self.calculate_confidence(sentiment_score);
 
         Ok(MLOutput {
+            prediction: sentiment_score,
+            confidence,
+        })
+    }
+}
+
+    fn analyze_sentiment(&self, text: &str) -> Result<MLOutput, MLError> {
+        let input_tensor = self.preprocess_text(text);
+        let output = self.sentiment_model.forward(&input_tensor);
+        let sentiment_score = output.double_value(&[0]);
+        
+        let confidence = self.calculate_confidence(sentiment_score);
+
+        let tokens = self.tokenizer.encode(text, true)?;
             prediction: sentiment_score,
             confidence,
         })
@@ -243,13 +345,18 @@ impl AdvancedMarketSentimentAnalyzer {
     }
 }
 
+/// A struct representing an advanced blockchain data predictor.
 struct AdvancedBlockchainDataPredictor {
+    /// The neural network model for blockchain data prediction.
     blockchain_model: nn::Sequential,
+    /// Metrics related to the user.
     user_metrics: UserMetrics,
+    /// The optimizer for training the model.
     optimizer: Box<dyn nn::Optimizer>,
+    /// Provider for internal data.
     internal_data: InternalDataProvider,
+    /// Analyzer for historical data.
     historical_analyzer: HistoricalDataAnalyzer,
-}
 
 impl AdvancedBlockchainDataPredictor {
     fn new(user_metrics: UserMetrics) -> Self {
@@ -257,7 +364,14 @@ impl AdvancedBlockchainDataPredictor {
         let blockchain_model = nn::seq()
             .add(nn::linear(&vs.root(), 150, 128, Default::default()))
             .add(nn::func(|xs| xs.relu()))
-            .add(nn::dropout(&vs.root(), 0.2))
+    /// Predicts blockchain data based on the input features.
+    ///
+    /// # Parameters
+    /// - `input_data`: A slice of f64 values representing the input features.
+    ///
+    /// # Returns
+    /// A result containing the prediction output or an error.
+    fn predict_blockchain_data(&self, input_data: &[f64]) -> Result<MLOutput, MLError> {
             .add(nn::linear(&vs.root(), 128, 64, Default::default()))
             .add(nn::func(|xs| xs.relu()))
             .add(nn::dropout(&vs.root(), 0.2))
@@ -295,30 +409,32 @@ impl AdvancedBlockchainDataPredictor {
     fn calculate_confidence(&self, prediction: f64) -> f64 {
         let base_confidence = 0.8;
         let usage_factor = 1.0 + (self.user_metrics.usage_level as f64 * 0.04);
-        let contribution_factor = 1.0 + (self.user_metrics.contributions as f64 * 0.03);
-        let historical_accuracy = self.historical_analyzer.get_model_accuracy();
-        
-        (base_confidence * usage_factor * contribution_factor * historical_accuracy).min(1.0)
-    }
-}
-
+/// A struct representing an advanced crypto portfolio optimizer.
 struct AdvancedCryptoPortfolioOptimizer {
+    /// The neural network model for portfolio optimization.
     portfolio_model: nn::Sequential,
+    /// Metrics related to the user.
     user_metrics: UserMetrics,
+    /// The optimizer for training the model.
+    optimizer: Box<dyn nn::Optimizer>,
+    /// Provider for internal data.
+    internal_data: InternalDataProvider,
+    /// Database for research papers.
+    research_db: ResearchPaperDatabase,
+    /// Interface to interact with the Lightning Network.
+    lightning: LightningInterface,
+    /// Interface to interact with Taro assets.
+    taro: TaroInterface,
+    /// Interface to interact with DLC contracts.
+    dlc: DLCInterface,
+    /// Interface to interact with Ordinal inscriptions.
+    ordinals: OrdinalInterface,
     optimizer: Box<dyn nn::Optimizer>,
     internal_data: InternalDataProvider,
     research_db: ResearchPaperDatabase,
     lightning: LightningInterface,
     taro: TaroInterface,
     dlc: DLCInterface,
-    ordinals: OrdinalInterface,
-}
-
-impl AdvancedCryptoPortfolioOptimizer {
-    fn new(user_metrics: UserMetrics, lightning: LightningInterface, taro: TaroInterface, dlc: DLCInterface, ordinals: OrdinalInterface) -> Self {
-        let vs = nn::VarStore::new(Device::Cpu);
-        let portfolio_model = nn::seq()
-            .add(nn::linear(&vs.root(), 130, 256, Default::default()))
             .add(nn::func(|xs| xs.relu()))
             .add(nn::dropout(&vs.root(), 0.2))
             .add(nn::linear(&vs.root(), 256, 128, Default::default()))
@@ -331,7 +447,14 @@ impl AdvancedCryptoPortfolioOptimizer {
         Self {
             portfolio_model,
             user_metrics,
-            optimizer,
+    /// Optimizes the crypto portfolio based on the given data.
+    ///
+    /// # Parameters
+    /// - `portfolio_data`: A slice of f64 values representing the portfolio data.
+    ///
+    /// # Returns
+    /// A result containing the optimized portfolio output or an error.
+    fn optimize_portfolio(&self, portfolio_data: &[f64]) -> Result<MLOutput, MLError> {
             internal_data: InternalDataProvider::new(),
             research_db: ResearchPaperDatabase::new(),
             lightning,
@@ -359,7 +482,7 @@ impl AdvancedCryptoPortfolioOptimizer {
         let on_chain_metrics = self.analyze_on_chain_metrics();
         let lightning_metrics = self.analyze_lightning_network();
         let defi_metrics = self.analyze_defi_metrics();
-        let ordinal_metrics = self.analyze_ordinal_market();
+        let confidence = self.calculate_confidence(&optimized_weights);
         let taro_metrics = self.analyze_taro_assets();
 
         let adjusted_weights = self.adjust_weights(&optimized_weights, &market_trends, &on_chain_metrics, &lightning_metrics, &defi_metrics, &ordinal_metrics, &taro_metrics);
@@ -368,7 +491,11 @@ impl AdvancedCryptoPortfolioOptimizer {
 
         Ok(MLOutput {
             prediction: sharpe_ratio,
-            confidence,
+    /// Applies constraints to the portfolio weights.
+    ///
+    /// # Parameters
+    /// - `weights`: A mutable reference to a vector of portfolio weights.
+    fn apply_constraints(&self, weights: &mut Vec<f64>) {
             additional_info: Some(HashMap::from([
                 ("optimized_weights".to_string(), adjusted_weights),
                 ("expected_return".to_string(), vec![expected_return]),
@@ -405,7 +532,14 @@ impl AdvancedCryptoPortfolioOptimizer {
         // Re-normalize after applying max allocation constraint
         let sum: f64 = weights.iter().sum();
         for w in weights.iter_mut() {
-            *w /= sum;
+    /// Calculates the expected return of the portfolio based on the given weights.
+    ///
+    /// # Parameters
+    /// - `weights`: A slice of f64 values representing the weights of the assets in the portfolio.
+    ///
+    /// # Returns
+    /// The expected return of the portfolio as a f64 value.
+    fn calculate_expected_return(&self, weights: &[f64]) -> f64 {
         }
     }
 
@@ -429,11 +563,20 @@ impl AdvancedCryptoPortfolioOptimizer {
             
             expected_return += weight * asset_return * (1.0 + correlation_factor) * 
                                lightning_factor * taro_factor * dlc_factor * ordinal_factor;
-        }
+    /// Calculates the risk of the portfolio based on the given weights.
+    ///
+    /// # Parameters
+    /// - `weights`: A slice of f64 values representing the portfolio weights.
+    ///
+    /// # Returns
+    /// The calculated risk of the portfolio as a f64 value.
+    fn calculate_portfolio_risk(&self, weights: &[f64]) -> f64 {
 
         // Apply CAPM (Capital Asset Pricing Model) adjustment
         let market_return = self.internal_data.get_market_return();
         let risk_free_rate = self.internal_data.get_risk_free_rate();
+        let portfolio_beta = self.calculate_portfolio_beta(weights);
+        expected_return = risk_free_rate + portfolio_beta * (market_return - risk_free_rate);
         let portfolio_beta = self.calculate_portfolio_beta(weights);
         
         expected_return = risk_free_rate + portfolio_beta * (market_return - risk_free_rate);
@@ -454,33 +597,29 @@ impl AdvancedCryptoPortfolioOptimizer {
             for (j, &w_j) in weights.iter().enumerate() {
                 portfolio_variance += w_i * w_j * covariance_matrix[i][j];
             }
+                portfolio_variance += w_i * w_j * covariance_matrix[i][j];
+            }
         }
 
         // Apply Conditional Value at Risk (CVaR) adjustment
-        let confidence_level = 0.95;
         let historical_returns = self.internal_data.get_historical_returns();
         let portfolio_returns: Vec<f64> = historical_returns.iter()
             .map(|returns| returns.iter().zip(weights).map(|(&r, &w)| r * w).sum())
             .collect();
-        let cvar = self.calculate_cvar(&portfolio_returns, confidence_level);
-
         let combined_risk = (portfolio_variance.sqrt() + cvar) * (1.0 + lightning_risk * 0.1 + taro_risk * 0.05 + 
                              dlc_risk * 0.03 + ordinal_risk * 0.07);
         combined_risk
     }
 
-    fn calculate_portfolio_beta(&self, weights: &[f64]) -> f64 {
-        let asset_betas = self.internal_data.get_asset_betas();
-        weights.iter().zip(asset_betas.iter()).map(|(&w, &b)| w * b).sum()
-    }
+    // Removed duplicate function
 
-    fn calculate_cvar(&self, returns: &[f64], confidence_level: f64) -> f64 {
-        let mut sorted_returns = returns.to_vec();
-        sorted_returns.sort_by(|a, b| a.partial_cmp(b).unwrap());
-        let cutoff_index = ((1.0 - confidence_level) * returns.len() as f64).floor() as usize;
-        sorted_returns[..cutoff_index].iter().sum::<f64>() / cutoff_index as f64
-    }
-
+    /// Calculates the confidence level of the optimized portfolio weights.
+    /// 
+    /// # Parameters
+    /// - `optimized_weights`: A slice of f64 values representing the optimized weights of the assets in the portfolio.
+    /// 
+    /// # Returns
+    /// A confidence score between 0.0 and 1.0.
     fn calculate_confidence(&self, optimized_weights: &[f64]) -> f64 {
         let base_confidence = 0.75;
         let usage_factor = 1.0 + (self.user_metrics.usage_level as f64 * 0.05);
@@ -490,12 +629,31 @@ impl AdvancedCryptoPortfolioOptimizer {
         let lightning_confidence = self.lightning.get_network_confidence();
         let taro_confidence = self.taro.get_protocol_confidence();
         let dlc_confidence = self.dlc.get_contract_confidence();
-        let ordinal_confidence = self.ordinals.get_market_confidence();
+    /// Analyzes market trends based on historical data.
+    ///
+    /// # Returns
+    /// A vector of f64 values representing the trend for each asset.
+    fn analyze_market_trends(&self) -> Vec<f64> {t_market_confidence();
         
         (base_confidence * usage_factor * contribution_factor * diversity_factor * 
          market_sentiment * lightning_confidence * taro_confidence * 
          dlc_confidence * ordinal_confidence).min(1.0)
-    }
+        let historical_data = self.internal_data.get_historical_data();
+        let mut trends = Vec::new();
+
+        for asset in historical_data {
+        let mut trends = Vec::new();
+
+        for asset in historical_data {
+            let trend = self.calculate_trend(asset);
+            trends.push(trend);
+        }
+
+        trendste_trend(asset);
+            trends.push(trend);
+        }
+
+        trends
 
     fn analyze_market_trends(&self) -> Vec<f64> {
         let historical_data = self.internal_data.get_historical_data();
@@ -505,7 +663,14 @@ impl AdvancedCryptoPortfolioOptimizer {
             let trend = self.calculate_trend(asset);
             trends.push(trend);
         }
-
+    /// Calculates the trend of an asset based on its historical data.
+    ///
+    /// # Parameters
+    /// - `asset_data`: A vector of f64 values representing the historical data of the asset.
+    ///
+    /// # Returns
+    /// A f64 value representing the calculated trend.
+    fn calculate_trend(&self, asset_data: Vec<f64>) -> f64 {
         trends
     }
 
@@ -515,7 +680,7 @@ impl AdvancedCryptoPortfolioOptimizer {
 
         for i in window_size..asset_data.len() {
             let window = &asset_data[i - window_size..i];
-            let avg = window.iter().sum::<f64>() / window_size as f64;
+            let avg: f64 = window.iter().sum::<f64>() / window.len() as f64;
             trend += if asset_data[i] > avg { 1.0 } else { -1.0 };
         }
 
@@ -529,7 +694,11 @@ impl AdvancedCryptoPortfolioOptimizer {
         metrics.insert("transaction_volume".to_string(), self.blockchain.get_transaction_volume());
         metrics.insert("mining_difficulty".to_string(), self.blockchain.get_mining_difficulty());
         metrics.insert("mempool_size".to_string(), self.blockchain.get_mempool_size());
-
+    /// Analyzes the metrics of the Lightning Network.
+    ///
+    /// # Returns
+    /// A HashMap containing various metrics of the Lightning Network.
+    fn analyze_lightning_network(&self) -> HashMap<String, f64> {
         metrics
     }
 
@@ -537,7 +706,11 @@ impl AdvancedCryptoPortfolioOptimizer {
         let mut metrics = HashMap::new();
 
         metrics.insert("channel_capacity".to_string(), self.lightning.get_total_channel_capacity());
-        metrics.insert("node_count".to_string(), self.lightning.get_node_count() as f64);
+    /// Analyzes DeFi metrics to provide insights into decentralized finance activities.
+    ///
+    /// # Returns
+    /// A `HashMap` containing various DeFi metrics and their values.
+    fn analyze_defi_metrics(&self) -> HashMap<String, f64> {ing.get_node_count() as f64);
         metrics.insert("payment_volume".to_string(), self.lightning.get_payment_volume());
 
         metrics
@@ -549,10 +722,10 @@ impl AdvancedCryptoPortfolioOptimizer {
         metrics.insert("total_value_locked".to_string(), self.internal_data.get_total_value_locked());
         metrics.insert("yield_farming_returns".to_string(), self.internal_data.get_yield_farming_returns());
         metrics.insert("liquidity_pool_depth".to_string(), self.internal_data.get_liquidity_pool_depth());
-
-        metrics
-    }
-
+    /// Analyzes the Ordinal market to provide insights into Ordinal inscriptions.
+    ///
+    /// # Returns
+    /// A `HashMap` containing various Ordinal market metrics and their values.
     fn analyze_ordinal_market(&self) -> HashMap<String, f64> {
         let mut metrics = HashMap::new();
         metrics.insert("total_inscriptions".to_string(), self.ordinals.get_total_inscriptions());
@@ -560,10 +733,44 @@ impl AdvancedCryptoPortfolioOptimizer {
         metrics.insert("average_inscription_fee".to_string(), self.ordinals.get_average_inscription_fee());
         metrics
     }
+}
+        metrics
+    }
 
     fn analyze_taro_assets(&self) -> HashMap<String, f64> {
         let mut metrics = HashMap::new();
         metrics.insert("total_taro_assets".to_string(), self.taro.get_total_assets());
+        metrics.insert("daily_taro_transactions".to_string(), self.taro.get_daily_transactions());
+        metrics.insert("taro_liquidity".to_string(), self.taro.get_total_liquidity());
+        metrics
+    }
+        let mut metrics = HashMap::new();
+    /// Analyzes Taro assets to provide insights into Taro activities.
+    ///
+    /// # Returns
+    /// A `HashMap` containing various Taro metrics and their values.
+    fn analyze_taro_assets(&self) -> HashMap<String, f64> {lf.ordinals.get_total_inscriptions());
+        metrics.insert("daily_inscription_rate".to_string(), self.ordinals.get_daily_inscription_rate());
+        metrics.insert("average_inscription_fee".to_string(), self.ordinals.get_average_inscription_fee());
+        metrics
+    }
+
+    fn analyze_taro_assets(&self) -> HashMap<String, f64> {
+        let mut metrics = HashMap::new();
+    /// Adjusts the portfolio weights based on various market and on-chain metrics.
+    ///
+    /// # Parameters
+    /// - `weights`: A slice of f64 values representing the weights of the assets in the portfolio.
+    /// - `market_trends`: A slice of f64 values representing the market trends for each asset.
+    /// - `on_chain_metrics`: A `HashMap` containing various on-chain metrics and their values.
+    /// - `lightning_metrics`: A `HashMap` containing various metrics of the Lightning Network.
+    /// - `defi_metrics`: A `HashMap` containing various DeFi metrics and their values.
+    /// - `ordinal_metrics`: A `HashMap` containing various Ordinal market metrics and their values.
+    /// - `taro_metrics`: A `HashMap` containing various Taro asset metrics and their values.
+    ///
+    /// # Returns
+    /// A vector of f64 values representing the adjusted weights of the assets in the portfolio.
+    fn adjust_weights(&self, weights: &[f64], market_trends: &[f64], on_chain_metrics: &HashMap<String, f64>, lightning_metrics: &HashMap<String, f64>, defi_metrics: &HashMap<String, f64>, ordinal_metrics: &HashMap<String, f64>, taro_metrics: &HashMap<String, f64>) -> Vec<f64> {
         metrics.insert("daily_taro_transactions".to_string(), self.taro.get_daily_transactions());
         metrics.insert("taro_liquidity".to_string(), self.taro.get_total_liquidity());
         metrics

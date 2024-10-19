@@ -6,22 +6,17 @@ use bitcoin::{
     util::bip32::{ExtendedPrivKey, ExtendedPubKey},
 };
 use bitcoincore_rpc::{Auth, Client, RpcApi};
-use bitcoin::secp256k1::{Secp256k1, Signature};
-use bitcoin::util::address::Address;
-use bitcoin::hashes::Hash;
-use bitcoin::Transaction;
-use bitcoin::util::bip32::{ExtendedPrivKey, ExtendedPubKey};
+// Removed redundant imports
 use dlc_btc_lib::{Dlc, ...}; // Import necessary modules from the DLC library
 
 pub struct BitcoinWallet {
     client: Client,
     network: Network,
     client: Client,
-}
-
-impl BitcoinModule {
-    pub fn new(network: Network, rpc_url: &str, rpc_user: &str, rpc_pass: &str) -> Result<Self, bitcoincore_rpc::Error> {
-        let auth = Auth::UserPass(rpc_user.to_string(), rpc_pass.to_string());
+pub struct BitcoinWallet {
+    client: Client,
+    network: Network,
+}       let auth = Auth::UserPass(rpc_user.to_string(), rpc_pass.to_string());
         let client = Client::new(rpc_url, auth)?;
         Ok(Self { network, client })
     }

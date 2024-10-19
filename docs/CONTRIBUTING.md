@@ -15,7 +15,10 @@ We welcome contributions to the Anya Core project! This document provides guidel
 9. [Reporting Issues](#reporting-issues)
 10. [Key Areas for Contribution](#key-areas-for-contribution)
 11. [Community](#community)
-[Code of Conduct](CODE_OF_CONDUCT.md) to foster an open and welcoming environment.
+
+## Code of Conduct
+
+Please read our [Code of Conduct](CODE_OF_CONDUCT.md) to foster an open and welcoming environment.
 
 ## Getting Started
 

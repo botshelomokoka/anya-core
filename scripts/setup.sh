@@ -13,23 +13,22 @@ mkdir -p "$CONFIG_DIR"
 
 # Function to log messages
 log() {
-    echo "[$(date +'%Y-%m-%d %H:%M:%S')] $*" | tee -a "$LOG_FILE"
+    local DATE_FORMAT="+%Y-%m-%d %H:%M:%S"
+    echo "[$(date "$DATE_FORMAT")] $*" | tee -a "$LOG_FILE"
 }
 
 # Function to check if a command exists
-command_exists() {
-    command -v "$1" >/dev/null 2>&1
-}
+command_exists() { command -v "$1" &> /dev/null; }
 
 # Function to save configuration
 save_config() {
     cat > "$CONFIG_FILE" <<EOF
+save_config() {
+    cat > "$CONFIG_FILE" << "EOF"
 USER_ROLE=$USER_ROLE
 ENVIRONMENT=$ENVIRONMENT
 EOF
-}
-
-# Function to load configuration
+} Function to load configuration
 load_config() {
     if [ -f "$CONFIG_FILE" ]; then
         # shellcheck source=/dev/null
@@ -44,6 +43,7 @@ load_config
 if [ -z "${USER_ROLE:-}" ]; then
     log "Select your user role:"
     select USER_ROLE in "developer" "user" "owner"; do
+        PS3="Please enter your choice: "
         case $USER_ROLE in
             developer|user|owner) break ;;
             *)                    log "Invalid selection. Please try again." ;;
@@ -58,12 +58,13 @@ if [ -z "${ENVIRONMENT:-}" ]; then
     elif [ "$USER_ROLE" = "owner" ]; then
         ENVIRONMENT="all"
     else
-        log "Select environment:"
+        PS3="Please select the environment: "
         select ENVIRONMENT in "testnet" "live"; do
             case $ENVIRONMENT in
                 testnet|live) break ;;
                 *)            log "Invalid selection. Please try again." ;;
             esac
+        doneesac
         done
     fi
 fi
@@ -76,7 +77,7 @@ log "Setting up for $USER_ROLE in $ENVIRONMENT environment"
 # Install Rust if not already installed
 if ! command -v rustc &> /dev/null
 then
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+    source "$HOME/.cargo/env"-tlsv1.2 -sSf https://sh.rustup.rs | sh
     source $HOME/.cargo/env
 fi
 
@@ -88,9 +89,11 @@ sudo apt-get install -y build-essential pkg-config libssl-dev
 cargo build --release
 
 # Set up environment variables
-echo "export ANYA_LOG_LEVEL=info"      >> ~/.bashrc
-echo "export ANYA_NETWORK_TYPE=testnet" >> ~/.bashrc
-
+{
+    echo "export ANYA_LOG_LEVEL=info"
+    echo "export ANYA_NETWORK_TYPE=testnet"
+# Source the updated bashrc
+source "~/.bashrc"
 # Source the updated bashrc
 source ~/.bashrc
 
