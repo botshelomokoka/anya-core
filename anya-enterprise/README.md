@@ -5,6 +5,7 @@ Anya Enterprise is a commercial extension of Anya Core, providing advanced featu
 ## Features
 
 All features from Anya Core, plus:
+
 - Advanced analytics
 - High-volume trading capabilities
 - Enterprise-grade ML models
@@ -22,4 +23,3 @@ All features from Anya Core, plus:
 ## License
 
 This project is licensed under a commercial license. Please contact for details.
-

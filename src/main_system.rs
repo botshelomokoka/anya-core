@@ -171,14 +171,9 @@ impl System {
         let rpc_url = env::var("BITCOIN_RPC_URL").expect("BITCOIN_RPC_URL must be set");
         let rpc_user = env::var("BITCOIN_RPC_USER").expect("BITCOIN_RPC_USER must be set");
         let rpc_pass = env::var("BITCOIN_RPC_PASS").expect("BITCOIN_RPC_PASS must be set");
-        BitcoinRpcClient::new(&rpc_url, rpc_user, rpc_pass).expect("Failed to connect to Bitcoin RPC")
-        let _lock = match self.lock.lock() {
-            Ok(lock) => lock,
-            Err(poisoned) => {
-                error!("Lock poisoned: {:?}", poisoned);
-                poisoned.into_inner()
-            }
-        };
+        let client = BitcoinRpcClient::new(&rpc_url, rpc_user, rpc_pass).expect("Failed to connect to Bitcoin RPC");
+        client
+    }
 
     async fn update_state(&mut self) {
         let _lock = self.lock.lock().unwrap();

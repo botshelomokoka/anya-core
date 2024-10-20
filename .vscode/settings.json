@@ -3,5 +3,6 @@
     "git.allowForcePush": true,
     "git.allowNoVerifyCommit": false,
     "git.alwaysShowStagedChangesResourceGroup": true,
-    "rust-tests-bin.display.showCodeLens": false
+    "rust-tests-bin.display.showCodeLens": false,
+    "docwriter.style": "RustDoc"
 }
