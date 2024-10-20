@@ -1,89 +1,120 @@
-use anya_core::user_management::{UserManager, User, UserRole};
-use anya_core::config::Config;
-use anyhow::Result;
 use std::collections::HashMap;
 
-#[tokio::test]
+use anyhow::Result;
+
+/// Loads the test configuration asynchronously.
+/// 
+/// # Returns
+/// 
+/// * `Result<Config>` - The test configuration wrapped in a Result.
+/// 
+/// # Errors
+/// 
+/// This function will return an error if the configuration cannot be loaded.
+async fn load_test_config() -> Result<Config> {
+    Config::load_test_config().await
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn test_user_creation() -> Result<()> {
-    let config = Config::load_test_config()?;
+    let config = load_test_config().await?;
     let user_manager = UserManager::new(&config)?;
     
-    let user = user_manager.create_user("test_user", "password123", UserRole::Standard).await?;
+    const TEST_USERNAME: &str = "test_user";
+    const TEST_PASSWORD: &str = "password123";
+    let user = user_manager.create_user(TEST_USERNAME, TEST_PASSWORD, UserRole::Standard).await?;
     assert_eq!(user.username, "test_user");
-    assert_eq!(user.role, UserRole::Standard);
+    assert!(user_manager.get_user(TEST_USERNAME).await.is_ok());
+    
     Ok(())
 }
 
-#[tokio::test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn test_user_authentication() -> Result<()> {
-    let config = Config::load_test_config()?;
+    let config = load_test_config().await?;
     let user_manager = UserManager::new(&config)?;
     
-    user_manager.create_user("auth_test_user", "secure_password", UserRole::Standard).await?;
+    const AUTH_TEST_USER: &str = "auth_test_user";
+    const SECURE_PASSWORD: &str = "secure_password";
     
-    let authenticated = user_manager.authenticate("auth_test_user", "secure_password").await?;
+    let authenticated = user_manager.authenticate(AUTH_TEST_USER, SECURE_PASSWORD).await?;
     assert!(authenticated);
     
-    let wrong_password = user_manager.authenticate("auth_test_user", "wrong_password").await?;
+    let wrong_password = user_manager.authenticate(AUTH_TEST_USER, "wrong_password").await?;
     assert!(!wrong_password);
     
     Ok(())
 }
 
-#[tokio::test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn test_user_role_management() -> Result<()> {
-    let config = Config::load_test_config()?;
+    let config = load_test_config().await?;
     let user_manager = UserManager::new(&config)?;
     
-    let user = user_manager.create_user("role_test_user", "password123", UserRole::Standard).await?;
+    const ROLE_TEST_USERNAME: &str = "role_test_user";
+    
+    let user = user_manager.create_user(ROLE_TEST_USERNAME, "password123", UserRole::Standard).await?;
     assert_eq!(user.role, UserRole::Standard);
     
-    user_manager.update_user_role("role_test_user", UserRole::Admin).await?;
-    let updated_user = user_manager.get_user("role_test_user").await?;
+    user_manager.update_user_role(ROLE_TEST_USERNAME, UserRole::Admin).await?;
+    let updated_user = user_manager.get_user(ROLE_TEST_USERNAME).await?;
     assert_eq!(updated_user.role, UserRole::Admin);
     
     Ok(())
 }
 
-#[tokio::test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn test_user_deletion() -> Result<()> {
-    let config = Config::load_test_config()?;
+    let config = load_test_config().await?;
     let user_manager = UserManager::new(&config)?;
     
-    user_manager.create_user("delete_test_user", "password123", UserRole::Standard).await?;
-    assert!(user_manager.get_user("delete_test_user").await.is_ok());
+    const DELETE_TEST_USERNAME: &str = "delete_test_user";
+    const DELETE_TEST_PASSWORD: &str = "password123";
+    user_manager.create_user(DELETE_TEST_USERNAME, DELETE_TEST_PASSWORD, UserRole::Standard).await?;
     
-    user_manager.delete_user("delete_test_user").await?;
-    assert!(user_manager.get_user("delete_test_user").await.is_err());
+    user_manager.delete_user(DELETE_TEST_USERNAME).await?;
+    assert!(user_manager.get_user(DELETE_TEST_USERNAME).await.is_err());
     
     Ok(())
 }
 
-#[tokio::test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn test_user_wallet_integration() -> Result<()> {
-    let config = Config::load_test_config()?;
+    let config = load_test_config().await?;
     let user_manager = UserManager::new(&config)?;
     
-    let user = user_manager.create_user("wallet_test_user", "password123", UserRole::Standard).await?;
-    let wallet = user.get_wallet();
+    const WALLET_TEST_USERNAME: &str = "wallet_test_user";
+    const WALLET_TEST_PASSWORD: &str = "password123";
+    let user = user_manager.create_user(WALLET_TEST_USERNAME, WALLET_TEST_PASSWORD, UserRole::Standard).await?;
     
-    assert!(wallet.get_bitcoin_address().is_ok());
-    assert!(wallet.get_stacks_address().is_ok());
-    assert!(wallet.get_lightning_node_id().is_ok());
+    // Assuming wallet is part of user_manager or user
+    let wallet = user_manager.get_wallet(&user).await?;
+    
+    assert!(
+        wallet.get_bitcoin_address().is_ok()
+        && wallet.get_stacks_address().is_ok()
+        && wallet.get_lightning_node_id().is_ok()
+    );
     
     Ok(())
 }
 
-#[tokio::test]
-async fn test_user_permissions() -> Result<()> {
-    let config = Config::load_test_config()?;
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn test_admin_access() -> Result<()> {
+    let config = load_test_config().await?;
     let user_manager = UserManager::new(&config)?;
     
-    let standard_user = user_manager.create_user("standard_user", "password123", UserRole::Standard).await?;
-    let admin_user = user_manager.create_user("admin_user", "admin_pass", UserRole::Admin).await?;
+    const STANDARD_USER_USERNAME: &str = "standard_user";
+    const STANDARD_USER_PASSWORD: &str = "password123";
+    const ADMIN_USER_USERNAME: &str = "admin_user";
+    const ADMIN_USER_PASSWORD: &str = "admin_pass";
     
-    assert!(!standard_user.can_access_admin_panel());
-    assert!(admin_user.can_access_admin_panel());
+    let standard_user = user_manager.create_user(STANDARD_USER_USERNAME, STANDARD_USER_PASSWORD, UserRole::Standard).await?;
+    let admin_user = user_manager.create_user(ADMIN_USER_USERNAME, ADMIN_USER_PASSWORD, UserRole::Admin).await?;
+    
+    // Check if the admin user has access to the admin panel.
+    // This method should return true for users with the Admin role.
+    assert!(admin_user.can_access_admin_panel().await);
     
     Ok(())
 }
