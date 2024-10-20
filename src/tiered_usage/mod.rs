@@ -1,6 +1,5 @@
-use crate::user::User;
 use std::collections::HashMap; // Ensure HashMap is imported
-use crate::user::{UserId, FeatureAccess}; // Ensure UserId and FeatureAccess are imported
+use crate::user::{User, UserId, FeatureAccess}; // Ensure User, UserId, and FeatureAccess are imported
 
 struct TieredUsage {
     user_metrics_map: HashMap<UserId, UserMetrics>,
@@ -13,18 +12,16 @@ impl TieredUsage {
         }
     }
 
-    fn update_metrics(&mut self, user: &User, action: UserAction) {
-        let user_id = user.id();
-        let metrics = self.user_metrics_map.entry(user_id).or_insert_with(UserMetrics::new);
-        metrics.update(action);
-    }
-
-    /// Returns the feature access level for a given user based on their metrics.
-    fn get_feature_access(&self, user: &User) -> FeatureAccess {
-        let user_id = user.id();
-        let metrics = self.user_metrics_map.get(&user_id).unwrap_or(&UserMetrics::default());
-        metrics.calculate_feature_access()
-    }
+    /// Updates the metrics for a given user based on the action performed.
+    ///
+    /// # Parameters
+    /// - `user`: A reference to the user whose metrics are to be updated.
+    /// - `action`: The action performed by the user that affects the metrics.
+    fn update_metrics(&mut self, user_ref: &User, action: UserAction) {
+        let user_id = user_ref.id();
+    let metrics = self.user_metrics_map.entry(user_id).or_insert_with(UserMetrics::new);
+    metrics.update(action);
+}
 }
 
 enum UserAction {
@@ -40,6 +37,9 @@ struct UserMetrics {
 }
 
 impl UserMetrics {
+    const TRANSACTION_MULTIPLIER: f32 = 0.1;
+    const WALLET_INTERACTION_MULTIPLIER: f32 = 0.05;
+
     fn new() -> Self {
         UserMetrics {
             transaction_count: 0,
@@ -51,36 +51,45 @@ impl UserMetrics {
         match action {
             UserAction::Transaction => self.transaction_count += 1,
             UserAction::WalletInteraction => self.wallet_interactions += 1,
-            // Handle other actions...
-        }
-    }
-
-    const TRANSACTION_MULTIPLIER: f32 = 0.1;
-    const WALLET_INTERACTION_MULTIPLIER: f32 = 0.05;
-    /// Calculates the feature access level based on user metrics.
+            // Handle other actions explicitly
+            _ => {
+                // Default case for unhandled actions
+                println!("Unhandled user action: {:?}", action);
+            }
     fn calculate_feature_access(&self) -> FeatureAccess {
         // Calculate based on metrics
-        let advanced_feature_percentage = (self.transaction_count as f32 * 0.1 +
-                                           self.wallet_interactions as f32 * 0.05)
-                                           .min(100.0);
+        let advanced_feature_access_percentage = (self.transaction_count as f32 * Self::TRANSACTION_MULTIPLIER +
+                                                  self.wallet_interactions as f32 * Self::WALLET_INTERACTION_MULTIPLIER)
+                                                  .min(100.0);
         
+        FeatureAccess {
+            advanced_feature_access_percentage,
+        }
+    }   
         FeatureAccess {
             advanced_feature_percentage,
         }
-    }   }
     }
 }
 impl Default for UserMetrics {
     /// Provides a default instance of `UserMetrics` with initial values.
     fn default() -> Self {
-        Self::new()
-    }
-}   }
+struct FeatureAccess {
+    advanced_feature_access_percentage: f32,
+    // Other access-related fields...
 }
 
-struct FeatureAccess {
-    advanced_feature_percentage: f32,
-    // Other access-related fields...
-}   advanced_feature_percentage: f32,
-    // Other access-related fields...
+impl Default for FeatureAccess {
+    fn default() -> Self {
+        FeatureAccess {
+            advanced_feature_access_percentage: 0.0,
+impl Default for FeatureAccess {
+    fn default() -> Self {
+        FeatureAccess {
+            advanced_feature_percentage: 0.0,
+            // Initialize other fields with default values...
+        }
+    }
 }
+
+// Removed the incomplete second implementation of calculate_feature_access

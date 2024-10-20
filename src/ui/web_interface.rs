@@ -1,6 +1,4 @@
-// src/ui/mod.rs
-pub mod web_interface;
-
+// src/ui/web_interface.rs
 use yew::prelude::{Component, ComponentLink, Html, ShouldRender, html};
 
 pub struct WebInterface {
