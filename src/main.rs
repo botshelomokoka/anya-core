@@ -1,3 +1,5 @@
+/// The `initialize_modules` function initializes various modules related to networking, machine
+/// learning, cryptocurrencies, analytics, and trading in a Rust application.
 mod network;
 mod ml;
 mod bitcoin;
