@@ -1,0 +1,32 @@
+name: Nightly Release
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs every day at midnight UTC
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: nightly
+        profile: minimal
+        override: true
+
+    - name: Build the project
+      run: cargo build --release
+
+    - name: Run tests
+      run: cargo test --release
+
+    - name: Upload release assets
+      uses: actions/upload-artifact@v2
+      with:
+        name: anya-core-nightly-build
+        path: target/release/
