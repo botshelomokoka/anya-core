@@ -15,52 +15,59 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
 
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.8'
+      - name: Install latest nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+          components: rustfmt, clippy
 
-    - name: Install Python dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.8'
 
-    - name: Set up Rust
-      uses: actions-rs/toolchain@v1.0.9
-      with:
-        toolchain: stable
-        override: true
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: Build Rust project
-      run: cargo build --verbose
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
 
-    - name: Run Rust tests
-      run: cargo test --verbose
+      - name: Build Rust project
+        run: cargo build --verbose
 
-    - name: Checkout sub-repo
-      run: |
-        git clone https://github.com/your-org/anya-enterprise.git
-        cd anya-enterprise
+      - name: Run Rust tests
+        run: cargo test --verbose
 
-    - name: Install Python dependencies for sub-repo
-      run: |
-        cd anya-enterprise
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Checkout sub-repo
+        run: |
+          git clone https://github.com/botshelomokoka/anya-enterprise.git
+          cd anya-enterprise
 
-    - name: Build Rust project in sub-repo
-      run: |
-        cd anya-enterprise
-        cargo build --verbose
+      - name: Install Python dependencies for sub-repo
+        run: |
+          cd anya-enterprise
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: Run Rust tests in sub-repo
-      run: |
-        cd anya-enterprise
-        cargo test --verbose
+      - name: Build Rust project in sub-repo
+        run: |
+          cd anya-enterprise
+          cargo build --verbose
 
-    - name: Run Python tests in sub-repo
-      run: |
-        cd anya-enterprise
-        python -m unittest discover
+      - name: Run Rust tests in sub-repo
+        run: |
+          cd anya-enterprise
+          cargo test --verbose
+
+      - name: Run Python tests in sub-repo
+        run: |
+          cd anya-enterprise
+          python -m unittest discover
