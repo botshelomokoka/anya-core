@@ -4,5 +4,6 @@
     "git.allowNoVerifyCommit": false,
     "git.alwaysShowStagedChangesResourceGroup": true,
     "rust-tests-bin.display.showCodeLens": false,
-    "docwriter.style": "RustDoc"
+    "docwriter.style": "RustDoc",
+    "rust-analyzer.checkOnSave": false
 }
