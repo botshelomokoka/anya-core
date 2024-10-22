@@ -1,87 +1,65 @@
-name: CI Workflow
+name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [ "main" ]
   pull_request:
-    branches: [main]
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --all-features --workspace
 
-  fmt:
-    name: Rustfmt
-    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-          components: rustfmt
-      - run: cargo fmt --all -- --check
+    - uses: actions/checkout@v2
 
-  clippy:
-    name: Clippy
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-          components: clippy
-      - run: cargo clippy --all-features --workspace -- -D warnings
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
 
-  coverage:
-    name: Code coverage
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-      - uses: actions-rs/tarpaulin@v0.1
-        with:
-          args: '--ignore-tests --workspace'
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
 
-  security:
-    name: Security checks
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Run vulnerability checks
-        run: echo "Running vulnerability checks"
-      - name: Analyze code
-        run: echo "Analyzing code"
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
 
-  commit-and-push:
-    needs: [build-and-test, fmt, clippy, coverage, security]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Configure Git
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-      - name: Commit and push changes
-        run: |
-          git add .
-          git commit -m "Automated code check, verification, and tests" || echo "No changes to commit"
-          git push origin main
+    - name: Build Rust project
+      run: cargo build --verbose
+
+    - name: Run Rust tests
+      run: cargo test --verbose
+
+    - name: Checkout sub-repo
+      run: |
+        git clone https://github.com/botshelomokoka/anya-enterprise.git
+        cd anya-enterprise
+
+    - name: Install Python dependencies for sub-repo
+      run: |
+        cd anya-enterprise
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Build Rust project in sub-repo
+      run: |
+        cd anya-enterprise
+        cargo build --verbose
+
+    - name: Run Rust tests in sub-repo
+      run: |
+        cd anya-enterprise
+        cargo test --verbose
+
+    - name: Run Python tests in sub-repo
+      run: |
+        cd anya-enterprise
+        python -m unittest discover

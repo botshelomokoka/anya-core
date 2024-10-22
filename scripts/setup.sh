@@ -23,12 +23,12 @@ command_exists() { command -v "$1" &> /dev/null; }
 # Function to save configuration
 save_config() {
     cat > "$CONFIG_FILE" <<EOF
-save_config() {
-    cat > "$CONFIG_FILE" << "EOF"
 USER_ROLE=$USER_ROLE
 ENVIRONMENT=$ENVIRONMENT
 EOF
-} Function to load configuration
+}
+
+# Function to load configuration
 load_config() {
     if [ -f "$CONFIG_FILE" ]; then
         # shellcheck source=/dev/null
@@ -64,7 +64,6 @@ if [ -z "${ENVIRONMENT:-}" ]; then
                 testnet|live) break ;;
                 *)            log "Invalid selection. Please try again." ;;
             esac
-        doneesac
         done
     fi
 fi
@@ -77,7 +76,7 @@ log "Setting up for $USER_ROLE in $ENVIRONMENT environment"
 # Install Rust if not already installed
 if ! command -v rustc &> /dev/null
 then
-    source "$HOME/.cargo/env"-tlsv1.2 -sSf https://sh.rustup.rs | sh
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
     source $HOME/.cargo/env
 fi
 
@@ -91,10 +90,10 @@ cargo build --release
 # Set up environment variables
 {
     echo "export ANYA_LOG_LEVEL=info"
-    echo "export ANYA_NETWORK_TYPE=testnet"
-# Source the updated bashrc
-source "~/.bashrc"
+    echo "export ANYA_NETWORK_TYPE=$ENVIRONMENT"
+} >> ~/.bashrc
+
 # Source the updated bashrc
 source ~/.bashrc
 
-echo "Anya Core setup complete!"
+log "Anya Core setup complete!"
