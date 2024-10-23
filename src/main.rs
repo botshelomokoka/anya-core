@@ -12,8 +12,8 @@ mod gorules;
 mod ml_logic;
 mod ml;
 mod ml_core;
-
-use log::{info, error};
+mod data;
+use log::{info, error};, error};
 use log::info;
 
 use log::{info, error};
@@ -103,6 +103,11 @@ fn main() {
     ml_logic::initialize_modules();
     ml::initialize_modules();
     ml_core::initialize_modules();
+
+    // Process transaction data
+    if let Err(e) = ml_logic::process_transaction_data("path/to/transaction_data.json") {
+        eprintln!("Error processing transaction data: {}", e);
+    }
 }
 
 fn run() -> Result<(), Box<dyn Error>> {
