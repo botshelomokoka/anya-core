@@ -8,6 +8,13 @@ mod bitcoin;
 mod lightning;
 mod dlc;
 mod stacks;
+mod gorules;
+mod ml_logic;
+mod ml;
+mod ml_core;
+
+use log::{info, error};
+use log::info;
 
 use log::{info, error};
 use architecture::{PluginManager, HexagonalArchitecture};
@@ -42,25 +49,60 @@ impl Component for App {
         false
     }
 
-    fn view(&self) -> Html {
-        html! {
-            <WebInterface />
-        }
+fn main() {
+    // Initialize GoRules
+    if let Err(e) = gorules::init_gorules("path/to/config") {
+        eprintln!("Error initializing GoRules: {}", e);
+        return;
     }
+
+    // Load business rules
+    if let Err(e) = gorules::load_rules("path/to/rules.grl") {
+        eprintln!("Error loading rules: {}", e);
+        return;
+    }
+
+    // Execute a rule
+    if let Err(e) = gorules::execute_rule("example_rule") {
+        eprintln!("Error executing rule: {}", e);
+    } else {
+        println!("Rule executed successfully");
+    }
+
+    // Initialize modules
+    ml_logic::initialize_modules();
+    ml::initialize_modules();
+    ml_core::initialize_modules();
+}   }
+
+    // Initialize modules
+    ml_logic::initialize_modules();
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
-    yew::start_app::<App>();
-
-    env_logger::init();
-    info!("Anya Core - Decentralized AI Assistant Framework");
-
-    if let Err(e) = run() {
-        error!("Application error: {}", e);
-        std::process::exit(1);
+fn main() {
+    // Initialize GoRules
+    if let Err(e) = gorules::init_gorules("path/to/config") {
+        eprintln!("Error initializing GoRules: {}", e);
+        return;
     }
 
-    Ok(())
+    // Load business rules
+    if let Err(e) = gorules::load_rules("path/to/rules.grl") {
+        eprintln!("Error loading rules: {}", e);
+        return;
+    }
+
+    // Execute a rule
+    if let Err(e) = gorules::execute_rule("example_rule") {
+        eprintln!("Error executing rule: {}", e);
+    } else {
+        println!("Rule executed successfully");
+    }
+
+    // Initialize modules
+    ml_logic::initialize_modules();
+    ml::initialize_modules();
+    ml_core::initialize_modules();
 }
 
 fn run() -> Result<(), Box<dyn Error>> {
