@@ -8,6 +8,7 @@ mod dlc;
 mod stacks;
 mod advanced_analytics;
 mod high_volume_trading;
+mod gorules;
 
 use log::info;
 
@@ -25,7 +26,20 @@ fn initialize_modules() {
 fn main() {
     env_logger::init();
     info!("Anya Enterprise - Advanced Decentralized AI Assistant Framework");
+    // Initialize GoRules
+    if let Err(e) = gorules::init_gorules("path/to/config") {
+        eprintln!("Error initializing GoRules: {}", e);
+        return;
+    }
 
+    // Execute a rule
+    if let Err(e) = gorules::execute_rule("example_rule") {
+        eprintln!("Error executing rule: {}", e);
+    } else {
+        println!("Rule executed successfully");
+    }
+
+    // Initialize modules
     // Initialize modules
     initialize_modules();
 
