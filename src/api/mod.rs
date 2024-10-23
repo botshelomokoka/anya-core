@@ -1,14 +1,14 @@
-use actix_web::{web, App, HttpServer, Responder, HttpResponse, HttpRequest};
+use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use serde::Serialize;
-use crate::ml::{MLModel, MLInput, MLOutput};
-use crate::ai::AIModule;
 use std::sync::Arc;
 use tokio::sync::Mutex;
+use crate::ai::AIModule;
+use crate::ml::{MLInput, MLModel, MLOutput};
 use crate::rate_limiter::RateLimiter;
-
+// Removed duplicate use statement
 async fn execute_high_volume_trade(
     data: web::Data<HighVolumeTrading>,
-    ai_module: web::Data<Arc<Mutex<AIModule>>>
+    ai_module: web::Data<Arc<Mutex<AIModule>>>,
 ) -> impl Responder {
     let trade_params = TradeParams {
         asset: data.asset.clone(),
@@ -23,20 +23,29 @@ async fn execute_high_volume_trade(
         // Add other relevant input data
     };
     
-    let mut ai_module = ai_module.lock().await;
-    let prediction = ai_module.predict(&ml_input).await;
-    let training_data = vec![ml_input];
-    if let Err(e) = ai_module.train(&training_data).await {
-        log::error!("Error training ML model: {}", e);
+    let prediction;
+    {
+        let mut ai_module = ai_module.lock().await;
+        prediction = ai_module.predict(&ml_input).await;
     }
-    let prediction_result = prediction;
     
-    match prediction_result {
+    let training_data = vec![ml_input];
+    {
+        let mut ai_module = ai_module.lock().await;
+        if let Err(e) = ai_module.train(&training_data).await {
+            log::error!("Error training ML model: {}", e);
+        }
+    }
+    
+    match prediction {
         Ok(prediction) => log::info!("ML prediction for trade: {:?}", prediction),
         Err(e) => log::error!("Error during ML prediction: {}", e),
     }
     
-    HttpResponse::Ok().json(trade_params)
+    match prediction {
+        Ok(prediction) => HttpResponse::Ok().json(prediction),
+        Err(e) => HttpResponse::InternalServerError().body(format!("Error during ML prediction: {}", e)),
+    }
 }
 
 #[derive(Serialize, Clone)]
@@ -71,13 +80,53 @@ pub async fn start_api_server(port: u16) -> std::io::Result<()> {
     .bind(("127.0.0.1", port))?
     .run()
     .await
-<<<<<<< HEAD
+// anya-enterprise/src/api.rs
+use actix_web::{get, post, web, App, HttpServer, Responder};
+use serde::{Serialize, Deserialize};
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Transaction {
+    amount: f64,
+    flagged: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Account {
+    balance: f64,
+    alert: bool,
+}
+
+#[post("/transaction")]
+async fn create_transaction(transaction: web::Json<Transaction>) -> impl Responder {
+    // Process transaction
+    web::Json(transaction.into_inner())
+}
+
+#[get("/account/{id}")]
+async fn get_account(web::Path(id): web::Path<u32>) -> impl Responder {
+    // Retrieve account by ID
+    web::Json(Account {
+        balance: 100.0,
+        alert: false,
+    })
+}
+
+#[actix_web::main]
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    HttpServer::new(|| {
+        App::new()
+            .service(create_transaction)
+            .service(get_account)
+    })
+    .bind("127.0.0.1:8080")?
+    .run()
+    .await
 }
 
 struct ApiHandler {
     rate_limiter: Arc<RateLimiter>,
 }
-
 impl ApiHandler {
     pub fn new(rate_limiter: Arc<RateLimiter>) -> Self {
         ApiHandler { rate_limiter }
@@ -92,12 +141,12 @@ impl ApiHandler {
 
     async fn is_rate_limited(&self, req: &HttpRequest) -> bool {
         let identifier = self.get_identifier(req).await;
-        self.rate_limiter.is_limited(&identifier).await
-    }
-
     fn rate_limit_exceeded_response(&self) -> HttpResponse {
-        HttpResponse::TooManyRequests().json({
+        HttpResponse::TooManyRequests().json(serde_json::json!({
             "error": "Rate limit exceeded",
+            "retry_after": 60 // Suggest retry after 60 seconds
+        }))
+    }       "error": "Rate limit exceeded",
             "retry_after": 60 // Suggest retry after 60 seconds
         })
     }
@@ -137,9 +186,7 @@ async fn get_advanced_analytics(req: HttpRequest, body: web::Bytes) -> impl Resp
 
 pub fn config(cfg: &mut web::ServiceConfig) {
     let api_handler = web::Data::new(ApiHandler::new(Arc::new(RateLimiter::new())));
-    cfg.app_data(api_handler.clone())
+    let api_handler = web::Data::new(ApiHandler::new(Arc::new(RateLimiter::new(/* Add required parameters here */))));
         .route("/analytics", web::post().to(rate_limited_endpoint!(get_advanced_analytics)))
         // Add other routes here, wrapped with rate_limited_endpoint! macro
-=======
->>>>>>> 1b4f7ce (Align project structure with updated architecture)
 }

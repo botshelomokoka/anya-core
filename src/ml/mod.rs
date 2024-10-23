@@ -1,10 +1,32 @@
+mod dao_rules;
+mod data_processing;
 mod federated_learning;
-mod bitcoin_models;
+mod mlfee;
+mod system_evaluation;
+mod gorules;
 
 pub use federated_learning::{FederatedLearning, FederatedLearningModel, setup_federated_learning};
 pub use bitcoin_models::{BitcoinPricePredictor, TransactionVolumeForecaster, RiskAssessor};
+use gorules::{init_gorules, execute_rule};
+use log::info;
 
-use log::{info, error};
+pub fn initialize_modules() {
+    // Initialize GoRules
+    if let Err(e) = init_gorules("path/to/config") {
+        eprintln!("Error initializing GoRules: {}", e);
+        return;
+    }
+
+    info!("Modules initialized successfully");
+}
+
+pub fn execute_business_logic(rule: &str) {
+    // Execute a business rule using GoRules
+    match execute_rule(rule) {
+        Ok(_) => info!("Rule executed successfully"),
+        Err(e) => eprintln!("Error executing rule: {}", e),
+    }
+}
 use serde::{Serialize, Deserialize};
 use thiserror::Error;
 use ndarray::{Array1, Array2};
