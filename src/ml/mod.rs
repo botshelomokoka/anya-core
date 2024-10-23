@@ -4,6 +4,8 @@ mod federated_learning;
 mod mlfee;
 mod system_evaluation;
 mod gorules;
+mod bitcoin_models;
+mod data;
 
 pub use federated_learning::{FederatedLearning, FederatedLearningModel, setup_federated_learning};
 pub use bitcoin_models::{BitcoinPricePredictor, TransactionVolumeForecaster, RiskAssessor};
@@ -26,6 +28,11 @@ pub fn execute_business_logic(rule: &str) {
         Ok(_) => info!("Rule executed successfully"),
         Err(e) => eprintln!("Error executing rule: {}", e),
     }
+}
+
+pub fn process_transaction_data(file_path: &str) -> Result<(), String> {
+    let data = data::load_data(file_path)?;
+    data::process_data(data)
 }
 use serde::{Serialize, Deserialize};
 use thiserror::Error;
@@ -83,6 +90,32 @@ impl InternalAIEngine {
             performance_history: Vec::new(),
             ema: ExponentialMovingAverage::new(14).unwrap(),
             rsi: RelativeStrengthIndex::new(14).unwrap(),
+        }        mod dao_rules;
+        mod data_processing;
+        mod federated_learning;
+        mod mlfee;
+        mod system_evaluation;
+        mod gorules;
+        
+        use gorules::{init_gorules, execute_rule};
+        use log::info;
+        
+        pub fn initialize_modules() {
+            // Initialize GoRules
+            if let Err(e) = init_gorules("path/to/config") {
+                eprintln!("Error initializing GoRules: {}", e);
+                return;
+            }
+        
+            info!("Modules initialized successfully");
+        }
+        
+        pub fn execute_business_logic(rule: &str) {
+            // Execute a business rule using GoRules
+            match execute_rule(rule) {
+                Ok(_) => info!("Rule executed successfully"),
+                Err(e) => eprintln!("Error executing rule: {}", e),
+            }
         }
     }
 
