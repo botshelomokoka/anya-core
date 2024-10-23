@@ -10,12 +10,14 @@ license = "Commercial"
 publish = false
 
 [dependencies]
+zen-engine = "0"
 anya-core = { path = "../anya-core" }
 tokio = { version = "1.28", features = ["full"] }
 slog = "2.7"
 slog-term = "2.9"
 config = "0.13"
 thiserror = "1.0"
+libc = "0.2"  # Add libc for FFI
 log = "0.4"
 env_logger = "0.10"
 serde = { version = "1.0", features = ["derive"] }
