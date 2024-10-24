@@ -1,79 +1,33 @@
-cargo-features = ["edition2024"]
-
 [package]
-name = "anya-core"
+name = "anya"
 version = "0.1.0"
-edition = "2024"
-authors = ["Anya Core Contributors"]
-description = "A decentralized AI assistant framework (Open Source Edition)"
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/anya-core/anya-core"
+edition = "2021"
 
 [workspace]
 members = [
     "anya-core",
-    "anya-network",
-    "anya-ai",
-    "anya-cli"
+    "anya-enterprise",
+    "src",
 ]
 
 [dependencies]
-zen-engine = "0"
-# Async runtime and networking
-tokio = { version = "*", features = ["full", "test-util"] }
-libp2p = "*"
-
-# Blockchain and cryptocurrencies
-bitcoin = { version = "*", features = ["rand"] }
-lightning = "*"
-stacks-rpc-client = "*"
+log = "0.4"
+tokio = { version = "1", features = ["full"] }
+actix-web = "4"
+yew = { version = "0.18", features = ["csr"] }
+# Add other dependencies as needed
+serde = "1.0"
+serde_json = "1.0"
+web5 = { git = "https://github.com/TBD54566975/web5-rust", branch = "main" }
 rust-dlc = { git = "https://github.com/p2pderivatives/rust-dlc", branch = "main" }
 bitcoincore-rpc = "*"
-
-# Web and UI
-yew = "*"
-
-# Cryptography and security
 bulletproofs = "*"
 did-key = "*"
 verifiable-credentials = "*"
-
-# Logging and configuration
 slog = "*"
 slog-term = "*"
-config = "*"
-log = "*"
-env_logger = "*"
-
-# Serialization and error handling
-serde = { version = "*", features = ["derive"] }
-serde_json = "*"
-thiserror = "*"
-
-# WebAssembly and AI
-wasmer = "*"
-openfl = "*"
-ndarray = "*"
-rust-bert = "*"
-
-# Distributed systems and storage
-ipfs-api = "*"
-orbit-db = "*"
-
-# Cryptographic protocols
-seal = "*"
-mp-spdz = "*"
-
-# Additional cryptographic dependencies
-aes-gcm = "0.9"
-rand = "0.8"
-
-# DLC library support
-# Using Git URL to ensure we get the latest version or specific branch not available on crates.io
-dlc-btc-lib = { git = "https://github.com/DLC-link/dlc-btc-lib", branch = "main" }
-
-# Web5-rust dependency
-web5 = { git = "https://github.com/TBD54566975/web5-rust", branch = "main" }
+gorules = { git = "https://github.com/gorules/gorules-rust", branch = "main" }
+rust-lightning = "0.0.14"
 
 [dev-dependencies]
 criterion = "*"
