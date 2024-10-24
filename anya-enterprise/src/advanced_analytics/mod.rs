@@ -7,6 +7,14 @@ pub mod user_metrics;
 
 pub use analytics::AdvancedAnalytics;
 
+pub struct BlockchainInterface {
+    // Fields and methods for BlockchainInterface...
+}
+
+impl BlockchainInterface {
+    // Implementation of BlockchainInterface methods...
+}
+
 use crate::user_metrics::UserMetrics;
 use crate::blockchain::BlockchainInterface;
 use crate::data_feed::{DataFeed, DataSource};
