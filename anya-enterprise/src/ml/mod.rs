@@ -1,11 +1,9 @@
 mod federated_learning;
 mod bitcoin_models;
-mod gorules;
 
 pub use federated_learning::{FederatedLearning, FederatedLearningModel, setup_federated_learning};
 pub use bitcoin_models::{BitcoinPricePredictor, TransactionVolumeForecaster, RiskAssessor};
-use gorules::{init_gorules, execute_rule};
-use log::{info, error};
+
 use log::{info, error};
 use serde::{Serialize, Deserialize};
 use thiserror::Error;
@@ -136,29 +134,12 @@ impl InternalAIEngine {
         let std_dev = self.performance_history.std_dev();
         1.0 / (1.0 + (-avg_performance / std_dev).exp())
     }
+}
+
 pub fn init() -> Result<(), Box<dyn std::error::Error>> {
     info!("Initializing ML module");
     federated_learning::init()?;
-    initialize_modules();
     Ok(())
-}
-
-pub fn initialize_modules() {
-    // Initialize GoRules
-    if let Err(e) = init_gorules("path/to/config") {
-        eprintln!("Error initializing GoRules: {}", e);
-        return;
-    }
-
-    info!("Modules initialized successfully");
-}
-
-pub fn execute_business_logic(rule: &str) {
-    // Execute a business rule using GoRules
-    match execute_rule(rule) {
-        Ok(_) => info!("Rule executed successfully"),
-        Err(e) => eprintln!("Error executing rule: {}", e),
-    }
 }
 
 // TODO: Implement differential privacy techniques
