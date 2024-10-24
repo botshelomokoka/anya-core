@@ -29,4 +29,30 @@ pub fn execute_business_logic(rule: &str) {
 		Ok(_) => info!("Rule executed successfully"),
 		Err(e) => eprintln!("Error executing rule: {}", e),
 	}
+}mod data_processor;
+mod model_trainer;
+mod predictor;
+mod optimizer;
+mod ml_types;
+
+pub use data_processor::{DataProcessor, ProcessedData};
+pub use model_trainer::{ModelTrainer, TrainedModel};
+pub use predictor::{Predictor, Prediction};
+pub use optimizer::{Optimizer, OptimizedAction};
+pub use ml_types::{MLInput, MLOutput};
+
+use std::collections::HashMap;
+
+pub enum MetricType {
+    ModelAccuracy,
+    ProcessingTime,
+    PredictionConfidence,
+    OptimizationScore,
+    TransactionFee,
+}
+
+pub struct MLCore {
+    data_processor: DataProcessor,
+    model_trainer: ModelTrainer,
+    // Other fields...
 }
