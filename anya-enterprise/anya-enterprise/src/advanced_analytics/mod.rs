@@ -1,3 +1,12 @@
+pub mod analytics;
+pub mod blockchain;
+pub mod dao;
+pub mod data_feed;
+pub mod ml;
+pub mod user_metrics;
+
+pub use analytics::AdvancedAnalytics;
+
 use crate::user_metrics::UserMetrics;
 use crate::blockchain::BlockchainInterface;
 use crate::data_feed::{DataFeed, DataSource};
