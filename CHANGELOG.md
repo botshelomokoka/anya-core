@@ -19,7 +19,6 @@ Ongoing updates include:
 - Integrated fee management functionality in `mlfee.rs`
 - Added new `adjust_fee` method in DAORules for dynamic fee adjustment
 - Initial release with foundational project structure and basic user management system
-- Initial release with foundational features and user management
 
 ### Changed
 
