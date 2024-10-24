@@ -7,6 +7,7 @@ pub use data_processor::{DataProcessor, ProcessedData};
 pub use model_trainer::{ModelTrainer, TrainedModel};
 pub use predictor::{Predictor, Prediction};
 pub use optimizer::{Optimizer, OptimizedAction};
+pub use crate::ml::ml_types::{MLInput, MLOutput};
 
 use std::collections::HashMap;
 
@@ -17,12 +18,10 @@ pub enum MetricType {
     OptimizationScore,
     TransactionFee,
 }
-
 pub struct MLCore {
     data_processor: DataProcessor,
     model_trainer: ModelTrainer,
-    predictor: Predictor,
-    optimizer: Optimizer,
+    // Other fields...
     metrics: HashMap<MetricType, f64>,
 }
 
@@ -38,6 +37,27 @@ impl MLCore {
     }
 
     // ... (implement other methods as in the previous MLCore implementation)
+
+    pub fn process_data_from_text(&self, text: &str) -> ProcessedData {
+        // Implement logic to process text data and convert it to a format suitable for training
+        ProcessedData {
+            // Populate fields based on processed text
+        }
+    }
+
+    pub fn train_model(&self, data: ProcessedData) -> TrainedModel {
+        // Implement logic to train a model using the processed data
+        TrainedModel {
+            // Populate fields based on trained model
+        }
+    }
+
+    pub fn make_prediction(&self, model: TrainedModel) -> Prediction {
+        // Implement logic to make a prediction using the trained model
+        Prediction {
+            // Populate fields based on prediction
+        }
+    }
 }
 pub fn process_data(&mut self) -> ProcessedData {
     let processed_data = self.data_processor.process();

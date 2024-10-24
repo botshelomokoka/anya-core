@@ -1,9 +1,23 @@
 mod federated_learning;
 mod bitcoin_models;
 mod gorules;
+mod ml_types;
+pub mod differential_privacy;
+pub mod secure_aggregation;
+pub mod advanced_aggregation;
+pub mod external_ai_services;
+pub mod nlp;
 
 pub use federated_learning::{FederatedLearning, FederatedLearningModel, setup_federated_learning};
 pub use bitcoin_models::{BitcoinPricePredictor, TransactionVolumeForecaster, RiskAssessor};
+pub use ml_types::{MLInput, MLOutput};rning};
+pub use bitcoin_models::{BitcoinPricePredictor, TransactionVolumeForecaster, RiskAssessor};
+pub use differential_privacy::implement_differential_privacy;
+pub use secure_aggregation::implement_secure_aggregation;
+pub use advanced_aggregation::implement_advanced_aggregation;
+pub use external_ai_services::integrate_external_ai_services;
+pub use nlp::implement_nlp;
+
 use gorules::{init_gorules, execute_rule};
 use log::{info, error};
 use log::{info, error};
