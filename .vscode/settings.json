@@ -5,5 +5,5 @@
     "git.alwaysShowStagedChangesResourceGroup": true,
     "rust-tests-bin.display.showCodeLens": false,
     "docwriter.style": "RustDoc",
-    "rust-analyzer.checkOnSave": false
+    "rust-analyzer.checkOnSave": true
 }

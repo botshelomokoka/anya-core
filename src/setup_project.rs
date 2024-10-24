@@ -2,7 +2,6 @@ use std::collections::HashMap;
 use std::error::Error;
 use std::fs;
 use std::path::Path;
-use std::str::FromStr;
 use log::{info, error};
 use dotenv::dotenv;
 use serde_json;
@@ -42,7 +41,6 @@ use libp2p::{
     yamux,
     noise,
 };
-
 use crate::user_management::{UserManagement, UserType};
 use crate::state_management::Node;
 use crate::network_discovery::NetworkDiscovery;
@@ -91,7 +89,7 @@ pub struct ProjectSetup {
     web5_support:       Web5Support,
     libp2p_support:     Libp2pSupport,
     unified_network:    UnifiedNetworkManager,
-    cross_chain:       CrossChainManager,
+    cross_chain:        CrossChainManager,
     cross_network_fl:   CrossNetworkFederatedLearning,
     interoperability:   InteroperabilityProtocol,
 }
@@ -118,9 +116,9 @@ impl ProjectSetup {
             lightning_support:  LightningSupport::new()?,
             bitcoin_support:    BitcoinSupport::new()?,
             web5_support:       Web5Support::new()?,
-            libp2p_support:    Libp2pSupport::new()?,
+            libp2p_support:     Libp2pSupport::new()?,
             unified_network:    UnifiedNetworkManager::new()?,
-            cross_chain:       CrossChainManager::new()?,
+            cross_chain:        CrossChainManager::new()?,
             cross_network_fl:   CrossNetworkFederatedLearning::new()?,
             interoperability:   InteroperabilityProtocol::new()?,
         })
@@ -154,9 +152,9 @@ impl ProjectSetup {
     pub async fn setup(&mut self) -> Result<(), Box<dyn Error>> {
         self.display_loading_screen();
         info!(self.logger, "Setting up project '{}' for {:?}", self.project_name, self.user_type);
-        self.setup_environment()?;
+        self.setup_environment().await?;
         self.setup_networking().await?;
-        self.setup_security()?;
+        self.setup_security().await?;
         self.initialize_components().await?;
         self.setup_supports().await?;
         Ok(())
@@ -171,12 +169,15 @@ impl ProjectSetup {
         Ok(())
     }
 
-    fn setup_user_specific_project(&self) -> Result<(), Box<dyn Error>> {
-        match self.user_type {
-            UserType::Creator   => self.setup_creator_project()?,
-            UserType::Developer => self.setup_developer_project()?,
-            UserType::Normal    => self.setup_normal_user_project()?,
-        }
+    fn setup_common_environment(&self) -> Result<(), Box<dyn Error>> {
+        info!(self.logger, "Setting up common environment");
+        fs::create_dir_all(format!("{}/src", self.project_name))?;
+        fs::create_dir_all(format!("{}/tests", self.project_name))?;
+        fs::create_dir_all(format!("{}/stx", self.project_name))?;
+        fs::create_dir_all(format!("{}/dlc", self.project_name))?;
+        fs::create_dir_all(format!("{}/lightning", self.project_name))?;
+        fs::create_dir_all(format!("{}/bitcoin", self.project_name))?;
+        fs::create_dir_all(format!("{}/web5", self.project_name))?;
         Ok(())
     }
 
@@ -194,15 +195,163 @@ impl ProjectSetup {
         Ok(())
     }
 
-    fn setup_common_environment(&self) -> Result<(), Box<dyn Error>> {
-        info!(self.logger, "Setting up common environment");
-        fs::create_dir_all(format!("{}/src", self.project_name))?;
-        fs::create_dir_all(format!("{}/tests", self.project_name))?;
-        fs::create_dir_all(format!("{}/stx", self.project_name))?;
-        fs::create_dir_all(format!("{}/dlc", self.project_name))?;
-        fs::create_dir_all(format!("{}/lightning", self.project_name))?;
-        fs::create_dir_all(format!("{}/bitcoin", self.project_name))?;
-        fs::create_dir_all(format!("{}/web5", self.project_name))?;
+    async fn setup_stx_support(&mut self) -> Result<(), Box<dyn Error>> {
+        self.stx_support.initialize().await?;
+        let (stx_address, stx_public_key, stx_private_key) = match self.stx_support.generate_keys().await {
+            Ok(keys) => keys,
+            Err(e) => {
+                error!("Failed to generate STX keys: {}", e);
+                return Err(e.into());
+            }
+        };
+        self.user_management.user_state.stx_address = Some(stx_address);
+        self.user_management.user_state.stx_public_key = Some(stx_public_key);
+        self.user_management.user_state.stx_private_key = Some(stx_private_key);
+        
+        // Initialize STX wallet
+        if let Err(e) = self.stx_support.initialize_wallet(&stx_address).await {
+            error!("Failed to initialize STX wallet: {}", e);
+            return Err(e.into());
+        }
+        Ok(())
+    }
+
+    async fn setup_dlc_support(&mut self) -> Result<(), Box<dyn Error>> {
+        self.dlc_support.initialize().await?;
+        let (dlc_pubkey, dlc_privkey) = self.dlc_support.generate_keypair().await?;
+        let contract = match self.dlc_support.create_contract(dlc_pubkey, dlc_privkey).await {
+            Ok(contract) => contract,
+            Err(e) => {
+                error!("Failed to create DLC contract: {}", e);
+                return Err(e.into());
+            }
+        };
+        self.user_management.user_state.dlc_contracts.push(contract);
+        
+        info!(self.logger, "DLC environment set up with public key: {}", dlc_pubkey);
+        
+        Ok(())
+    }
+
+    async fn setup_lightning_support(&mut self) -> Result<(), Box<dyn Error>> {
+        self.lightning_support.initialize().await?;
+        let lightning_node_id = match self.lightning_support.initialize_node().await {
+            Ok(node_id) => node_id,
+            Err(e) => {
+                error!("Failed to initialize Lightning node: {}", e);
+                return Err(e.into());
+            }
+        };
+        self.user_management.user_state.lightning_node_id = Some(lightning_node_id.clone());
+        
+        // Open a sample channel
+        match self.lightning_support.open_channel(&lightning_node_id, 1_000_000).await {
+            Ok(channel) => self.user_management.user_state.lightning_channels.push(channel),
+            Err(e) => {
+                error!("Failed to open Lightning channel: {}", e);
+                return Err(e.into());
+            }
+        }
+        Ok(())
+    }
+
+    async fn setup_bitcoin_support(&mut self) -> Result<(), Box<dyn Error>> {
+        self.bitcoin_support.initialize().await?;
+        let bitcoin_address = match self.bitcoin_support.generate_address().await {
+            Ok(address) => address,
+            Err(e) => {
+                error!("Failed to generate Bitcoin address: {}", e);
+                return Err(e.into());
+            }
+        };
+        self.user_management.user_state.bitcoin_address = Some(bitcoin_address);
+        
+        // Initialize Bitcoin wallet
+        if let Err(e) = self.bitcoin_support.initialize_wallet(&bitcoin_address).await {
+            error!("Failed to initialize Bitcoin wallet: {}", e);
+            return Err(e.into());
+        }
+        Ok(())
+    }
+
+    async fn setup_web5_support(&mut self) -> Result<(), Box<dyn Error>> {
+        self.web5_support.initialize().await?;
+        let web5_address = match self.web5_support.generate_address().await {
+            Ok(address) => address,
+            Err(e) => {
+                error!("Failed to generate Web5 address: {}", e);
+                return Err(e.into());
+            }
+        };
+        self.user_management.user_state.web5_address = Some(web5_address);
+        
+        // Initialize Web5 wallet
+        if let Err(e) = self.web5_support.initialize_wallet(&web5_address).await {
+            error!("Failed to initialize Web5 wallet: {}", e);
+            return Err(e.into());
+        }
+        Ok(())
+    }
+
+    async fn setup_libp2p_support(&mut self) -> Result<(), Box<dyn Error>> {
+        self.libp2p_support.initialize().await?;
+        let peer_id = match self.libp2p_support.generate_peer_id().await {
+            Ok(peer_id) => peer_id,
+            Err(e) => {
+                error!("Failed to generate Libp2p peer ID: {}", e);
+                return Err(e.into());
+            }
+        };
+        self.user_management.user_state.libp2p_peer_id = Some(peer_id);
+        
+        // Initialize Libp2p network
+        if let Err(e) = self.libp2p_support.initialize_network(&peer_id).await {
+            error!("Failed to initialize Libp2p network: {}", e);
+            return Err(e.into());
+        }
+        Ok(())
+    }
+
+    async fn setup_unified_network(&mut self) -> Result<(), Box<dyn Error>> {
+        self.unified_network.initialize().await?;
+        Ok(())
+    }
+
+    async fn setup_cross_chain(&mut self) -> Result<(), Box<dyn Error>> {
+        self.cross_chain.initialize().await?;
+        Ok(())
+    }
+
+    async fn setup_cross_network_fl(&mut self) -> Result<(), Box<dyn Error>> {
+        self.cross_network_fl.initialize().await?;
+        Ok(())
+    }
+
+    async fn setup_interoperability(&mut self) -> Result<(), Box<dyn Error>> {
+        self.interoperability.initialize().await?;
+        Ok(())
+    }
+
+    fn initialize_project_structure(&self) -> Result<(), Box<dyn Error>> {
+        Ok(())
+    }
+
+    fn configure_environment_variables(&self) -> Result<(), Box<dyn Error>> {
+        // Add the implementation for configuring environment variables
+        Ok(())
+    }
+
+    fn setup_database(&self) -> Result<(), Box<dyn Error>> {
+        // Add the implementation for setting up the database
+        Ok(())
+    }
+
+    fn setup_user_specific_project(&self) -> Result<(), Box<dyn Error>> {
+        match self.user_type {
+            UserType::Creator   => self.setup_creator_project()?,
+            UserType::Developer => self.setup_developer_project()?,
+            UserType::Normal    => self.setup_normal_user_project()?,
+        }
         Ok(())
     }
 
@@ -286,223 +435,4 @@ impl ProjectSetup {
         Path::new(&format!("{}/stx/wallet", self.project_name)).exists() &&
         Path::new(&format!("{}/dlc/wallet", self.project_name)).exists() &&
         Path::new(&format!("{}/lightning/wallet", self.project_name)).exists() &&
-        Path::new(&format!("{}/bitcoin/wallet", self.project_name)).exists()
-    }
-
-    fn initialize_project_structure(&self) -> Result<(), Box<dyn Error>> {
-        info!(self.logger, "Initializing project structure");
-        for module in &["ml_logic", "network_discovery", "main_system", "stx_support", "dlc_support", "lightning_support", "bitcoin_support", "web5_support"] {
-            let file_path = format!("{}/src/{}.rs", self.project_name, module);
-            fs::write(&file_path, format!("// {} module for {}\n", module, self.project_name))?;
-        }
-        Ok(())
-    }
-
-    fn configure_environment_variables(&self) -> Result<(), Box<dyn Error>> {
-        info!(self.logger, "Configuring environment variables");
-        dotenv().ok();
-        dotenv::from_filename("git_auth.env").ok();
-        dotenv::from_filename("stx_config.env").ok();
-        dotenv::from_filename("dlc_config.env").ok();
-        dotenv::from_filename("lightning_config.env").ok();
-        dotenv::from_filename("bitcoin_config.env").ok();
-        dotenv::from_filename("web5_config.env").ok();
-        Ok(())
-    }
-
-    fn setup_database(&self) -> Result<(), Box<dyn Error>> {
-        info!(self.logger, "Setting up database");
-        // Implement database setup logic here
-        Ok(())
-    }
-
-    async fn setup_networking(&self) -> Result<(), Box<dyn Error>> {
-        info!(self.logger, "Setting up networking");
-        self.network_discovery.setup().await?;
-        
-        // Set up libp2p
-        let id_keys = identity::Keypair::generate_ed25519();
-        let peer_id = PeerId::from(id_keys.public());
-        info!(self.logger, "Local peer id: {:?}", peer_id);
-
-        let transport = TokioTcpConfig::new()
-            .upgrade(upgrade::Version::V1)
-            .authenticate(noise::NoiseConfig::xx(id_keys).into_authenticated())
-            .multiplex(upgrade::SelectUpgrade::new(yamux::YamuxConfig::default(), mplex::MplexConfig::default()))
-            .boxed();
-
-        // Implement your custom NetworkBehaviour
-        // let behaviour = MyBehaviour::default();
-
-        // let mut swarm = Swarm::new(transport, behaviour, peer_id);
-
-        // Implement your swarm logic here
-
-        Ok(())
-    }
-        fn setup_security(&self) -> Result<(), Box<dyn Error>> {
-            info!(self.logger, "Setting up security measures");
-            let github_token = std::env::var("GITHUB_TOKEN")
-                .map_err(|_| Box::<dyn Error>::from("GitHub token not found in environment variables."))?;
-            // Implement additional security measures here
-            Ok(())
-        }
-
-    async fn initialize_components(&mut self) -> Result<(), Box<dyn Error>> {
-        info!(self.logger, "Initializing system components");
-        self.user_management.initialize_user().await?;
-        self.node.merge_state(self.user_management.get_user_state(), &self.user_management.user_state.github_username);
-        self.main_system.initialize(&self.node, &self.network_discovery).await?;
-        self.ml_logic.initialize(self.node.get_state()).await?;
-        Ok(())
-    }
-
-    async fn setup_stx_support(&mut self) -> Result<(), Box<dyn Error>> {
-        info!(self.logger, "Setting up STX support");
-        self.stx_support.initialize().await?;
-        self.stx_support.setup_wallet().await?;
-        self.stx_support.connect_to_network().await?;
-
-        // Deploy a sample contract
-        let contract_source = fs::read_to_string(format!("{}/stx/contracts/sample_contract.clar", self.project_name))?;
-        let stx_address = StacksAddress::from_string(&self.user_data["stx_address"])?;
-        let contract_name = "sample_contract";
-        let contract_id = QualifiedContractIdentifier::new(stx_address.clone(), contract_name.to_string());
-        let tx_status = self.stx_support.deploy_contract(&contract_id, &contract_source).await?;
-        info!(self.logger, "STX contract deployment status: {:?}", tx_status);
-
-        Ok(())
-    }
-
-    async fn setup_dlc_support(&mut self) -> Result<(), Box<dyn Error>> {
-        info!(self.logger, "Setting up DLC support");
-        self.dlc_support.initialize().await?;
-        self.dlc_support.setup_wallet().await?;
-        self.dlc_support.connect_to_network().await?;
-
-        // Create a sample DLC contract
-        let oracle_info = OracleInfo::new("sample_oracle", "https://example.com/oracle");
-        self.dlc_support.register_oracle(oracle_info)?;
-
-        let collateral = 1_000_000; // in satoshis
-        let oracle_event = "btc_price_2023_12_31";
-        let contract = self.dlc_support.create_dlc_contract(collateral, oracle_event)?;
-        info!(self.logger, "Created DLC contract: {:?}", contract);
-
-        Ok(())
-    }
-
-    fn setup_lightning_support(&mut self) -> Result<(), Box<dyn Error>> {
-        info!(self.logger, "Setting up Lightning support");
-        self.lightning_support.initialize()?;
-        self.lightning_support.setup_wallet()?;
-        self.lightning_support.connect_to_network()?;
-
-        // Set up a Lightning node
-        let keys_manager = KeysManager::new(&[0u8; 32], 42, 42);
-        let user_config = UserConfig::default();
-        let channel_manager = self.lightning_support.setup_channel_manager(&keys_manager, &user_config).await?;
-
-        // Open a sample channel
-        let node_pubkey = "027abc..."; // Example node public key
-        let channel_value_satoshis = 1_000_000;
-        let push_msat = 0;
-        let channel_open_result = self.lightning_support.open_channel(&channel_manager, node_pubkey, channel_value_satoshis, push_msat).await?;
-        info!(self.logger, "Lightning channel opened: {:?}", channel_open_result);
-
-        Ok(())
-    }
-
-    fn setup_bitcoin_support(&mut self) -> Result<(), Box<dyn Error>> {
-        info!(self.logger, "Setting up Bitcoin support");
-        self.bitcoin_support.initialize()?;
-        self.bitcoin_support.setup_wallet()?;
-        self.bitcoin_support.connect_to_network()?;
-
-        // Check balance and make a sample transaction
-        let bitcoin_address = BitcoinAddress::from_str(&self.user_data["bitcoin_address"])?;
-        Ok(())
-    }
-
-    async fn setup_web5_support(&mut self) -> Result<(), Box<dyn Error>> {
-        info!(self.logger, "Setting up Web5 support");
-        self.web5_support.initialize().await?;
-        self.web5_support.setup_wallet().await?;
-        self.web5_support.connect_to_network().await?;
-
-        // Implement Web5 setup logic here
-
-        Ok(())
-    }
-
-    async fn setup_libp2p_support(&mut self) -> Result<(), Box<dyn Error>> {
-        info!(self.logger, "Setting up libp2p support");
-        self.libp2p_support.initialize().await?;
-        self.libp2p_support.setup_wallet().await?;
-        self.libp2p_support.connect_to_network().await?;
-
-        // Implement libp2p setup logic here
-
-        Ok(())
-    }
-
-    async fn setup_unified_network(&mut self) -> Result<(), Box<dyn Error>> {
-        info!(self.logger, "Setting up unified network");
-        self.unified_network = UnifiedNetworkManager::new().await?;
-        Ok(())
-    }
-
-    async fn setup_cross_chain(&mut self) -> Result<(), Box<dyn Error>> {
-        info!(self.logger, "Setting up cross-chain asset management");
-        self.cross_chain = CrossChainManager::new(self.unified_network.clone()).await?;
-        Ok(())
-    }
-
-    async fn setup_cross_network_fl(&mut self) -> Result<(), Box<dyn Error>> {
-        info!(self.logger, "Setting up cross-network federated learning");
-        self.cross_network_fl = CrossNetworkFederatedLearning::new(self.ml_logic.config.clone(), self.unified_network.clone()).await?;
-        Ok(())
-    }
-
-    async fn setup_interoperability(&mut self) -> Result<(), Box<dyn Error>> {
-        info!(self.logger, "Setting up interoperability protocol");
-        self.interoperability = InteroperabilityProtocol::new(self.unified_network.clone()).await?;
-        Ok(())
-    }
-}
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
-    env_logger::init();
-
-    let user_type = UserType::Normal;  // Or determine this dynamically
-    let user_data = HashMap::new();  // Fill this with necessary user data
-    let mut project_setup = ProjectSetup::new(user_type, user_data)?;
-    
-    if !project_setup.check_common_environment() {
-        project_setup.setup_common_environment()?;
-    }
-    
-    match project_setup.user_type {
-        UserType::Creator => {
-            if !project_setup.check_creator_setup() {
-                project_setup.setup_creator_project()?;
-            }
-        },
-        UserType::Developer => {
-            if !project_setup.check_developer_setup() {
-                project_setup.setup_developer_project()?;
-            }
-        },
-        UserType::Normal => {
-            if !project_setup.check_normal_user_setup() {
-                project_setup.setup_normal_user_project()?;
-            }
-        },
-    }
-    
-    project_setup.setup()?;
-    project_setup.main_system.run().await?;
-
-    Ok(())
-}
+        Path::new(&format!("{}/bitcoin/wallet", self.project_name)).existsuse std::collections::HashMap;

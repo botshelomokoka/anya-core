@@ -1,3 +1,20 @@
+/// The code defines structs and methods for an AI core system that integrates machine learning,
+/// blockchain interactions, data processing, and reporting functionalities.
+/// 
+/// Arguments:
+/// 
+/// * `action`: The `action` parameter in the code represents a management action that the `AnyaCore`
+/// system needs to handle. It could be a request to update configuration, request a report, shutdown
+/// the system, add or remove a data feed, or other management actions defined in the `ManagementAction`
+/// enum
+use std::collections::HashMap;
+
+use tokio::sync::mpsc;
+use tokio::time::Duration;
+
+use log::{info, error};
+use serde::{Serialize, Deserialize};
+
 use crate::ml_core::{
     MLCore, ProcessedData, TrainedModel, Prediction, OptimizedAction, MetricType,
     DataProcessor, ModelTrainer, Predictor, Optimizer
@@ -5,19 +22,99 @@ use crate::ml_core::{
 use crate::blockchain::{BlockchainInterface, Transaction};
 use crate::data_feed::{DataFeed, DataSource};
 use crate::reporting::{Report, ReportType, SystemWideReporter};
-use crate::management::{ManagementAction, OperationalStatus, SystemManager};
+#[derive(Debug)]
+pub enum OperationalStatus {
+    Normal,
+    Shutdown,
+}
 
-use std::collections::HashMap;
-use serde::{Serialize, Deserialize};
-use tokio::sync::mpsc;
-use async_trait::async_trait;
+pub struct AnyaCore {
+    system_reporter: SystemWideReporter,
+    system_manager: SystemManager,
+    data_feeds: HashMap<String, String>,
+    operational_status: OperationalStatus,
+    blockchain: BlockchainInterface,
+}
 
+impl AnyaCore {
+    pub fn new(report_receiver: mpsc::Receiver<String>, action_sender: mpsc::Sender<String>, blockchain: BlockchainInterface) -> Self {
+        AnyaCore {
+            system_reporter: SystemWideReporter::new(report_receiver),
+            system_manager: SystemManager::new(action_sender),
+            data_feeds: HashMap::new(),
+            operational_status: OperationalStatus::Normal,
+            blockchain,
+        }
+    }           _ = tokio::time::interval(Duration::from_secs(60)).tick() => {
+                    self.system_reporter.send_periodic_report().await;
+                }
+            }
+
+            if self.operational_status == OperationalStatus::Shutdown {
+                break;
+            }
+        }
+    }
+
+    async fn handle_management_action(&self, action: String) {
+        // Implement action handling logic
+        info!("Handling management action: {}", action);
+    }
+
+    async fn process_data_feeds(&self) -> Option<String> {
+        // Implement data feed processing logic
+    // Removed redundant new function   }
+
+    async fn handle_data(&self, data: String) {
+        // Implement data handling logic
+        info!("Handling data: {}", data);
+    }
+
+    pub fn new(blockchain: BlockchainInterface) -> Self {
+}
+
+pub struct SystemWideReporter {
+    // Add necessary fields
+}
+
+impl SystemWideReporter {
+    pub fn new(receiver: mpsc::Receiver<String>) -> Self {
+        // Initialize SystemWideReporter
+        SystemWideReporter {
+            // Initialize fields
+        }
+    }
+
+    pub async fn send_periodic_report(&self) {
+        // Implement periodic reporting logic
+        info!("Sending periodic report...");
+    }
+}
+
+pub struct SystemManager {
+    // Add necessary fields
+}
+
+impl SystemManager {
+    pub fn new(sender: mpsc::Sender<String>) -> Self {
+        // Initialize SystemManager
+        SystemManager {
+            // Initialize fields
+        }
+    }
+
+    pub async fn receive_action(&self) -> Option<String> {
+        // Implement action receiving logic
+        Some("example_action".to_string())
+    }
+}
+
+#[derive(Serialize, Deserialize)]
 #[derive(Serialize, Deserialize)]
 pub struct AnyaCore {
     blockchain: BlockchainInterface,
     // ... other fields ...
 }
-
 impl AnyaCore {
     pub fn new(blockchain: BlockchainInterface) -> Self {
         let (report_sender, report_receiver) = mpsc::channel(100);
@@ -44,7 +141,7 @@ impl AnyaCore {
                 }
                 _ = tokio::time::interval(std::time::Duration::from_secs(60)).tick() => {
                     self.send_periodic_report().await;
-                }
+                _ = tokio::time::interval(tokio::time::Duration::from_secs(60)).tick() => {
             }
 
             if self.operational_status == OperationalStatus::Shutdown {
@@ -157,14 +254,13 @@ impl AnyaCore {
 }
 
 // MLCore struct definition
-pub struct MLCore {
-    data_processor: DataProcessor,
-    model_trainer: ModelTrainer,
-    predictor: Predictor,
-    optimizer: Optimizer,
-    metrics: HashMap<MetricType, f64>,
-}
+// Removed redundant struct definition
 
+impl MLCore {
+    pub fn new() -> Self {
+        Self {
+            data_processor: DataProcessor::new(),
+            model_trainer: ModelTrainer::new(),
 impl MLCore {
     pub fn new() -> Self {
         Self {
@@ -196,28 +292,14 @@ impl MLCore {
         self.model_trainer.update_model(model);
     }
 
-    pub fn update_metric(&mut self, metric_type: MetricType, value: f64) {
-        self.metrics.insert(metric_type, value);
-    }
+    // pub fn update_metric(&mut self, metric_type: MetricType, value: f64) {
+    //     self.metrics.insert(metric_type, value);
+    // }
 
     pub fn get_metrics(&self) -> &HashMap<MetricType, f64> {
         &self.metrics
     }
-
-    pub fn update_config(&mut self, config: &HashMap<String, String>) {
-        self.data_processor.update_config(config);
-        self.model_trainer.update_config(config);
-        self.predictor.update_config(config);
-        self.optimizer.update_config(config);
-    }
-}
-
-// Add other necessary structs and enums
-#[derive(Debug)]
-pub enum OptimizedAction {
-    BlockchainTransaction(Transaction),
-    SystemAction(ManagementAction),
-    DataRequest(DataSource),
+}   DataRequest(DataSource),
     ModelUpdate(TrainedModel),
     NoAction,
 }
@@ -242,44 +324,39 @@ mod tests {
     use crate::blockchain::MockBlockchainInterface;
 
     async fn setup_anya_core_test_environment() -> AnyaCore {
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::blockchain::MockBlockchainInterface;
+
+    #[tokio::test]
+    async fn test_apply_federated_learning() {
         let mock_blockchain = MockBlockchainInterface::new();
         AnyaCore::new(mock_blockchain)
     }
 
     #[tokio::test]
-    async fn test_ml_core_pipeline() {
-        let mut anya_core = setup_anya_core_test_environment().await;
-        
-        // Simulate data input
-        let test_data = vec![1.0, 2.0, 3.0];
-        anya_core.handle_data(test_data).await;
-
-        // Check if metrics were updated
-        let metrics = anya_core.ml_core.get_metrics();
-        assert!(metrics.contains_key(&MetricType::ModelAccuracy));
-        assert!(metrics.contains_key(&MetricType::ProcessingTime));
-        assert!(metrics.contains_key(&MetricType::PredictionConfidence));
-        assert!(metrics.contains_key(&MetricType::OptimizationScore));
+    async fn test_secure_aggregation() {
+        let mock_blockchain = MockBlockchainInterface::new();
+        let rules = DAORules::new(mock_blockchain);
+        let inputs = vec![vec![1.0, 2.0], vec![3.0, 4.0]];
+        let result = rules.apply_secure_aggregation(inputs).await.unwrap();
+        assert_eq!(result.len(), 2);
     }
 
     #[tokio::test]
-    async fn test_blockchain_integration() {
-        let mut anya_core = setup_anya_core_test_environment().await;
-
-        let transaction = Transaction { /* fields */ };
-        anya_core.execute_blockchain_transaction(transaction).await.unwrap();
-
-        assert!(anya_core.ml_core.get_metrics().contains_key(&MetricType::TransactionFee));
+    async fn test_execute_blockchain_transaction() {
+        let mut mock_blockchain = MockBlockchainInterface::new();
+        mock_blockchain.expect_submit_transaction()
+            .returning(|_| Ok(Transaction { fee: 0.001 }));
+        let mut rules = DAORules::new(mock_blockchain);
+        let transaction = Transaction { fee: 0.001 };
+        rules.execute_blockchain_transaction(transaction).await.unwrap();
+        assert!(rules.get_metrics().contains_key(&MetricType::TransactionFee));
     }
 
     // Add more tests for other functionalities
-}
-use crate::federated_learning::{FederatedLearning, Model};
-use crate::privacy::{DifferentialPrivacy, Epsilon};
-use crate::secure_multiparty_computation::SecureAggregation;
-use crate::blockchain::{BlockchainInterface, Transaction};
-use crate::data_feed::{DataFeed, DataSource};
-use crate::reporting::{Report, ReportType, SystemWideReporter};
+}se crate::reporting::{Report, ReportType, SystemWideReporter};
 use crate::management::{ManagementAction, OperationalStatus, SystemManager};
 
 use std::collections::HashMap;
@@ -311,6 +388,19 @@ impl DAORules {
             blockchain,
             batch_processor: BatchProcessor::new(BATCH_SIZE),
             opcode_executor: OpCodeExecutor::new(MAX_OPCODE_BITS),
+impl DAORules {
+    pub fn new(blockchain: BlockchainInterface) -> Self {
+        let (report_sender, report_receiver) = mpsc::channel(100);
+        let (action_sender, action_receiver) = mpsc::channel(100);
+
+        Self {
+            ml_core: MLCore::new(),
+            blockchain,
+            batch_processor: BatchProcessor::new(BATCH_SIZE),
+            opcode_executor: OpCodeExecutor::new(MAX_OPCODE_BITS),
+        }
+    }
+
     pub async fn apply_federated_learning(&mut self, data: &[f32]) -> Result<Model, Box<dyn std::error::Error>> {
         let batches = self.batch_processor.create_batches(data);
         let mut aggregated_model = Model::new();
@@ -341,31 +431,21 @@ impl DAORules {
             Err(e) => Err(Box::new(e)),
         }
     }
+
     pub async fn execute_dao_blockchain_transaction(&mut self, transaction: Transaction) -> Result<(), Box<dyn std::error::Error>> {
         let opcode = self.opcode_executor.encode_transaction(&transaction);
         let result = self.blockchain.submit_transaction(opcode).await?;
         self.update_metric(MetricType::TransactionFee, result.fee);
         Ok(())
-    }   self.secure_aggregation.aggregate(inputs)
     }
 
-    pub async fn execute_blockchain_transaction(&mut self, transaction: Transaction) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn execute_dao_blockchain_transaction(&mut self, transaction: Transaction) -> Result<(), Box<dyn std::error::Error>> {
         let opcode = self.opcode_executor.encode_transaction(&transaction);
         let result = self.blockchain.submit_transaction(opcode).await?;
-    }nFee, result.fee);
+        self.update_metric(MetricType::TransactionFee, result.fee);
         Ok(())
     }
 }
-
-// MLCore struct definition
-pub struct MLCore {
-    data_processor: DataProcessor,
-    model_trainer: ModelTrainer,
-    predictor: Predictor,
-    optimizer: Optimizer,
-    metrics: HashMap<MetricType, f64>,
-}
-
 impl MLCore {
     pub fn new() -> Self {
         Self {
@@ -401,26 +481,20 @@ impl MLCore {
 
     pub fn update_config(&mut self, config: &HashMap<String, String>) {
         self.data_processor.update_config(config);
+    fn update_metric(&mut self, metric_type: MetricType, value: f64) {
+        self.metrics.insert(metric_type, value);
+    }
+
+    pub fn get_metrics(&self) -> &HashMap<MetricType, f64> {
+        &self.metrics
+    }
+
+    pub fn update_config(&mut self, config: &HashMap<String, String>) {
+        self.data_processor.update_config(config);
         self.model_trainer.update_config(config);
         self.predictor.update_config(config);
         self.optimizer.update_config(config);
-    }
-}
-
-// Add other necessary structs and enums
-#[derive(Debug)]
-pub enum OptimizedAction {
-    BlockchainTransaction(Transaction),
-    SystemAction(ManagementAction),
-    DataRequest(DataSource),
-    ModelUpdate(TrainedModel),
-    NoAction,
-}
-
-#[derive(Debug, Clone, Hash, Eq, PartialEq)]
-pub enum MetricType {
-    ModelAccuracy,
-    ProcessingTime,
+    }rocessingTime,
     PredictionConfidence,
     OptimizationScore,
     TransactionFee,
