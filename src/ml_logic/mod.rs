@@ -5,6 +5,9 @@ pub mod mlfee;
 pub mod model_evaluation;
 pub mod model_training;
 pub mod data_preprocessing;
+mod logic_helpers;
+
+pub use logic_helpers::{HelperFunction1, HelperFunction2};
 pub mod feature_engineering;
 pub mod hyperparameter_tuning;
 pub mod model_deployment;

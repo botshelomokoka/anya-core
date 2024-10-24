@@ -1,8 +1,18 @@
 use std::error::Error;
 use crate::ml_core::{MLCore, ProcessedData, TrainedModel, Prediction};
+use ml_core::{MLCore, MLInput, MLOutput, TrainedModel, Prediction};
 
 pub struct NaturalLanguageProcessor {
-    // Add fields for the NLP model, tokenizer, etc.
+}
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let ml_core = MLCore::new();
+    let trained_model = TrainedModel::new();
+    let prediction = ml_core.make_prediction(trained_model);
+
+    println!("Prediction: {:?}", prediction);
+    Ok(())
+}   // Add fields for the NLP model, tokenizer, etc.
 }
 
 impl NaturalLanguageProcessor {
