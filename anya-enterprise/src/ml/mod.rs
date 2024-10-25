@@ -1,9 +1,6 @@
-mod dao_rules;
-mod data_processing;
 mod federated_learning;
-mod mlfee;
-mod system_evaluation;
-mod gorules;
+mod research;
+mod github_integration;
 mod bitcoin_models;
 mod gorules;
 mod ml_types;
@@ -12,10 +9,12 @@ pub mod secure_aggregation;
 pub mod advanced_aggregation;
 pub mod external_ai_services;
 pub mod nlp;
-
 pub use federated_learning::{FederatedLearning, FederatedLearningModel, setup_federated_learning};
+pub use research::Researcher;
+pub use github_integration::{GitHubIntegrator, Issue};
 pub use bitcoin_models::{BitcoinPricePredictor, TransactionVolumeForecaster, RiskAssessor};
 pub use ml_types::{MLInput, MLOutput};rning};
+pub use bitcoin_models::{BitcoinPricePredictor, TransactionVolumeForecaster, RiskAssessor};
 pub use bitcoin_models::{BitcoinPricePredictor, TransactionVolumeForecaster, RiskAssessor};
 pub use differential_privacy::implement_differential_privacy;
 pub use secure_aggregation::implement_secure_aggregation;
@@ -72,47 +71,33 @@ pub struct InternalAIEngine {
     ema: ExponentialMovingAverage,
     rsi: RelativeStrengthIndex,
 }
-
-impl InternalAIEngine {
     pub fn new() -> Self {
-        info!("Initializing InternalAIEngine...");
         Self {
             global_model: LinearRegression::default(),
             local_models: Vec::new(),
             performance_history: Vec::new(),
             ema: ExponentialMovingAverage::new(14).unwrap(),
             rsi: RelativeStrengthIndex::new(14).unwrap(),
-        }        mod dao_rules;
-        mod data_processing;
-        mod federated_learning;
-        mod mlfee;
-        mod system_evaluation;
-        mod gorules;
-        
-        use gorules::{init_gorules, execute_rule};
-        use log::info;
-        
-        pub fn initialize_modules() {
-            // Initialize GoRules
-            if let Err(e) = init_gorules("path/to/config") {
-                eprintln!("Error initializing GoRules: {}", e);
-                return;
-            }
-        
-            info!("Modules initialized successfully");
         }
-        
-        pub fn execute_business_logic(rule: &str) {
-            // Execute a business rule using GoRules
-            match execute_rule(rule) {
-                Ok(_) => info!("Rule executed successfully"),
-                Err(e) => eprintln!("Error executing rule: {}", e),
-            }
+    }
+
+    pub fn init() -> Result<(), Box<dyn std::error::Error>> {
+        info!("Initializing ML module");
+        federated_learning::init()?;
+        initialize_modules();
+        Ok(())
+    }
+
+    pub async fn perform_research(&self) -> Result<(), Box<dyn std::error::Error>> {
+        let researcher = Researcher::new();
+        let papers = researcher.crawl_mdpi("cybersecurity vulnerabilities", 5).await?;
+        researcher.analyze_papers(papers).await?;
+        Ok(())
+    }       rsi: RelativeStrengthIndex::new(14).unwrap(),
         }
     }
 
     pub fn update_model(&mut self, local_model: Array1<f64>) -> Result<(), MLError> {
-        info!("Updating model with new local model...");
         self.local_models.push(local_model);
         if self.should_aggregate() {
             self.aggregate_models()?;
