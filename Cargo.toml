@@ -1,59 +1,57 @@
 cargo-features = ["edition2024"]
 
 [package]
-name = "anya-enterprise"
+name = "anya"
 version = "0.1.0"
 edition = "2021"
-authors = ["Anya Enterprise Contributors"]
-description = "Advanced features for Anya Core (Enterprise Edition)"
-license = "Commercial"
-publish = false
+
+[workspace]
+members = [
+    "anya-core",
+    "anya-enterprise",
+    "src",
+]
 
 [dependencies]
-zen-engine = "0"
-anya-core = { path = "../anya-core" }
-tokio = { version = "1.28", features = ["full"] }
-slog = "2.7"
-slog-term = "2.9"
-config = "0.13"
-thiserror = "1.0"
-libc = "0.2"  # Add libc for FFI
 log = "0.4"
-env_logger = "0.10"
-serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "1", features = ["full"] }
+actix-web = "4"
+yew = { version = "0.18", features = ["csr"] }
+# Add other dependencies as needed
+serde = "1.0"
 serde_json = "1.0"
-libp2p = "0.51"
-ipfs-api = "0.17"
-yew = "0.20"
-clap = { version = "4.3", features = ["derive"] }
-bitcoin = "0.30"
-bitcoincore-rpc = "0.16"
-lightning = "0.0.116"
-lightning-invoice = "0.24"
-rust-dlc = "0.4"
-clarity-repl = "1.0"
-stacks-rpc-client = "1.0"
-ndarray = "0.15"
-chrono = "0.4"
-ta = "0.5"
-statrs = "0.16"
-linfa = "0.6"
-linfa-linear = "0.6"
-bulletproofs = "4.0"
-seal = "0.1"
-interledger = "0.5"
-cosmos-sdk = "0.1"
-polkadot-api = "0.1"
+web5 = { git = "https://github.com/TBD54566975/web5-rust", branch = "main" }
+rust-dlc = { git = "https://github.com/p2pderivatives/rust-dlc", branch = "main" }
+bitcoincore-rpc = "*"
+bulletproofs = "*"
+did-key = "*"
+verifiable-credentials = "*"
+slog = "*"
+slog-term = "*"
+gorules = { git = "https://github.com/gorules/gorules-rust", branch = "main" }
+rust-lightning = "0.0.14"
 
 [dev-dependencies]
-criterion = "0.5"
+criterion = "*"
+tokio-test = "*"
+mockall = "0.11.0"
+proptest = "*"
+tempfile = "*"
+
+[build-dependencies]
+neon-build = "*"
+
+[features]
+default = ["std"]
+std = []
+enterprise = ["advanced_analytics", "high_volume_trading"]
+advanced_analytics = []
+high_volume_trading = []
 
 [[bench]]
 name = "enterprise_benchmarks"
 harness = false
 
-[features]
-default = ["std", "advanced-analytics", "high-volume-trading"]
-std = []
-advanced-analytics = []
-high-volume-trading = []
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
