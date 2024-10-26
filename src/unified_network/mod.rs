@@ -9,25 +9,41 @@ use std::error::Error;
 use crate::rate_limiter::RateLimiter;
 use std::time::{Duration, Instant};
 use sysinfo::{System, SystemExt, ProcessorExt, NetworkExt};
+use thiserror::Error;
+use log::{info, error};
+use metrics::{counter, gauge};
+
+#[derive(Error, Debug)]
+pub enum NetworkError {
+    #[error("Bitcoin error: {0}")]
+    BitcoinError(String),
+    #[error("Lightning error: {0}")]
+    LightningError(String),
+    #[error("DLC error: {0}")]
+    DLCError(String),
+}
 
 pub struct UnifiedNetworkManager {
     bitcoin_node: Arc<Mutex<BitcoinNode>>,
     lightning_node: Arc<Mutex<LightningNode>>,
     dlc_manager: Arc<Mutex<DLCManager>>,
+    metrics: NetworkMetrics,
 }
 
 impl UnifiedNetworkManager {
-    pub fn new(
-        bitcoin_node: Arc<Mutex<BitcoinNode>>,
-        lightning_node: Arc<Mutex<LightningNode>>,
-        dlc_manager: Arc<Mutex<DLCManager>>,
-    ) -> Self {
-    UnifiedNetworkManager {
-        bitcoin_node,
-        lightning_node,
-        dlc_manager,
+    pub async fn new() -> Result<Self, NetworkError> {
+        let bitcoin_node = Arc::new(Mutex::new(BitcoinNode::new().await?));
+        let lightning_node = Arc::new(Mutex::new(LightningNode::new().await?));
+        let dlc_manager = Arc::new(Mutex::new(DLCManager::new().await?));
+
+        Ok(Self {
+            bitcoin_node,
+            lightning_node,
+            dlc_manager,
+            metrics: NetworkMetrics::new(),
+        })
     }
-}
+
     pub async fn execute_cross_layer_transaction(&self, transaction: CrossLayerTransaction) -> Result<(), NetworkError> {
         let secp = Secp256k1::new();
         let batch = self.prepare_transaction_batch(&transaction).await?;
@@ -173,14 +189,55 @@ impl UnifiedNetworkManager {
     }
     }
     pub async fn analyze_network_state(&self) -> Result<NetworkAnalysis, NetworkError> {
-        let master_key = self.get_master_key().expect("Failed to get master key");
+        let cpu_usage = self.get_cpu_usage().await;
+        let memory_usage = self.get_memory_usage().await;
+        let network_load = self.get_network_load().await;
+        let mempool_size = self.get_mempool_size().await?;
+        let chain_sync = self.get_chain_sync_status().await?;
+        let peer_latencies = self.measure_peer_latencies().await;
 
-        // TODO: Implement network state analysis using ML
-        Err(NetworkError::NotImplemented("Network state analysis not implemented"))
+        Ok(NetworkAnalysis {
+            cpu_usage,
+            memory_usage,
+            network_load,
+            mempool_size,
+            chain_sync,
+            peer_latencies,
+        })
     }
-    pub async fn analyze_network_state(&self) -> Result<NetworkAnalysis, NetworkError> {
-        // TODO: Implement network state analysis using ML
-        Err(NetworkError::NotImplemented("Network state analysis not implemented"))
+
+    async fn get_cpu_usage(&self) -> f32 {
+        // Implement CPU usage monitoring
+        let mut sys = System::new_all();
+        sys.refresh_all();
+        sys.global_cpu_info().cpu_usage()
+    }
+
+    async fn get_memory_usage(&self) -> f32 {
+        // Implement memory usage monitoring
+        let mut sys = System::new_all();
+        sys.refresh_all();
+        let used = sys.used_memory() as f32;
+        let total = sys.total_memory() as f32;
+        used / total
+    }
+
+    async fn get_network_load(&self) -> f32 {
+        // Implement network load monitoring
+        let mut sys = System::new_all();
+        sys.refresh_networks();
+        let networks = sys.networks();
+        let mut total_rx = 0;
+        let mut total_tx = 0;
+        
+        for (_interface_name, data) in networks {
+            total_rx += data.received();
+            total_tx += data.transmitted();
+        }
+        
+        let total_bandwidth = (total_rx + total_tx) as f32;
+        let max_bandwidth = 1_000_000_000.0; // 1 Gbps
+        (total_bandwidth / max_bandwidth).clamp(0.0, 1.0)
     }
 
     pub fn connect_peer(&self, peer_address: &str) -> Result<(), Box<dyn Error>> {
@@ -329,8 +386,38 @@ impl UnifiedNetworkManager {
         }
     }
 
-    pub async fn auto_adjust(&self) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn auto_adjust(&self) -> Result<(), NetworkError> {
         self.bitcoin_node.lock().await.auto_adjust().await?;
+        self.lightning_node.lock().await.auto_adjust().await?;
+        self.dlc_manager.lock().await.auto_adjust().await?;
         Ok(())
+    }
+}
+
+struct NetworkMetrics {
+    transaction_count: Counter,
+    peer_count: Gauge,
+    block_height: Gauge,
+}
+
+impl NetworkMetrics {
+    fn new() -> Self {
+        Self {
+            transaction_count: Counter::new("network_transactions_total"),
+            peer_count: Gauge::new("network_peers_total"),
+            block_height: Gauge::new("network_block_height"),
+        }
+    }
+
+    fn record_transaction(&self) {
+        self.transaction_count.increment(1);
+    }
+
+    fn update_peer_count(&self, count: i64) {
+        self.peer_count.set(count);
+    }
+
+    fn update_block_height(&self, height: i64) {
+        self.block_height.set(height);
     }
 }

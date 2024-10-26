@@ -1,6 +1,8 @@
 use thiserror::Error;
-use bulletproofs::r1cs::R1CSProof;
-use seal_fhe::FheEncoder;
+use bulletproofs::r1cs::{Prover, R1CSProof};
+use curve25519_dalek::scalar::Scalar;
+use merlin::Transcript;
+use rand::rngs::OsRng;
 use web5::{did::{DID, DIDDocument}, dwn::{DataModel, Message as Web5Message}};
 use bitcoin::{
     PublicKey, Script, ScriptBuf, Transaction, TxIn, TxOut, Witness,
@@ -12,12 +14,10 @@ use bitcoin::{
 
 #[derive(Error, Debug)]
 pub enum PrivacyError {
-    #[error("Zero-knowledge proof error: {0}")]
+    #[error("Zero-knowledge proof generation failed: {0}")]
     ZKProofError(String),
-    #[error("Homomorphic encryption error: {0}")]
-    HomomorphicEncryptionError(String),
-    #[error("Secure multi-party computation error: {0}")]
-    MPCError(String),
+    #[error("Proof verification failed: {0}")]
+    VerificationError(String),
     #[error("Web5 error: {0}")]
     Web5Error(String),
     #[error("Bitcoin multisig error: {0}")]
@@ -201,5 +201,34 @@ impl PrivacyModule {
 
     fn cast_to_bool(&self, input_data: &[u8]) -> bool {
         !input_data.is_empty() && input_data.iter().any(|&byte| byte != 0)
+    }
+}
+
+pub struct Privacy {
+    proof_gens: BulletproofGens,
+}
+
+impl Privacy {
+    pub fn new() -> Result<Self, PrivacyError> {
+        let proof_gens = BulletproofGens::new(32, 1);
+        Ok(Self { proof_gens })
+    }
+
+    pub async fn generate_zk_proof(&self, statement: &[u8]) -> Result<R1CSProof, PrivacyError> {
+        let mut transcript = Transcript::new(b"ZKProof");
+        let mut prover = Prover::new(&self.proof_gens, &mut transcript);
+
+        let statement_scalar = Scalar::hash_from_bytes::<sha3::Sha3_512>(statement);
+        let (commitment, _) = prover.commit(statement_scalar, Scalar::random(&mut OsRng));
+
+        let proof = prover.prove().map_err(|e| PrivacyError::ZKProofError(e.to_string()))?;
+
+        Ok(proof)
+    }
+
+    pub async fn verify_proof(&self, proof: &R1CSProof, statement: &[u8]) -> Result<bool, PrivacyError> {
+        let mut transcript = Transcript::new(b"ZKProof");
+        // Implement verification logic
+        Ok(true)
     }
 }

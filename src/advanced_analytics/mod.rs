@@ -19,6 +19,16 @@ use std::error::Error;
 use std::collections::HashMap;
 use crate::error::AnyaResult; // Add this import for AnyaResult
 use log::{info, error}; // Add logging imports
+use crate::ml_core::{MLCore, MLInput, MLOutput};
+use crate::market_data::{MarketDataFetcher, MarketData};
+use crate::blockchain::BlockchainInterface;
+use crate::metrics::{counter, gauge};
+use thiserror::Error;
+use tokio::time::{Duration, sleep};
+use log::{info, error};
+use std::sync::Arc;
+use crate::privacy::zksnarks::ZKSnarkSystem;
+use tokio::sync::Mutex;
 
 /// Represents the advanced analytics module.
 pub struct AdvancedAnalytics {
@@ -27,6 +37,11 @@ pub struct AdvancedAnalytics {
     blockchain: BlockchainInterface,
     data_feeds: HashMap<DataSource, DataFeed>,
     dao_rules: Vec<DAORule>,
+    ml_core: Arc<MLCore>,
+    market_data: MarketDataFetcher,
+    blockchain: Arc<BlockchainInterface>,
+    metrics: AnalyticsMetrics,
+    zk_system: Arc<ZKSnarkSystem>,
 }
 
 impl AdvancedAnalytics {
@@ -36,6 +51,9 @@ impl AdvancedAnalytics {
         blockchain: BlockchainInterface,
         data_feeds: HashMap<DataSource, DataFeed>,
         dao_rules: Vec<DAORule>,
+        ml_core: Arc<MLCore>,
+        blockchain: Arc<BlockchainInterface>,
+        zk_system: Arc<ZKSnarkSystem>,
     ) -> Self {
         let vs = nn::VarStore::new(Device::Cpu);
         let model = nn::seq()
@@ -51,6 +69,11 @@ impl AdvancedAnalytics {
             blockchain,
             data_feeds,
             dao_rules,
+            ml_core,
+            market_data: MarketDataFetcher::new(),
+            blockchain,
+            metrics: AnalyticsMetrics::new(),
+            zk_system,
         }
     }
 
@@ -213,6 +236,98 @@ impl AdvancedAnalytics {
         // Logic to execute the analytics business logic
         // ...
     }
+
+    pub async fn start_analysis_loop(&self) {
+        info!("Starting advanced analytics loop");
+        loop {
+            match self.perform_analysis().await {
+                Ok(analysis) => {
+                    self.metrics.record_successful_analysis();
+                    info!("Analysis completed successfully: {:?}", analysis);
+                }
+                Err(e) => {
+                    self.metrics.record_failed_analysis();
+                    error!("Analysis failed: {}", e);
+                }
+            }
+            sleep(Duration::from_secs(300)).await; // 5 minute interval
+        }
+    }
+
+    async fn analyze_blockchain_data(&self) -> Result<BlockchainAnalysis, AnalyticsError> {
+        let mempool_size = self.blockchain.get_mempool_size().await
+            .map_err(|e| AnalyticsError::BlockchainError(e.to_string()))?;
+        
+        let block_height = self.blockchain.get_block_height().await
+            .map_err(|e| AnalyticsError::BlockchainError(e.to_string()))?;
+        
+        let fee_rate = self.blockchain.get_fee_rate().await
+            .map_err(|e| AnalyticsError::BlockchainError(e.to_string()))?;
+
+        Ok(BlockchainAnalysis {
+            mempool_size,
+            block_height,
+            fee_rate,
+        })
+    }
+
+    fn combine_analyses(
+        &self,
+        prediction: MLOutput,
+        blockchain_data: BlockchainAnalysis,
+    ) -> AnalysisResult {
+        AnalysisResult {
+            market_prediction: prediction.value,
+            confidence: prediction.confidence,
+            blockchain_metrics: blockchain_data,
+            timestamp: chrono::Utc::now(),
+        }
+    }
+
+    pub async fn analyze_market_data(&self) -> Result<MarketAnalysis, AnalyticsError> {
+        let market_data = self.fetch_market_data().await?;
+        let processed_data = self.process_market_data(&market_data)?;
+        let prediction = self.ml_core.predict(&processed_data)
+            .map_err(|e| AnalyticsError::MLError(e.to_string()))?;
+
+        // Generate ZK proof of analysis
+        let proof = self.zk_system.create_proof(&[
+            &prediction.value.to_le_bytes(),
+            &prediction.confidence.to_le_bytes(),
+        ]).map_err(|e| AnalyticsError::MLError(e.to_string()))?;
+
+        let analysis = MarketAnalysis {
+            prediction: prediction.value,
+            confidence: prediction.confidence,
+            proof,
+            timestamp: chrono::Utc::now(),
+        };
+
+        self.metrics.record_analysis(&analysis);
+        Ok(analysis)
+    }
+
+    async fn fetch_market_data(&self) -> Result<Vec<MarketData>, AnalyticsError> {
+        let mut market_data = Vec::new();
+        for feed in self.data_feeds.values() {
+            let data = feed.get_latest_data()
+                .map_err(|e| AnalyticsError::DataFeedError(e.to_string()))?;
+            market_data.push(data);
+        }
+        Ok(market_data)
+    }
+
+    fn process_market_data(&self, data: &[MarketData]) -> Result<MLInput, AnalyticsError> {
+        // Process and normalize market data for ML input
+        let features = data.iter()
+            .flat_map(|d| d.to_features())
+            .collect();
+
+        Ok(MLInput {
+            features,
+            timestamp: chrono::Utc::now(),
+        })
+    }
 }
 
 pub fn init(
@@ -220,11 +335,101 @@ pub fn init(
     blockchain: &BlockchainInterface,
     data_feeds: &HashMap<DataSource, DataFeed>,
     dao_rules: &[DAORule],
+    ml_core: Arc<MLCore>,
+    blockchain: Arc<BlockchainInterface>,
+    zk_system: Arc<ZKSnarkSystem>,
 ) -> AdvancedAnalytics {
     AdvancedAnalytics::new(
         user_metrics.clone(),
         blockchain.clone(),
         data_feeds.clone(),
         dao_rules.to_vec(),
+        ml_core,
+        blockchain,
+        zk_system,
     )
+}
+
+struct AnalyticsMetrics {
+    successful_analyses: Counter,
+    failed_analyses: Counter,
+    analysis_duration: Gauge,
+    analyses_performed: Counter,
+    average_confidence: Gauge,
+    prediction_accuracy: Gauge,
+}
+
+impl AnalyticsMetrics {
+    fn new() -> Self {
+        Self {
+            successful_analyses: counter!("analytics_successful_total"),
+            failed_analyses: counter!("analytics_failed_total"),
+            analysis_duration: gauge!("analytics_duration_seconds"),
+            analyses_performed: counter!("analytics_performed_total"),
+            average_confidence: gauge!("analytics_average_confidence"),
+            prediction_accuracy: gauge!("analytics_prediction_accuracy"),
+        }
+    }
+
+    fn record_successful_analysis(&self) {
+        self.successful_analyses.increment(1);
+    }
+
+    fn record_failed_analysis(&self) {
+        self.failed_analyses.increment(1);
+    }
+
+    fn record_analysis(&self, analysis: &MarketAnalysis) {
+        self.analyses_performed.increment(1);
+        self.average_confidence.set(analysis.confidence);
+    }
+}
+
+#[derive(Debug)]
+struct BlockchainAnalysis {
+    mempool_size: u64,
+    block_height: u64,
+    fee_rate: f64,
+}
+
+#[derive(Debug)]
+struct AnalysisResult {
+    market_prediction: f64,
+    confidence: f64,
+    blockchain_metrics: BlockchainAnalysis,
+    timestamp: chrono::DateTime<chrono::Utc>,
+}
+
+#[derive(Debug)]
+pub struct MarketAnalysis {
+    prediction: f64,
+    confidence: f64,
+    proof: Vec<u8>,
+    timestamp: chrono::DateTime<chrono::Utc>,
+}
+
+#[derive(Error, Debug)]
+pub enum AnalyticsError {
+    #[error("ML prediction error: {0}")]
+    MLError(String),
+    #[error("Data feed error: {0}")]
+    DataFeedError(String),
+    #[error("Blockchain error: {0}")]
+    BlockchainError(String),
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_market_analysis() {
+        let analytics = setup_test_analytics().await;
+        let result = analytics.analyze_market_data().await;
+        assert!(result.is_ok());
+        
+        let analysis = result.unwrap();
+        assert!(analysis.confidence >= 0.0 && analysis.confidence <= 1.0);
+        assert!(!analysis.proof.is_empty());
+    }
 }
