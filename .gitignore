@@ -3,15 +3,26 @@
 **/*.rs.bk
 Cargo.lock
 
-# Build artifacts
-/dist
-/build
+# Environment
+.env
+.env.local
+*.pem
+*.key
+secrets/
 
 # IDE/editor specific files
 /.vscode
 /.idea
 *.swp
 *.swo
+
+# Build artifacts
+/dist
+/build
+
+# Log files
+*.log
+logs/
 
 # System-specific files
 .DS_Store
@@ -21,10 +32,6 @@ Thumbs.db
 *.key
 *.pem
 wallet_data.json
-.env
-
-# Log files
-*.log
 
 # STX-specific
 /.stacks-chain
