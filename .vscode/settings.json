@@ -1,0 +1,9 @@
+{
+    "svn.ignoreMissingSvnWarning": true,
+    "git.allowForcePush": true,
+    "git.allowNoVerifyCommit": false,
+    "git.alwaysShowStagedChangesResourceGroup": true,
+    "rust-tests-bin.display.showCodeLens": false,
+    "docwriter.style": "RustDoc",
+    "rust-analyzer.checkOnSave": true
+}

@@ -12,9 +12,7 @@ pub mod nlp;
 pub use federated_learning::{FederatedLearning, FederatedLearningModel, setup_federated_learning};
 pub use research::Researcher;
 pub use github_integration::{GitHubIntegrator, Issue};
-pub use bitcoin_models::{BitcoinPricePredictor, TransactionVolumeForecaster, RiskAssessor};
-pub use ml_types::{MLInput, MLOutput};rning};
-pub use bitcoin_models::{BitcoinPricePredictor, TransactionVolumeForecaster, RiskAssessor};
+pub use ml_types::{MLInput, MLOutput};
 pub use bitcoin_models::{BitcoinPricePredictor, TransactionVolumeForecaster, RiskAssessor};
 pub use differential_privacy::implement_differential_privacy;
 pub use secure_aggregation::implement_secure_aggregation;
@@ -23,7 +21,6 @@ pub use external_ai_services::integrate_external_ai_services;
 pub use nlp::implement_nlp;
 
 use gorules::{init_gorules, execute_rule};
-use log::{info, error};
 use log::{info, error};
 use serde::{Serialize, Deserialize};
 use thiserror::Error;
@@ -65,12 +62,15 @@ pub trait MLModel {
 }
 
 pub struct InternalAIEngine {
+pub struct InternalAIEngine {
     global_model: LinearRegression<f64, f64>,
     local_models: Vec<Array1<f64>>,
     performance_history: Vec<f64>,
     ema: ExponentialMovingAverage,
     rsi: RelativeStrengthIndex,
 }
+
+impl InternalAIEngine {
     pub fn new() -> Self {
         Self {
             global_model: LinearRegression::default(),
@@ -80,20 +80,17 @@ pub struct InternalAIEngine {
             rsi: RelativeStrengthIndex::new(14).unwrap(),
         }
     }
-
+}   }
+   initialize_modules();
+        Ok(())
     pub fn init() -> Result<(), Box<dyn std::error::Error>> {
         info!("Initializing ML module");
         federated_learning::init()?;
-        initialize_modules();
+        initialize_gorules_module();
+        Ok(())
+    }   researcher.analyze_papers(papers).await?;
         Ok(())
     }
-
-    pub async fn perform_research(&self) -> Result<(), Box<dyn std::error::Error>> {
-        let researcher = Researcher::new();
-        let papers = researcher.crawl_mdpi("cybersecurity vulnerabilities", 5).await?;
-        researcher.analyze_papers(papers).await?;
-        Ok(())
-    }       rsi: RelativeStrengthIndex::new(14).unwrap(),
         }
     }
 
@@ -180,12 +177,12 @@ pub fn initialize_modules() {
     if let Err(e) = init_gorules("path/to/config") {
         eprintln!("Error initializing GoRules: {}", e);
         return;
-    }
+pub fn initialize_gorules_module() {
 
     info!("Modules initialized successfully");
 }
 
-pub fn execute_business_logic(rule: &str) {
+pub fn execute_gorules_business_logic(rule: &str) {
     // Execute a business rule using GoRules
     match execute_rule(rule) {
         Ok(_) => info!("Rule executed successfully"),
