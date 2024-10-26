@@ -113,6 +113,7 @@ fn main() {
     if let Err(e) = ml_logic::process_transaction_data("path/to/transaction_data.json") {
         eprintln!("Error processing transaction data: {}", e);
     }
+<<<<<<< HEAD
 }
 
 fn run() -> Result<(), Box<dyn Error>> {
@@ -324,6 +325,8 @@ fn main() {
     if let Err(e) = ml_logic::process_transaction_data("path/to/transaction_data.json") {
         eprintln!("Error processing transaction data: {}", e);
     }
+=======
+>>>>>>> 7449cb6d7442c7d6b37fe39114c4a295ed566697
 }
 
 fn run() -> Result<(), Box<dyn Error>> {
