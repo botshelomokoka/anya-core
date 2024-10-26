@@ -124,3 +124,60 @@
 - Added Docker support for development and deployment
 
 This roadmap is subject to change based on technological advancements, community feedback, and shifting priorities in the Bitcoin ecosystem.
+
+# Roadmap
+
+## Current Focus (Q2 2024)
+
+### ML System Enhancement
+- [x] Improved model adaptation
+- [x] Enhanced oracle integration
+- [x] Advanced privacy features
+- [ ] Distributed learning optimization
+- [ ] Advanced model versioning
+
+### Infrastructure Upgrades
+- [x] RISC-V processor support
+- [x] 64-bit system architecture
+- [x] 128-bit compatibility preparation
+- [ ] Advanced memory management
+- [ ] Enhanced NPU integration
+
+### Security Enhancements
+- [x] Quantum resistance implementation
+- [x] Enhanced ZK-SNARKs
+- [x] Improved privacy measures
+- [ ] Post-quantum cryptography
+- [ ] Advanced secure multiparty computation
+
+## Near Term (Q3 2024)
+
+### Network Improvements
+- [ ] Advanced P2P protocols
+- [ ] Enhanced state monitoring
+- [ ] Improved peer discovery
+- [ ] Network resilience
+- [ ] Cross-chain interoperability
+
+### ML Integration
+- [ ] Advanced federated learning
+- [ ] Enhanced model adaptation
+- [ ] Improved oracle integration
+- [ ] Advanced analytics
+- [ ] Real-time learning
+
+## Long Term (Q4 2024 and beyond)
+
+### Advanced Features
+- [ ] Quantum-ready infrastructure
+- [ ] Advanced AI capabilities
+- [ ] Cross-chain smart contracts
+- [ ] Enhanced privacy features
+- [ ] Advanced security measures
+
+### Ecosystem Development
+- [ ] Developer tools
+- [ ] SDK improvements
+- [ ] Documentation enhancement
+- [ ] Community growth
+- [ ] Enterprise integration
