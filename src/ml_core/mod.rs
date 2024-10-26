@@ -7,6 +7,75 @@ mod data;
 
 use gorules::{init_gorules, execute_rule};
 use log::info;
+use thiserror::Error;
+use ndarray::{Array1, Array2};
+use std::sync::Arc;
+use tokio::sync::Mutex;
+use tch::{nn, Device, Tensor};
+use crate::error::AnyaResult;
+
+#[derive(Error, Debug)]
+pub enum MLError {
+    #[error("Training error: {0}")]
+    TrainingError(String),
+    #[error("Prediction error: {0}")]
+    PredictionError(String),
+    #[error("Model validation error: {0}")]
+    ValidationError(String),
+    #[error("Ethics violation: {0}")]
+    EthicsViolation(String),
+}
+
+pub struct MLCore {
+    model: Arc<Mutex<nn::Sequential>>,
+    device: Device,
+    config: MLConfig,
+    metrics: HashMap<MetricType, f64>,
+}
+
+impl MLCore {
+    pub fn new() -> Result<Self, MLError> {
+        let device = Device::cuda_if_available();
+        let vs = nn::VarStore::new(device);
+        let model = nn::seq()
+            .add(nn::linear(&vs.root(), 100, 64, Default::default()))
+            .add_fn(|x| x.relu())
+            .add(nn::linear(&vs.root(), 64, 32, Default::default()));
+
+        Ok(Self {
+            model: Arc::new(Mutex::new(model)),
+            device,
+            config: MLConfig::default(),
+            metrics: HashMap::new(),
+        })
+    }
+
+    pub async fn train(&mut self, data: Array2<f64>) -> Result<(), MLError> {
+        let tensor = Tensor::from_slice2(&data.as_slice().unwrap())
+            .to_device(self.device);
+        
+        let mut model = self.model.lock().await;
+        model.train();
+        
+        let loss = model.forward(&tensor);
+        loss.backward();
+        
+        Ok(())
+    }
+
+    pub async fn predict(&self, input: Array1<f64>) -> Result<Array1<f64>, MLError> {
+        let tensor = Tensor::from_slice(&input.as_slice().unwrap())
+            .to_device(self.device);
+        
+        let model = self.model.lock().await;
+        model.eval();
+        
+        let output = model.forward(&tensor);
+        let result = Array1::from_vec(output.to_vec1().unwrap());
+        
+        Ok(result)
+    }
+}
 
 pub fn initialize_modules() {
 	// Initialize GoRules

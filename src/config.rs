@@ -6,6 +6,13 @@ pub struct Settings {
     pub debug: bool,
     pub database_url: String,
     pub server_port: u16,
+    pub rate_limit: RateLimitConfig,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct RateLimitConfig {
+    pub capacity: u32,
+    pub refill_rate: f64,
 }
 
 impl Settings {
@@ -13,6 +20,7 @@ impl Settings {
         let mut s = Config::default();
         s.merge(File::with_name("config/default"))?;
         s.merge(File::with_name("config/local").required(false))?;
+        s.merge(Environment::with_prefix("APP"))?;
 
         s.try_into()
     }

@@ -124,69 +124,39 @@ async fn main() -> std::io::Result<()> {
     .await
 }
 
-struct ApiHandler {
+pub struct ApiHandler {
     rate_limiter: Arc<RateLimiter>,
 }
+
 impl ApiHandler {
     pub fn new(rate_limiter: Arc<RateLimiter>) -> Self {
-        ApiHandler { rate_limiter }
+        Self { rate_limiter }
     }
 
-    pub async fn rate_limit_middleware(&self, req: HttpRequest, body: web::Bytes) -> Result<HttpResponse, actix_web::Error> {
-        if self.is_rate_limited(&req).await {
-            return Ok(self.rate_limit_exceeded_response());
-        }
-        self.pass_request(body)
-    }
-
-    async fn is_rate_limited(&self, req: &HttpRequest) -> bool {
-        let identifier = self.get_identifier(req).await;
-    fn rate_limit_exceeded_response(&self) -> HttpResponse {
-        HttpResponse::TooManyRequests().json(serde_json::json!({
-            "error": "Rate limit exceeded",
-            "retry_after": 60 // Suggest retry after 60 seconds
-        }))
-    }       "error": "Rate limit exceeded",
-            "retry_after": 60 // Suggest retry after 60 seconds
-        })
-    }
-
-    fn pass_request(&self, body: web::Bytes) -> Result<HttpResponse, actix_web::Error> {
-        Ok(HttpResponse::Ok().body(body))
-    }
-
-    async fn get_identifier(&self, req: &HttpRequest) -> String {
-        // Implement logic to get a unique identifier (IP, wallet address, app ID, etc.)
-        req.connection_info().realip_remote_addr()
-            .unwrap_or("unknown")
-            .to_string()
+    pub async fn handle_request<F, Fut>(&self, f: F) -> Result<impl Responder>
+    where
+        F: FnOnce() -> Fut,
+        Fut: Future<Output = Result<impl Responder>>,
+    {
+        self.rate_limiter.acquire(1).await?;
+        f().await
     }
 }
 
-// Wrap each endpoint with rate limiting middleware
-// This macro takes an endpoint handler and wraps it with rate limiting logic.
+// Rate limiting macro
 macro_rules! rate_limited_endpoint {
     ($handler:expr) => {
-        |api_handler: web::Data<ApiHandler>, req: HttpRequest, body: web::Bytes| async move {
-            if api_handler.is_rate_limited(&req).await {
-                return Ok(api_handler.rate_limit_exceeded_response());
-            }
-            $handler(req, body).await
+        |req, body, api_handler: web::Data<ApiHandler>| async move {
+            api_handler.handle_request(|| async { $handler(req, body).await }).await
         }
     };
 }
 
-// Example of using the macro for an endpoint
-async fn get_advanced_analytics(req: HttpRequest, body: web::Bytes) -> impl Responder {
-    // Implement the logic for advanced analytics here
-    HttpResponse::Ok().json(serde_json::json!({
-        "message": "Advanced analytics data"
-    }))
-}
-
 pub fn config(cfg: &mut web::ServiceConfig) {
-    let api_handler = web::Data::new(ApiHandler::new(Arc::new(RateLimiter::new())));
-    let api_handler = web::Data::new(ApiHandler::new(Arc::new(RateLimiter::new(/* Add required parameters here */))));
-        .route("/analytics", web::post().to(rate_limited_endpoint!(get_advanced_analytics)))
-        // Add other routes here, wrapped with rate_limited_endpoint! macro
+    let api_handler = web::Data::new(ApiHandler::new(
+        Arc::new(RateLimiter::new(100, 10.0))
+    ));
+
+    cfg.app_data(api_handler.clone())
+        .route("/analytics", web::post().to(rate_limited_endpoint!(get_advanced_analytics)));
 }
