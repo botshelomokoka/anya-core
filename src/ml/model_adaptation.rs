@@ -1,5 +1,6 @@
 use crate::ml_core::{MLCore, MLInput, MLOutput};
 use crate::blockchain::BlockchainInterface;
+use crate::dowe::DoweOracle;
 use crate::privacy::zksnarks::ZKSnarkSystem;
 use thiserror::Error;
 use log::{info, warn, error};
@@ -20,6 +21,7 @@ pub enum ModelAdaptationError {
 pub struct ModelAdapter {
     ml_core: Arc<Mutex<MLCore>>,
     blockchain: Arc<BlockchainInterface>,
+    dowe_oracle: Arc<DoweOracle>,
     zk_system: Arc<ZKSnarkSystem>,
     metrics: AdaptationMetrics,
 }
@@ -28,11 +30,13 @@ impl ModelAdapter {
     pub fn new(
         ml_core: Arc<Mutex<MLCore>>,
         blockchain: Arc<BlockchainInterface>,
+        dowe_oracle: Arc<DoweOracle>,
         zk_system: Arc<ZKSnarkSystem>,
     ) -> Self {
         Self {
             ml_core,
             blockchain,
+            dowe_oracle,
             zk_system,
             metrics: AdaptationMetrics::new(),
         }
@@ -45,8 +49,15 @@ impl ModelAdapter {
         // Get blockchain metrics for adaptation
         let blockchain_metrics = self.get_blockchain_metrics().await?;
 
-        // Adapt model based on blockchain state
-        let adapted_model = self.adapt_to_blockchain_state(new_data, &blockchain_metrics).await?;
+        // Get oracle data for adaptation
+        let oracle_data = self.get_oracle_data().await?;
+
+        // Combine metrics and adapt model
+        let adapted_model = self.adapt_to_network_state(
+            new_data,
+            &blockchain_metrics,
+            &oracle_data
+        ).await?;
 
         // Update ML core with adapted model
         self.update_ml_core(adapted_model).await?;
@@ -62,7 +73,7 @@ impl ModelAdapter {
                 &input.timestamp.timestamp().to_le_bytes(),
             ]).map_err(|e| ModelAdaptationError::PrivacyError(e.to_string()))?;
 
-            if !self.zk_system.verify_proof(&proof, &[&input.features.as_bytes()])?? {
+            if !self.zk_system.verify_proof(&proof, &[&input.features.as_bytes()])? {
                 return Err(ModelAdaptationError::PrivacyError("Invalid privacy proof".into()));
             }
         }
@@ -82,15 +93,24 @@ impl ModelAdapter {
         })
     }
 
-    async fn adapt_to_blockchain_state(
+    async fn get_oracle_data(&self) -> Result<OracleData, ModelAdaptationError> {
+        self.dowe_oracle.get_latest_data().await
+            .map_err(|e| ModelAdaptationError::UpdateError(e.to_string()))
+    }
+
+    async fn adapt_to_network_state(
         &self,
         data: &[MLInput],
-        metrics: &BlockchainMetrics,
+        blockchain_metrics: &BlockchainMetrics,
+        oracle_data: &OracleData,
     ) -> Result<AdaptedModel, ModelAdaptationError> {
         let mut ml_core = self.ml_core.lock().await;
         
-        // Adjust learning rate based on network load
-        let learning_rate = self.calculate_learning_rate(metrics.network_load);
+        // Adjust learning rate based on network state
+        let learning_rate = self.calculate_learning_rate(
+            blockchain_metrics.network_load,
+            oracle_data.consensus_score
+        );
         
         // Update model with new data using adjusted parameters
         ml_core.update_with_params(data, learning_rate)
@@ -99,13 +119,17 @@ impl ModelAdapter {
         Ok(AdaptedModel {
             parameters: ml_core.get_parameters(),
             learning_rate,
+            privacy_score: self.calculate_privacy_score(blockchain_metrics, oracle_data),
         })
     }
 
-    fn calculate_learning_rate(&self, network_load: f64) -> f64 {
-        // Adjust learning rate inversely to network load
+    fn calculate_learning_rate(&self, network_load: f64, consensus_score: f64) -> f64 {
         let base_rate = 0.01;
-        base_rate * (1.0 - network_load.min(0.9))
+        base_rate * (1.0 - network_load.min(0.9)) * consensus_score
+    }
+
+    fn calculate_privacy_score(&self, metrics: &BlockchainMetrics, oracle: &OracleData) -> f64 {
+        (metrics.network_load + oracle.consensus_score) / 2.0
     }
 
     async fn update_ml_core(&self, model: AdaptedModel) -> Result<(), ModelAdaptationError> {
@@ -120,6 +144,7 @@ struct AdaptationMetrics {
     successful_adaptations: Counter,
     failed_adaptations: Counter,
     average_learning_rate: Gauge,
+    privacy_score: Gauge,
 }
 
 impl AdaptationMetrics {
@@ -128,6 +153,7 @@ impl AdaptationMetrics {
             successful_adaptations: counter!("model_adaptations_successful_total"),
             failed_adaptations: counter!("model_adaptations_failed_total"),
             average_learning_rate: gauge!("model_average_learning_rate"),
+            privacy_score: gauge!("model_privacy_score"),
         }
     }
 
@@ -139,8 +165,9 @@ impl AdaptationMetrics {
         self.failed_adaptations.increment(1);
     }
 
-    fn update_learning_rate(&self, rate: f64) {
-        self.average_learning_rate.set(rate);
+    fn update_metrics(&self, learning_rate: f64, privacy_score: f64) {
+        self.average_learning_rate.set(learning_rate);
+        self.privacy_score.set(privacy_score);
     }
 }
 
@@ -152,6 +179,7 @@ struct BlockchainMetrics {
 struct AdaptedModel {
     parameters: Vec<f64>,
     learning_rate: f64,
+    privacy_score: f64,
 }
 
 #[cfg(test)]
@@ -162,9 +190,10 @@ mod tests {
     async fn test_model_adaptation() {
         let ml_core = Arc::new(Mutex::new(MLCore::new()));
         let blockchain = Arc::new(BlockchainInterface::new());
+        let dowe_oracle = Arc::new(DoweOracle::new());
         let zk_system = Arc::new(ZKSnarkSystem::new().unwrap());
         
-        let adapter = ModelAdapter::new(ml_core, blockchain, zk_system);
+        let adapter = ModelAdapter::new(ml_core, blockchain, dowe_oracle, zk_system);
         
         let test_data = vec![MLInput::default()];
         let result = adapter.adapt_model(&test_data).await;
