@@ -14,7 +14,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -39,9 +40,7 @@ jobs:
       run: cargo test --verbose
 
     - name: Checkout sub-repo
-      run: |
-        git clone https://github.com/botshelomokoka/anya-enterprise.git
-        cd anya-enterprise
+      run: git clone https://github.com/botshelomokoka/anya-enterprise.git
 
     - name: Install Python dependencies for sub-repo
       run: |
@@ -63,3 +62,9 @@ jobs:
       run: |
         cd anya-enterprise
         python -m unittest discover
+
+    - name: Run Unit Tests
+      run: cargo test --verbose
+
+    - name: Run Integration Tests
+      run: cargo test --test integration_tests --verbose

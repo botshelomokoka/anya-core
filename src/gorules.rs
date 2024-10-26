@@ -37,6 +37,7 @@ pub fn load_rules(file: &str) -> Result<(), String> {  // Add this function
 	} else {
 		Err("Failed to load rules".into())
 	}
+<<<<<<< HEAD
 }
 // src/gorules.rs
 use libc::{c_char, c_int};
@@ -96,4 +97,6 @@ pub fn execute_rule(rule: &str) -> Result<(), String> {
     } else {
         Err("Failed to execute rule".into())
     }
+=======
+>>>>>>> 7449cb6d7442c7d6b37fe39114c4a295ed566697
 }

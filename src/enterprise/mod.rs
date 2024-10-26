@@ -1,3 +1,22 @@
+mod logic_helpers;
+mod data_processor;
+pub use logic_helpers::{HelperFunction1, HelperFunction2};
+pub use research::Researcher;
+pub use github_integration::{GitHubIntegrator, Issue};
+pub use data_processor::{DataProcessor, ProcessedData};
+use crate::license;
+use std::collections::HashMap;er::{ModelTrainer, TrainedModel};
+pub use predictor::{Predictor, Prediction};
+mod predictor;
+mod optimizer;
+mod ml_types;
+mod research;
+mod github_integration;;
+mod optimizer;
+mod ml_types;
+
+pub use logic_helpers::{HelperFunction1, HelperFunction2};
+
 use crate::license;
 use crate::interlink::Interlink;
 use log::{info, error};
@@ -7,7 +26,21 @@ pub mod high_volume_trading;
 
 pub async fn init() -> Result<(), Box<dyn std::error::Error>> {
     let license_key = std::env::var("ANYA_LICENSE_KEY")
-        .map_err(|_| "ANYA_LICENSE_KEY not set")?;
+            }
+            
+            pub enum MetricType {
+                ModelAccuracy,
+                ProcessingTime,
+                PredictionConfidence,
+                OptimizationScore,
+                TransactionFee,
+            }
+            
+            pub struct MLCore {
+                data_processor: DataProcessor,
+                model_trainer: ModelTrainer,
+                // Other fields...
+            }err(|_| "ANYA_LICENSE_KEY not set")?;
 
     match license::verify_license(&license_key).await {
         Ok(license) => {

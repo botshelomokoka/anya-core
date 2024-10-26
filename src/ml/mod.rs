@@ -5,6 +5,7 @@ mod mlfee;
 mod system_evaluation;
 mod gorules;
 mod bitcoin_models;
+<<<<<<< HEAD
 mod gorules;
 mod ml_types;
 pub mod differential_privacy;
@@ -26,6 +27,37 @@ pub use nlp::implement_nlp;
 use gorules::{init_gorules, execute_rule};
 use log::{info, error};
 use log::{info, error};
+=======
+mod data;
+
+pub use federated_learning::{FederatedLearning, FederatedLearningModel, setup_federated_learning};
+pub use bitcoin_models::{BitcoinPricePredictor, TransactionVolumeForecaster, RiskAssessor};
+use gorules::{init_gorules, execute_rule};
+use log::info;
+
+pub fn initialize_modules() {
+    // Initialize GoRules
+    if let Err(e) = init_gorules("path/to/config") {
+        eprintln!("Error initializing GoRules: {}", e);
+        return;
+    }
+
+    info!("Modules initialized successfully");
+}
+
+pub fn execute_business_logic(rule: &str) {
+    // Execute a business rule using GoRules
+    match execute_rule(rule) {
+        Ok(_) => info!("Rule executed successfully"),
+        Err(e) => eprintln!("Error executing rule: {}", e),
+    }
+}
+
+pub fn process_transaction_data(file_path: &str) -> Result<(), String> {
+    let data = data::load_data(file_path)?;
+    data::process_data(data)
+}
+>>>>>>> 7449cb6d7442c7d6b37fe39114c4a295ed566697
 use serde::{Serialize, Deserialize};
 use thiserror::Error;
 use ndarray::{Array1, Array2};
