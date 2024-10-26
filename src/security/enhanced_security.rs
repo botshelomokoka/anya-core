@@ -19,21 +19,21 @@ pub enum SecurityError {
 pub struct EnhancedSecurity {
     blockchain: Arc<BlockchainInterface>,
     zk_system: Arc<ZKSnarkSystem>,
-    metrics: SecurityMetrics,
     quantum_resistance: QuantumResistance,
+    metrics: SecurityMetrics,
 }
 
 impl EnhancedSecurity {
     pub fn new(
         blockchain: Arc<BlockchainInterface>,
         zk_system: Arc<ZKSnarkSystem>,
-    ) -> Self {
-        Self {
+    ) -> Result<Self, SecurityError> {
+        Ok(Self {
             blockchain,
             zk_system,
+            quantum_resistance: QuantumResistance::new()?,
             metrics: SecurityMetrics::new(),
-            quantum_resistance: QuantumResistance::new(),
-        }
+        })
     }
 
     pub async fn validate_transaction(&self, tx: &Transaction) -> Result<(), SecurityError> {
@@ -58,18 +58,6 @@ impl EnhancedSecurity {
         Ok(())
     }
 
-    async fn validate_blockchain_state(&self) -> Result<(), SecurityError> {
-        let network_state = self.blockchain.get_network_state().await
-            .map_err(|e| SecurityError::ValidationError(e.to_string()))?;
-
-        if network_state.anomaly_score > 0.8 {
-            warn!("High anomaly score detected in blockchain state: {}", network_state.anomaly_score);
-            return Err(SecurityError::ValidationError("Suspicious blockchain state".into()));
-        }
-
-        Ok(())
-    }
-
     pub async fn audit_system(&self) -> Result<AuditReport, SecurityError> {
         info!("Starting system security audit");
         
@@ -87,6 +75,18 @@ impl EnhancedSecurity {
 
         self.metrics.record_audit_completion(&report);
         Ok(report)
+    }
+
+    async fn validate_blockchain_state(&self) -> Result<(), SecurityError> {
+        let network_state = self.blockchain.get_network_state().await
+            .map_err(|e| SecurityError::ValidationError(e.to_string()))?;
+
+        if network_state.anomaly_score > 0.8 {
+            warn!("High anomaly score detected in blockchain state: {}", network_state.anomaly_score);
+            return Err(SecurityError::ValidationError("Suspicious blockchain state".into()));
+        }
+
+        Ok(())
     }
 
     async fn evaluate_privacy_guarantees(&self) -> Result<f64, SecurityError> {
@@ -160,7 +160,7 @@ mod tests {
     async fn test_security_validation() {
         let blockchain = Arc::new(BlockchainInterface::new());
         let zk_system = Arc::new(ZKSnarkSystem::new().unwrap());
-        let security = EnhancedSecurity::new(blockchain, zk_system);
+        let security = EnhancedSecurity::new(blockchain, zk_system).unwrap();
 
         let tx = Transaction {
             amount: 100.0,
