@@ -65,6 +65,8 @@ tokio-test = "0.4"
 
 assert_matches = "1.5"
 
+criterion = "0.5"
+
 
 
 [build-dependencies]
@@ -86,6 +88,8 @@ std = []
 [[bench]]
 
 name = "enterprise_benchmarks"
+
+path = "benches/enterprise_benchmarks/main.rs"
 
 harness = false
 

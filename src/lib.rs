@@ -31,9 +31,13 @@ pub lightning_config: String, // Add this line
 impl AnyaConfig {
 /// Create a new AnyaConfig instance
 pub fn new() -> Result<Self, ConfigError> {
-    let config = Config::builder()
-        .add_source(config::Environment::with_prefix("ANYA"))
-        .build()?;
+    let mut config = Config::new();
+    
+    // Set default values
+    config.set_default("network_type", "testnet")?;
+    
+    // Load from environment
+    config.merge(Environment::with_prefix("ANYA"))?;
 
     Ok(AnyaConfig {
         log_level: config.get_string("log_level").unwrap_or("info".to_string()),
