@@ -84,3 +84,6 @@ wallet_data.json
 
 # Backup files
 *.backup
+
+# Cross compilation
+/cross
