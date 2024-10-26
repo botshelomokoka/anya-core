@@ -1,0 +1,99 @@
+# Rust-specific
+target/
+**/*.rs.bk
+Cargo.lock
+# Rust-specific
+target/
+**/*.rs.bk
+Cargo.lock
+
+# Build artifacts
+dist/
+build/
+
+# IDE/editor specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# System-specific files
+.DS_Store
+Thumbs.db
+
+# Sensitive information
+*.key
+*.pem
+wallet_data.json
+.env
+
+# Log files
+*.log
+
+# Network-specific
+.stacks-chain/
+.stacks-testnet/
+.web5/
+.dlc/
+.lnd/
+*.macaroon
+.bitcoin/
+.libp2p/
+
+# Compiled files
+*.rlib
+*.so
+*.dylib
+*.dll
+
+# Database files
+*.db
+*.sqlite
+
+# Temporary files
+*.tmp
+*.bak
+*~
+
+# OS generated files
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# Dependency directories
+node_modules/
+
+# Anya-specific
+config.local.toml
+.anya-temp/
+anya-logs/
+anya-data/
+anya-backups/
+
+# Documentation
+docs/_build/
+
+# Test coverage
+coverage/
+
+# Benchmark results
+benchmarks/results/
+
+# Generated files
+**/*.pb.rs
+
+# Local configuration files
+config.local.toml
+
+# Temporary Anya files
+.anya-temp/
+
+# Anya logs
+anya-logs/
+
+# Anya data
+anya-data/
+
+# Anya backups
+anya-backups/
