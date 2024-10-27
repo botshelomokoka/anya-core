@@ -5,10 +5,12 @@ Cargo.lock
 
 # Environment
 .env
-.env.local
-*.pem
-*.key
+.env.*
+!.env.example
 secrets/
+**/credentials.json
+**/*.pem
+**/*.key
 
 # IDE/editor specific files
 /.vscode
