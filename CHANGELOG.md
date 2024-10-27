@@ -8,8 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - Enhanced ML system with improved model adaptation and oracle integration
-- Advanced RISC-V processor support with 24-stage pipeline and 4.5GB NPU
+- Advanced internal processor support with 24-stage pipeline and 4.5GB NPU
 - Unified data pipeline with comprehensive ML integration
 - Enhanced security features with quantum resistance
 - Improved P2P network discovery and state monitoring
@@ -20,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive metrics collection and monitoring
 
 ### Changed
+
 - Refactored data pipeline for better ML integration
 - Improved network architecture for better scalability
 - Enhanced security module with quantum resistance
@@ -27,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optimized ML model adaptation system
 
 ### Fixed
+
 - Memory management issues in high-volume scenarios
 - Network discovery reliability improvements
 - Security validation edge cases
@@ -36,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.0] - 2024-03-XX
 
 ### Added
+
 - Initial ML system implementation
 - Basic network discovery
 - Preliminary security features
@@ -45,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2024-02-XX
 
 ### Added
+
 - Project initialization
 - Basic architecture setup
 - Core functionality implementation
