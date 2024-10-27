@@ -224,3 +224,5 @@ For more details on contributing and the development process, please see the `CO
 ## License
 
 This project is licensed under a proprietary license. See the [LICENSE](LICENSE) file for details.
+
+## Building

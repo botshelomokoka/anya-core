@@ -10,12 +10,17 @@ version = "0.1.0"
 
 edition = "2021"
 
+authors = ["botshelomokoka <botshelomokoka@gmail.com>"]
+
+repository = "https://github.com/botshelomokoka/anya"
+
+license = "MIT OR Apache-2.0"  # Added this line
+
 
 
 [workspace]
 
 members = [
-
     "anya-core",
     # Add other members as needed
 ]
@@ -37,7 +42,31 @@ license = "MIT OR Apache-2.0"  # Added this line
 
 [dependencies]
 
+# Logging
+slog = "2.7"
+slog-term = "2.9"
+slog-async = "2.8"
+
+# Async
+tokio = { version = "1.0", features = ["full"] }
+
+# Error handling
+anyhow = "1.0"
+
+# Core functionality
 anya-core = { path = "./anya-core" }
+
+# Core Dependencies
+serde = { version = "1.0", features = ["derive"] }
+
+# ML Dependencies
+tch = "0.13"
+ndarray = "0.15"
+
+# Web5 Dependencies (to be added)
+did-key = "0.2"
+dwn-sdk-rs = "0.1"
+
 
 
 
