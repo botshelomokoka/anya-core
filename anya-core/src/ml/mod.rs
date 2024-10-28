@@ -1,15 +1,25 @@
-//! Machine Learning module for Anya Core
+//! Machine Learning module provides AI and ML capabilities.
 use anyhow::Result;
 use log::{info, error};
 
 // Current ML Module Structure
 pub mod core;
-pub mod logic;
-pub mod dao_rules;
-pub mod federated_learning;
-pub mod system_evaluation;
-pub mod differential_privacy;
-pub mod secure_aggregation;
+pub mod agents;
+pub mod web5;
+pub mod nlp;
+pub mod research;
+pub mod federated;
+pub mod monitoring;
+pub mod types;
+
+pub use core::{MLCore, MLInput, MLOutput};
+pub use agents::MLAgent;
+pub use web5::Web5MLIntegration;
+pub use nlp::NaturalLanguageProcessor;
+pub use research::ResearchModule;
+pub use federated::FederatedLearningModule;
+pub use monitoring::MLMonitor;
+pub use types::{MLConfig, MLMetrics};
 
 // Bitcoin-specific features
 mod bitcoin_models;
@@ -33,3 +43,7 @@ pub async fn init() -> Result<()> {
     info!("ML module initialized successfully");
     Ok(())
 }
+
+// Re-export common ML types
+pub use ndarray::{Array1, Array2};
+pub use tch::{Tensor, Device};

@@ -14,16 +14,12 @@ use bitcoin::{
 
 #[derive(Error, Debug)]
 pub enum PrivacyError {
-    #[error("Zero-knowledge proof generation failed: {0}")]
+    #[error("Encryption error: {0}")]
+    EncryptionError(String),
+    #[error("ZK proof error: {0}")]
     ZKProofError(String),
-    #[error("Proof verification failed: {0}")]
-    VerificationError(String),
-    #[error("Web5 error: {0}")]
-    Web5Error(String),
-    #[error("Bitcoin multisig error: {0}")]
-    BitcoinMultisigError(String),
-    #[error("Script verification error: {0}")]
-    ScriptVerificationError(String),
+    #[error("MPC error: {0}")]
+    MPCError(String),
 }
 
 pub struct PrivacyModule {

@@ -44,8 +44,43 @@ impl NetworkAdapter {
     // Other methods...
 }
 
-mod discovery;
-mod connection;
+pub mod discovery;
+pub mod p2p;
+pub mod unified;
 
 pub use discovery::NetworkDiscovery;
-pub use connection::ConnectionManager;
+pub use p2p::P2PNetwork;
+pub use unified::UnifiedNetworkManager;
+
+use thiserror::Error;
+use metrics::{counter, gauge};
+use log::{info, error};
+
+#[derive(Error, Debug)]
+pub enum NetworkError {
+    #[error("Discovery error: {0}")]
+    DiscoveryError(String),
+    #[error("P2P error: {0}")]
+    P2PError(String),
+    #[error("Connection error: {0}")]
+    ConnectionError(String),
+}
+
+/// Core network metrics for monitoring and observability
+struct NetworkMetrics {
+    peer_count: gauge::Gauge,
+    message_count: counter::Counter,
+    bandwidth_usage: gauge::Gauge,
+    latency: gauge::Gauge,
+}
+
+impl NetworkMetrics {
+    fn new() -> Self {
+        Self {
+            peer_count: gauge!("network_peers_total"),
+            message_count: counter!("network_messages_total"),
+            bandwidth_usage: gauge!("network_bandwidth_bytes"),
+            latency: gauge!("network_latency_ms"),
+        }
+    }
+}
