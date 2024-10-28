@@ -84,3 +84,4 @@ impl AuthManager {
         Ok((priv_key.to_priv_key(), internal_key))
     }
 }
+
