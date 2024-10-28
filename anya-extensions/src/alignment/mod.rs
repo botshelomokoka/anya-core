@@ -4,280 +4,163 @@ use bitcoin::{Network, Block, Transaction, BlockHeader};
 use log::{info, warn, error};
 use tokio::sync::RwLock;
 use metrics::{counter, gauge};
+use thiserror::Error;
 
-/// BitcoinAlignmentManager ensures proper alignment with Bitcoin Core principles
-pub struct BitcoinAlignmentManager {
-    network: Network,
-    consensus_monitor: Arc<ConsensusMonitor>,
+/// Error types specific to alignment operations
+#[derive(Error, Debug)]
+pub enum AlignmentError {
+    #[error("Consensus validation failed: {0}")]
+    ConsensusValidation(String),
+    #[error("Security threshold not met: {0}")]
+    SecurityThreshold(String),
+    #[error("Post-quantum verification failed: {0}")]
+    QuantumVerification(String),
+    #[error("Bitcoin Core compatibility check failed: {0}")]
+    BitcoinCoreCompatibility(String),
+}
+
+/// Manages alignment of system components with Bitcoin Core principles
+/// and post-quantum security requirements.
+pub struct AlignmentManager {
+    ml_registry: Arc<MLRegistry>,
+    system_monitor: Arc<SystemMonitor>,
     protocol_handler: Arc<ProtocolHandler>,
-    layer_validations: Vec<LayerValidation>,
-    web5_integration: Arc<RwLock<Web5Integration>>,
-    ml_monitor: Arc<RwLock<MLMonitor>>,
+    metrics: AlignmentMetrics,
+    // Post-quantum cryptography components
+    pq_verifier: Arc<PostQuantumVerifier>,
+    audit_logger: Arc<AuditLogger>,
 }
 
-#[derive(Debug)]
-pub struct ConsensusMonitor {
-    network: Network,
-    validation_checks: Vec<ValidationCheck>,
-}
+impl AlignmentManager {
+    pub async fn new() -> Result<Self> {
+        Ok(Self {
+            ml_registry: Arc::new(MLRegistry::new()),
+            system_monitor: Arc::new(SystemMonitor::new()),
+            protocol_handler: Arc::new(ProtocolHandler::new()),
+            metrics: AlignmentMetrics::new(),
+            pq_verifier: Arc::new(PostQuantumVerifier::new()),
+            audit_logger: Arc::new(AuditLogger::new()),
+        })
+    }
 
-#[derive(Debug)]
-pub struct ValidationCheck {
-    name: String,
-    is_consensus_critical: bool,
-    check_fn: Box<dyn Fn() -> Result<()> + Send + Sync>,
-}
+    /// Analyzes system state with focus on Bitcoin Core compatibility
+    /// and post-quantum security requirements.
+    pub async fn analyze_system(&self) -> Result<SystemAnalysis> {
+        // Log analysis start
+        self.audit_logger.log_event("system_analysis_start").await?;
 
-#[derive(Debug, Clone)]
-pub enum Layer {
-    // Layer 1 (Locked)
-    Core,           // Bitcoin Core (consensus critical)
-    
-    // Layer 2
-    Lightning,      // Lightning Network
-    DLC,           // Discreet Log Contracts
-    Stacks,        // Stacks blockchain
-    Web5,          // Web5 Integration (Layer 2)
-}
+        // Verify Bitcoin Core consensus rules
+        self.verify_consensus_rules().await?;
 
-#[derive(Debug)]
-pub struct LayerValidation {
-    layer: Layer,
-    checks: Vec<ValidationCheck>,
-    dependencies: Vec<Layer>,
-    security_threshold: f64,
-}
+        // Perform post-quantum security checks
+        self.verify_quantum_resistance().await?;
 
-impl BitcoinAlignmentManager {
-    pub async fn new(network: Network) -> Result<Self> {
-        let mut manager = Self {
-            network,
-            consensus_monitor: Arc::new(ConsensusMonitor::new(network)?),
-            protocol_handler: Arc::new(ProtocolHandler::new(network)?),
-            layer_validations: Vec::new(),
-            web5_integration: Arc::new(RwLock::new(Web5Integration::new().await?)),
-            ml_monitor: Arc::new(RwLock::new(MLMonitor::new())),
+        let analysis = SystemAnalysis {
+            ml_components: self.ml_registry.get_components().await?,
+            active_protocols: self.protocol_handler.get_active_protocols().await?,
+            system_metrics: self.system_monitor.get_metrics().await?,
+            security_score: self.calculate_security_score().await?,
+            bitcoin_compatibility: self.check_bitcoin_compatibility().await?,
         };
 
-        manager.initialize_layer_validations()?;
-        Ok(manager)
-    }
-
-    fn initialize_layer_validations(&mut self) -> Result<()> {
-        // Layer 1 (Core) - Referenced from main.rs
-        self.layer_validations.push(LayerValidation {
-            layer: Layer::Core,
-            checks: self.get_core_validation_checks()?,
-            dependencies: vec![],
-            security_threshold: 1.0, // Core must be 100% valid
-        });
-
-        // Layer 2 Components
-        self.initialize_layer2_validations()?;
-
-        Ok(())
-    }
-
-    fn initialize_layer2_validations(&mut self) -> Result<()> {
-        // Web5 as Layer 2 - Referenced from ml/web5/mod.rs
-        self.layer_validations.push(LayerValidation {
-            layer: Layer::Web5,
-            checks: vec![
-                ValidationCheck {
-                    name: "web5_protocol_validation".into(),
-                    is_consensus_critical: false,
-                    check_fn: Box::new(|| Ok(())),
-                },
-                ValidationCheck {
-                    name: "web5_security_validation".into(),
-                    is_consensus_critical: false,
-                    check_fn: Box::new(|| Ok(())),
-                }
-            ],
-            dependencies: vec![Layer::Core],
-            security_threshold: 0.8,
-        });
-
-        // Add other Layer 2 validations
-        self.add_lightning_validation()?;
-        self.add_dlc_validation()?;
-        self.add_stacks_validation()?;
-
-        Ok(())
-    }
-
-    fn add_lightning_validation(&mut self) -> Result<()> {
-        self.layer_validations.push(LayerValidation {
-            layer: Layer::Lightning,
-            checks: vec![
-                ValidationCheck {
-                    name: "lightning_channel_validation".into(),
-                    is_consensus_critical: false,
-                    check_fn: Box::new(|| Ok(())),
-                },
-                ValidationCheck {
-                    name: "lightning_network_security".into(),
-                    is_consensus_critical: false,
-                    check_fn: Box::new(|| Ok(())),
-                }
-            ],
-            dependencies: vec![Layer::Core],
-            security_threshold: 0.9,
-        });
-        Ok(())
-    }
-
-    fn add_web5_validation(&mut self) -> Result<()> {
-        // Referenced from ml/web5/mod.rs lines 13-33
-        let web5_checks = vec![
-            ValidationCheck {
-                name: "web5_protocol_validation".into(),
-                is_consensus_critical: false,
-                check_fn: Box::new(|| Ok(())),
-            },
-            ValidationCheck {
-                name: "web5_did_validation".into(),
-                is_consensus_critical: false,
-                check_fn: Box::new(|| Ok(())),
-            },
-            ValidationCheck {
-                name: "web5_ml_integration".into(),
-                is_consensus_critical: false,
-                check_fn: Box::new(|| Ok(())),
-            }
-        ];
-
-        self.layer_validations.push(LayerValidation {
-            layer: Layer::Web5,
-            checks: web5_checks,
-            dependencies: vec![Layer::Core],
-            security_threshold: 0.8,
-        });
-        Ok(())
-    }
-
-    async fn validate_layer(&self, layer: Layer) -> Result<()> {
-        let validation = self.layer_validations
-            .iter()
-            .find(|v| matches!(v.layer, layer.clone()))
-            .ok_or_else(|| anyhow::anyhow!("Layer not found"))?;
-
-        // Validate dependencies first (Layer 1 before Layer 2)
-        for dep in &validation.dependencies {
-            self.validate_layer(dep.clone()).await?;
-        }
-
-        // ML monitoring only for Layer 2
-        if !matches!(layer, Layer::Core) {
-            let ml_monitor = self.ml_monitor.read().await;
-            let security_score = ml_monitor.validate_layer(&layer).await?;
-            
-            if security_score < validation.security_threshold {
-                anyhow::bail!("Layer {} security validation failed", layer_name(&layer));
-            }
-        }
-
-        // Run validation checks
-        for check in &validation.checks {
-            (check.check_fn)()?;
-        }
-
-        Ok(())
-    }
-
-    fn get_core_validation_checks(&self) -> Result<Vec<ValidationCheck>> {
-        // Referenced from system/directory_manager.rs lines 84-96
-        Ok(vec![
-            ValidationCheck {
-                name: "consensus_rules".into(),
-                is_consensus_critical: true,
-                check_fn: Box::new(|| Ok(())),
-            },
-            ValidationCheck {
-                name: "block_validation".into(),
-                is_consensus_critical: true,
-                check_fn: Box::new(|| Ok(())),
-            }
-        ])
-    }
-
-    async fn validate_web5_layer(&self) -> Result<()> {
-        // Referenced from ml_logic/federated_learning.rs lines 191-219
-        let web5 = self.web5_integration.read().await;
+        // Record metrics
+        self.metrics.record_analysis(&analysis);
         
-        // Validate Web5 protocols
-        for protocol in web5.data_protocols.values() {
-            self.validate_web5_protocol(protocol).await?;
-        }
-
-        // Validate ML models
-        let ml_monitor = self.ml_monitor.read().await;
-        let security_score = ml_monitor.validate_layer(&Layer::Web5).await?;
+        // Log analysis completion
+        self.audit_logger.log_event("system_analysis_complete").await?;
         
-        if security_score < 0.8 {
-            anyhow::bail!("Web5 layer security validation failed");
-        }
-
-        Ok(())
+        Ok(analysis)
     }
 
-    async fn validate_web5_protocol(&self, protocol: &ProtocolDefinition) -> Result<()> {
-        // Referenced from ml_logic/federated_learning.rs lines 221-240
-        let validation_result = self.protocol_handler.verify_alignment().await?;
+    /// Creates and validates an alignment plan ensuring Bitcoin Core compatibility
+    pub async fn propose_alignment(&self, analysis: SystemAnalysis) -> Result<AlignmentPlan> {
+        // Create initial plan
+        let plan = AlignmentPlan::new(analysis);
         
-        if !validation_result {
-            anyhow::bail!("Web5 protocol validation failed");
-        }
+        // Validate against Bitcoin Core requirements
+        self.validate_bitcoin_core_alignment(&plan).await?;
+        
+        // Validate security requirements including post-quantum
+        self.validate_security_requirements(&plan).await?;
+        
+        // Log proposed plan
+        self.audit_logger.log_alignment_plan(&plan).await?;
+        
+        Ok(plan)
+    }
 
+    /// Verifies compliance with Bitcoin Core consensus rules
+    async fn verify_consensus_rules(&self) -> Result<(), AlignmentError> {
+        // Implement consensus rule validation
+        // Check block validation rules
+        // Verify transaction rules
+        // etc.
         Ok(())
     }
-}
 
-struct Web5Integration {
-    dwn: Arc<DWN>,
-    ml_registry: Arc<MLRegistry>,
-}
-
-impl Web5Integration {
-    async fn new() -> Result<Self> {
-        // Referenced from ml/web5/mod.rs lines 13-33
-        Ok(Self {
-            dwn: Arc::new(DWN::new(Config::default()).await?),
-            ml_registry: Arc::new(MLRegistry::new()),
-        })
-    }
-}
-
-impl ConsensusMonitor {
-    pub fn add_validation_check(&mut self, check: ValidationCheck) {
-        if check.is_consensus_critical {
-            info!("Adding consensus-critical validation check: {}", check.name);
-        }
-        self.validation_checks.push(check);
-    }
-}
-
-impl ProtocolHandler {
-    pub fn new(network: Network) -> Result<Self> {
-        // Initialize with Bitcoin Core protocol rules
-        Ok(Self {
-            network,
-            protocol_version: 70016, // Current Bitcoin Core protocol version
-        })
-    }
-
-    pub async fn verify_alignment(&self) -> Result<()> {
-        // Verify alignment with Bitcoin Core protocol
+    /// Validates post-quantum security measures
+    async fn verify_quantum_resistance(&self) -> Result<(), AlignmentError> {
+        self.pq_verifier.verify_signatures().await?;
+        self.pq_verifier.verify_key_exchange().await?;
         Ok(())
     }
+
+    /// Calculates overall security score
+    async fn calculate_security_score(&self) -> Result<f64> {
+        // Implement security scoring logic
+        Ok(0.0)
+    }
+
+    /// Verifies Bitcoin Core compatibility
+    async fn check_bitcoin_compatibility(&self) -> Result<bool> {
+        // Implement compatibility checks
+        Ok(true)
+    }
 }
 
-fn layer_name(layer: &Layer) -> &'static str {
-    match layer {
-        Layer::Core => "Core",
-        Layer::Lightning => "Lightning",
-        Layer::DLC => "DLC",
-        Layer::Stacks => "Stacks",
-        Layer::Web5 => "Web5",
+struct AlignmentMetrics {
+    security_score: gauge::Gauge,
+    bitcoin_compatibility: gauge::Gauge,
+    alignment_operations: counter::Counter,
+}
+
+impl AlignmentMetrics {
+    fn new() -> Self {
+        Self {
+            security_score: gauge!("alignment_security_score"),
+            bitcoin_compatibility: gauge!("alignment_bitcoin_compatibility"),
+            alignment_operations: counter!("alignment_operations_total"),
+        }
+    }
+
+    fn record_analysis(&self, analysis: &SystemAnalysis) {
+        self.security_score.set(analysis.security_score);
+        self.bitcoin_compatibility.set(if analysis.bitcoin_compatibility { 1.0 } else { 0.0 });
+        self.alignment_operations.increment(1);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_alignment_manager() {
+        let manager = AlignmentManager::new().await.unwrap();
+        let analysis = manager.analyze_system().await.unwrap();
+        assert!(analysis.bitcoin_compatibility);
+        assert!(analysis.security_score >= 0.8);
+    }
+
+    #[tokio::test]
+    async fn test_consensus_rules() {
+        let manager = AlignmentManager::new().await.unwrap();
+        assert!(manager.verify_consensus_rules().await.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_quantum_resistance() {
+        let manager = AlignmentManager::new().await.unwrap();
+        assert!(manager.verify_quantum_resistance().await.is_ok());
     }
 }

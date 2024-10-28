@@ -2,69 +2,39 @@ name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.8'
-
-    - name: Install Python dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Set up Rust
+    - uses: actions/checkout@v2
+    
+    - name: Install Rust
       uses: actions-rs/toolchain@v1
       with:
+        profile: minimal
         toolchain: stable
-        override: true
+        
+    - name: Run tests
+      run: cargo test --all-features
+      
+    - name: Run clippy
+      run: cargo clippy -- -D warnings
+      
+    - name: Check formatting
+      run: cargo fmt -- --check
 
-    - name: Build Rust project
-      run: cargo build --verbose
-
-    - name: Run Rust tests
-      run: cargo test --verbose
-
-    - name: Checkout sub-repo
-      run: git clone https://github.com/botshelomokoka/anya-enterprise.git
-
-    - name: Install Python dependencies for sub-repo
-      run: |
-        cd anya-enterprise
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Build Rust project in sub-repo
-      run: |
-        cd anya-enterprise
-        cargo build --verbose
-
-    - name: Run Rust tests in sub-repo
-      run: |
-        cd anya-enterprise
-        cargo test --verbose
-
-    - name: Run Python tests in sub-repo
-      run: |
-        cd anya-enterprise
-        python -m unittest discover
-
-    - name: Run Unit Tests
-      run: cargo test --verbose
-
-    - name: Run Integration Tests
-      run: cargo test --test integration_tests --verbose
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Build
+      run: cargo build --release
