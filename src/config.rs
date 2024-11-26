@@ -1,65 +1,53 @@
-use std::env;
 use serde::{Deserialize, Serialize};
-use thiserror::Error;
+use config::{Config, ConfigError, Environment};
+use std::path::PathBuf;
 
-#[derive(Debug, Error)]
-pub enum ConfigError {
-    #[error("Environment variable error: {0}")]
-    EnvVar(#[from] std::env::VarError),
-    #[error("Invalid auth provider: {0}")]
-    InvalidAuthProvider(String),
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AnyaConfig {
+    // Network configuration
+    pub network_type: String,
+    pub bitcoin_network: String,
+    
+    // RPC configuration
+    pub bitcoin_rpc_url: String,
+    
+    // System configuration
+    pub log_level: String,
+    pub data_dir: PathBuf,
+    
+    // ML configuration
+    pub ml_config: MLConfig,
+    
+    // Private configuration
+    #[serde(skip_serializing)]
+    secrets: Secrets,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Config {
-    pub auth: AuthConfig,
-    pub metrics: MetricsConfig,
+pub struct MLConfig {
+    pub federated_learning_enabled: bool,
+    pub privacy_threshold: f64,
+    pub model_update_interval: u64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AuthConfig {
-    pub provider_type: AuthProviderType,
-    pub credentials: AuthCredentials,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
-pub enum AuthProviderType {
-    Stacks,
-    Lightning,
-    Web5,
-    Default,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AuthCredentials {
-    pub api_key: String,
-    pub endpoint: String,
-}
-
-impl Config {
-    pub fn from_env() -> Result<Self, ConfigError> {
-        let provider_type = match env::var("AUTH_PROVIDER_TYPE")
-            .unwrap_or_else(|_| "default".to_string())
-            .to_lowercase()
-            .as_str() 
-        {
-            "stacks" => AuthProviderType::Stacks,
-            "lightning" => AuthProviderType::Lightning,
-            "web5" => AuthProviderType::Web5,
-            "default" => AuthProviderType::Default,
-            invalid => return Err(ConfigError::InvalidAuthProvider(invalid.to_string())),
-        };
-
-        Ok(Self {
-            auth: AuthConfig {
-                provider_type,
-                credentials: AuthCredentials {
-                    api_key: env::var("AUTH_API_KEY").expect("AUTH_API_KEY must be set"),
-                    endpoint: env::var("AUTH_ENDPOINT").expect("AUTH_ENDPOINT must be set"),
-                }
-            },
-            // ... other config
+impl AnyaConfig {
+    pub fn new() -> Result<Self, ConfigError> {
+        let mut config = Config::new();
+        
+        // Set defaults
+        config.set_default("network_type", "testnet")?;
+        config.set_default("bitcoin_network", "testnet")?;
+        config.set_default("log_level", "info")?;
+        
+        // Load from environment
+        config.merge(Environment::with_prefix("ANYA"))?;
+        
+        // Load secrets
+        let secrets = Secrets::load()?;
+        
+        config.try_into().map(|mut c: AnyaConfig| {
+            c.secrets = secrets;
+            c
         })
     }
 }

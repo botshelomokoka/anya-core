@@ -1,71 +1,183 @@
-use super::model::{MLModel, Feature, FeatureCategory};
-use std::path::PathBuf;
-use regex::Regex;
 use std::collections::HashMap;
-use tokio::fs;
-use crate::model::ModelError;
+use std::path::{Path, PathBuf};
+use serde::{Serialize, Deserialize};
+use tokio::sync::RwLock;
+use std::sync::Arc;
 
-pub struct FileAnalysisModel {
-    model: MLModel,
-    feature_extractor: FeatureExtractor,
-    model_path: PathBuf,
+#[derive(Debug, Serialize, Deserialize)]
+pub struct FileMetadata {
+    pub path: PathBuf,
+    pub last_modified: chrono::DateTime<chrono::Utc>,
+    pub dependencies: Vec<PathBuf>,
+    pub category: FileCategory,
+    pub importance_score: f64,
 }
 
-impl FileAnalysisModel {
-    pub async fn new(model_path: PathBuf) -> Result<Self, ModelError> {
-        let model = MLModel::load(&model_path).await?;
-        Ok(Self {
-            model,
-            feature_extractor: FeatureExtractor::new(),
-            model_path,
-        })
+#[derive(Debug, Serialize, Deserialize)]
+pub enum FileCategory {
+    Core,
+    Blockchain,
+    ML,
+    Network,
+    Security,
+    Enterprise,
+    Test,
+    Config,
+}
+
+pub struct FileTracker {
+    files: Arc<RwLock<HashMap<PathBuf, FileMetadata>>>,
+    ml_analyzer: Arc<MLFileAnalyzer>,
+}
+
+impl FileTracker {
+    pub async fn new() -> Self {
+        Self {
+            files: Arc::new(RwLock::new(HashMap::new())),
+            ml_analyzer: Arc::new(MLFileAnalyzer::new()),
+        }
     }
 
-    pub async fn update_model(&mut self) -> Result<(), ModelError> {
-        let new_model = self.train_new_model().await?;
-        if new_model.validation_score > self.model.validation_score {
-            self.model = new_model;
-            self.model.save(&self.model_path).await?;
-        }
+    pub async fn track_file(&self, path: &Path) -> anyhow::Result<()> {
+        let metadata = tokio::fs::metadata(path).await?;
+        let last_modified = metadata.modified()?.into();
+        
+        let category = self.ml_analyzer.analyze_file_category(path).await?;
+        let importance_score = self.ml_analyzer.calculate_importance(path).await?;
+        let dependencies = self.ml_analyzer.detect_dependencies(path).await?;
+
+        let file_metadata = FileMetadata {
+            path: path.to_path_buf(),
+            last_modified,
+            dependencies,
+            category,
+            importance_score,
+        };
+
+        let mut files = self.files.write().await;
+        files.insert(path.to_path_buf(), file_metadata);
         Ok(())
     }
 
+    pub async fn get_file_structure(&self) -> anyhow::Result<FileStructure> {
+        let files = self.files.read().await;
+        let mut structure = FileStructure::new();
+
+        for (path, metadata) in files.iter() {
+            structure.add_file(path, metadata)?;
+        }
+
+        Ok(structure)
+    }
+}
+
+struct MLFileAnalyzer {
+    model: Arc<RwLock<FileAnalysisModel>>,
+}
+
+impl MLFileAnalyzer {
+    fn new() -> Self {
+        Self {
+            model: Arc::new(RwLock::new(FileAnalysisModel::new())),
+        }
+    }
+
+    async fn analyze_file_category(&self, path: &Path) -> anyhow::Result<FileCategory> {
+        let content = tokio::fs::read_to_string(path).await?;
+        let model = self.model.read().await;
+        Ok(model.predict_category(&content))
+    }
+
+    async fn calculate_importance(&self, path: &Path) -> anyhow::Result<f64> {
+        let content = tokio::fs::read_to_string(path).await?;
+        let model = self.model.read().await;
+        Ok(model.calculate_importance(&content))
+    }
+
+    async fn detect_dependencies(&self, path: &Path) -> anyhow::Result<Vec<PathBuf>> {
+        let content = tokio::fs::read_to_string(path).await?;
+        let model = self.model.read().await;
+        Ok(model.detect_dependencies(&content))
+    }
+}
+
+struct FileAnalysisModel {
+    // ML model implementation
+}
+
+impl FileAnalysisModel {
+    fn new() -> Self {
+        Self {}
+    }
+
     fn predict_category(&self, content: &str) -> FileCategory {
-        let features = self.feature_extractor.extract_features(content);
-        let scores = self.calculate_category_scores(&features);
-        self.get_highest_scoring_category(scores)
+        // Implement ML-based category prediction
+        FileCategory::Core
     }
 
     fn calculate_importance(&self, content: &str) -> f64 {
-        let features = self.feature_extractor.extract_features(content);
-        self.model.calculate_importance(&features)
+        // Implement ML-based importance calculation
+        0.5
+    }
+
+    fn detect_dependencies(&self, content: &str) -> Vec<PathBuf> {
+        // Implement ML-based dependency detection
+        Vec::new()
     }
 }
 
-pub struct FeatureExtractor {
-    patterns: HashMap<String, Regex>,
+#[derive(Debug, Serialize)]
+pub struct FileStructure {
+    root: DirectoryNode,
 }
 
-impl FeatureExtractor {
-    pub fn new() -> Self {
-        let mut patterns = HashMap::new();
-        patterns.insert(
-            "bitcoin_imports".to_string(),
-            Regex::new(r"use\s+bitcoin::").unwrap()
-        );
-        patterns.insert(
-            "lightning_imports".to_string(),
-            Regex::new(r"use\s+lightning::").unwrap()
-        );
-        // Add more patterns...
-        Self { patterns }
+#[derive(Debug, Serialize)]
+struct DirectoryNode {
+    name: String,
+    files: Vec<FileNode>,
+    directories: HashMap<String, DirectoryNode>,
+}
+
+#[derive(Debug, Serialize)]
+struct FileNode {
+    name: String,
+    metadata: FileMetadata,
+}
+
+impl FileStructure {
+    fn new() -> Self {
+        Self {
+            root: DirectoryNode {
+                name: "src".to_string(),
+                files: Vec::new(),
+                directories: HashMap::new(),
+            },
+        }
     }
 
-    pub fn extract_features(&self, content: &str) -> Vec<f64> {
-        self.patterns.iter()
-            .map(|(_, pattern)| {
-                pattern.find_iter(content).count() as f64
-            })
-            .collect()
+    fn add_file(&mut self, path: &Path, metadata: &FileMetadata) -> anyhow::Result<()> {
+        let mut current_node = &mut self.root;
+        
+        if let Some(parent) = path.parent() {
+            for component in parent.components() {
+                let name = component.as_os_str().to_string_lossy().to_string();
+                current_node = current_node.directories
+                    .entry(name)
+                    .or_insert_with(|| DirectoryNode {
+                        name: name.clone(),
+                        files: Vec::new(),
+                        directories: HashMap::new(),
+                    });
+            }
+        }
+
+        if let Some(file_name) = path.file_name() {
+            current_node.files.push(FileNode {
+                name: file_name.to_string_lossy().to_string(),
+                metadata: metadata.clone(),
+            });
+        }
+
+        Ok(())
     }
 }
