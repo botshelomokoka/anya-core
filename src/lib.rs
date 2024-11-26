@@ -86,6 +86,26 @@ use crate::config::Config;
 
 
 
+// External crates
+use anya_enterprise::{
+    api::{EnterpriseEndpoints, EnterpriseIntegration},
+    auth::EnterpriseSecurity,
+    ml::EnterpriseMLProcessor,
+    web5::EnterpriseWeb5,
+};
+
+// Re-export enterprise features
+pub use anya_enterprise::{
+    api, auth, ml, web5,
+    EnterpriseError,
+};
+
+// Local modules
+pub mod core;
+pub mod utils;
+
+
+
 /// Main Anya struct that holds all components
 
 pub struct Anya {

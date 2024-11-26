@@ -8,7 +8,7 @@
 /// ML-related endpoints, including processing data, getting model insights, updating a model, getting
 /// processing metrics, and getting revenue impact.
 use actix_web::{web, HttpResponse, Scope};
-use crate::ml::enterprise_processing::MLProcessor;
+use crate::enterprise::ml::enterprise_processing::MLProcessor;
 use crate::auth::enterprise::security_layers::SecurityLayers;
 use thiserror::Error;
 use serde::{Serialize, Deserialize};
