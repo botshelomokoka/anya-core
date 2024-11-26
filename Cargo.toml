@@ -1,0 +1,70 @@
+[package]
+name = "anya-core"
+version = "0.1.0"
+authors = ["Botshelo Mokoka"]
+edition = "2018"
+license = "MIT"
+repository = "https://github.com/botshelomokoka/anya-core"
+
+[dependencies]
+log = "0.4"
+dotenv = "0.15"
+serde_json = "1.0"
+tokio = { version = "1", features = ["full"] }
+kademlia = "0.1"
+stacks_core = "0.1"
+stacks_rpc_client = "0.1"
+bitcoin = "0.26"
+lightning = "0.0.14"
+dlc = "0.1"
+libp2p = "0.39"
+slog = "2.7"
+slog-term = "2.8"
+slog-async = "2.7"
+dep1 = "0.1"  # Add dep1 as a dependency
+
+[workspace]
+members = [
+    "anya-bitcoin",
+    "anya-core",
+    "anya-enterprise",
+    "anya-extensions",
+    "anya-lightning",
+    "anya-ml",
+    "anya-web5"
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.70"
+authors = ["Botshelo Mokoka"]
+repository = "https://github.com/botshelomokoka/anya-core"
+license = "MIT"
+
+[workspace.dependencies]
+# Core dependencies
+bitcoin = { version = "0.32.4", features = ["rand", "taproot"] }
+tokio = { version = "1.41.1", features = ["full"] }
+[features]
+default = ["advanced-security"]
+advanced-security = []
+enterprise = ["dep1"]  # Ensure dep1 is included as a dependency or feature
+standard = ["dep3", "other-feature2"]
+# ML dependencies
+ndarray = "0.16.1"
+smartcore = "0.3.2"
+linfa = "0.7"
+
+# Metrics & Logging
+metrics = { version = "0.24.0", features = ["std"] }
+tracing = { version = "0.1.40", features = ["attributes"] }
+
+# Testing
+criterion = "0.5.1"
+proptest = "1.5.0"
+tokio-test = "0.4"
+
+[features]
+enterprise = ["dep1", "dep2", "other-feature"]
+standard = ["dep3", "other-feature2"]
