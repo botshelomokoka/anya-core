@@ -1,20 +1,15 @@
-[submodule "anya-enterprise"]
-    path = anya-enterprise
-    url = git@github.com:botshelomokoka/anya-enterprise.git
-	branch = main
-    update = rebase
-[submodule "anya/enterprise"]
-	path = anya/enterprise
-	url = https://github.com/botshelomokoka/anya-enterprise.git
 [submodule "enterprise"]
 	path = enterprise
 	url = https://github.com/botshelomokoka/anya-enterprise.git
-[submodule "anya/dash33"]
-	path = anya/dash33
-	url = https://github.com/botshelomokoka/33dash.git
+	branch = main
+    update = rebase
 [submodule "dash33"]
 	path = dash33
 	url = https://github.com/botshelomokoka/33dash.git
+	branch = main
+    update = rebase
 [submodule "dependencies"]
 	path = dependencies
 	url = https://github.com/botshelomokoka/anya-dependencies.git
+	branch = main
+    update = rebase
