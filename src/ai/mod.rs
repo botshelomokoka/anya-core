@@ -1,3 +1,17 @@
+/// The code defines an AI module in Rust that incorporates federated learning and ethics evaluation,
+/// with a periodic federated learning process adjusting based on network and learning metrics.
+/// 
+/// Arguments:
+/// 
+/// * `network_manager`: The `network_manager` parameter in the code represents an `Arc` (Atomically
+/// Reference Counted) pointer to a `UnifiedNetworkManager` instance. This allows for multiple ownership
+/// of the `UnifiedNetworkManager` across asynchronous tasks in Rust. The `Arc` type ensures thread-safe
+/// reference counting,
+/// 
+/// Returns:
+/// 
+/// The `init` function returns a `Result` containing an `Arc` wrapped inside a `Mutex` of type
+/// `AIModule`, or a `Box` containing any type that implements the `std::error::Error` trait.
 use crate::ml::{MLModel, SimpleLinearRegression, MLInput, MLOutput, MLError};
 use crate::unified_network::UnifiedNetworkManager;
 use crate::ai::federated_learning::FederatedLearningModel;

@@ -1,6 +1,6 @@
 [package]
-name = "anya"
-version = "1.0.0"
+name = "anya-scripts"
+version = "0.1.0"
 edition = "2021"
 
 [dependencies]
@@ -16,17 +16,8 @@ chrono = "0.4"
 
 [[bin]]
 name = "run_fixes"
-path = "scripts/run_fixes.rs"
+path = "run_fixes.rs"
 
 [[bin]]
 name = "run_progress"
-path = "scripts/run_progress.rs"
-
-[[bin]]
-name = "run_alignment"
-path = "scripts/run_alignment.rs"
-
-[workspace]
-members = [
-    "scripts",
-]
+path = "run_progress.rs" 

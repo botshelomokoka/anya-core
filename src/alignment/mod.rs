@@ -1,3 +1,19 @@
+/// The code defines a Rust struct `AlignmentManager` with methods to analyze a system and propose an
+/// alignment plan based on the analysis.
+/// 
+/// Properties:
+/// 
+/// * `ml_registry`: The `ml_registry` property in the `AlignmentManager` struct is an `Arc` (atomic
+/// reference counted) smart pointer to an instance of `MLRegistry`. This allows multiple ownership of
+/// the `MLRegistry` instance and ensures thread-safe access to it.
+/// * `system_monitor`: The `system_monitor` property in the `AlignmentManager` struct is an Arc pointer
+/// to an instance of the `SystemMonitor` struct. This allows for multiple ownership of the
+/// `SystemMonitor` instance across multiple threads. The `SystemMonitor` is responsible for monitoring
+/// and collecting metrics related to the system
+/// * `protocol_handler`: The `protocol_handler` property in the `AlignmentManager` struct is an `Arc`
+/// (atomic reference counted) smart pointer to an instance of the `ProtocolHandler` struct. This allows
+/// multiple ownership of the `ProtocolHandler` instance and ensures thread-safe access to it. The `Arc`
+/// type
 use anyhow::Result;
 use tokio::sync::RwLock;
 use std::sync::Arc;

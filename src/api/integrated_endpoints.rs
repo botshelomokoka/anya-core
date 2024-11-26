@@ -1,3 +1,13 @@
+/// The code defines an integrated API scope in Rust for handling various endpoints related to
+/// processing with analytics, getting insights, updating system models, retrieving revenue metrics,
+/// checking security status, and fetching ML predictions.
+/// 
+/// Returns:
+/// 
+/// The code snippet defines several API endpoints within a `Scope` for an integrated API. Each endpoint
+/// corresponds to a specific functionality such as processing data with analytics, getting unified
+/// insights, updating system models, retrieving revenue metrics, checking security status, and getting
+/// ML predictions.
 use actix_web::{web, HttpResponse, Scope};
 use crate::{
     auth::{AuthManager, enterprise::advanced_security::AdvancedSecurity},

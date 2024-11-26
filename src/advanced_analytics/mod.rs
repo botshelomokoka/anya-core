@@ -1,3 +1,37 @@
+/// The `AdvancedAnalytics` module in Rust provides functionality for running advanced analytics
+/// processes, performing market analysis, and handling blockchain data analysis.
+/// 
+/// Arguments:
+/// 
+/// * `user_metrics`: `UserMetrics` - A struct or object containing user metrics data used in the
+/// analytics module. It likely includes information such as user behavior, usage level, contribution
+/// score, and loyalty score.
+/// * `blockchain`: The `blockchain` parameter in the `init` function is of type
+/// `Arc<BlockchainInterface>`. It is an `Arc` (atomic reference counted) smart pointer that allows
+/// multiple ownership of the `BlockchainInterface` trait object. This allows sharing the
+/// `BlockchainInterface` instance across multiple parts
+/// * `data_feeds`: The `data_feeds` parameter in the `AdvancedAnalytics` module represents a collection
+/// of data feeds mapped to their respective data sources. It is a `HashMap` that stores the data feeds
+/// associated with different sources of data used for analytics. Each data feed provides the latest
+/// data for its corresponding data source
+/// * `dao_rules`: The `dao_rules` parameter in the `init` function represents a list of rules that
+/// define the behavior and decision-making processes of a Decentralized Autonomous Organization (DAO).
+/// These rules are applied within the DAO context to determine the effectiveness and governance of the
+/// organization. Each rule typically contains conditions and actions
+/// * `ml_core`: Arc<MLCore>
+/// * `blockchain`: The `blockchain` parameter in the `init` function is of type
+/// `Arc<BlockchainInterface>`. It is an `Arc` (atomic reference counted) smart pointer that allows
+/// multiple ownership of the `BlockchainInterface` trait object. This allows sharing the
+/// `BlockchainInterface` instance across multiple parts
+/// * `zk_system`: Arc<ZKSnarkSystem> - An Arc pointer to a ZKSnarkSystem instance, which is used for
+/// zero-knowledge proof generation in the analytics module.
+/// 
+/// Returns:
+/// 
+/// The code has been updated to return `AnyaResult` in the methods `analyze_user_behavior`,
+/// `analyze_blockchain_metrics`, `analyze_dao_effectiveness`, `perform_analysis`,
+/// `calculate_confidence`, `validate_input_data`, `process_data`, and `handle_analytics_logic`. This
+/// change allows for better error handling and propagation of errors using the `AnyaResult` type.
 pub mod analytics;
 pub mod blockchain;
 pub mod dao;

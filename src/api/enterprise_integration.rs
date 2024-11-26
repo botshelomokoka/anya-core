@@ -1,3 +1,10 @@
+/// The above Rust code defines API endpoints for processing enterprise data, retrieving revenue
+/// insights, and getting machine learning predictions.
+/// 
+/// Returns:
+/// 
+/// The code snippet provided defines an Actix web API with endpoints for processing enterprise data and
+/// retrieving revenue insights.
 use crate::integration::unified_data_system::UnifiedDataSystem;
 use actix_web::{web, HttpResponse, Scope};
 use serde::{Serialize, Deserialize};

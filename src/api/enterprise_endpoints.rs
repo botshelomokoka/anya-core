@@ -1,3 +1,11 @@
+/// The above Rust code defines an enterprise API scope with endpoints for processing data, analyzing
+/// market data, retrieving revenue metrics, and getting security metrics.
+/// 
+/// Returns:
+/// 
+/// The code snippet provided defines several API endpoints for an enterprise system. The functions are
+/// returning `HttpResponse` objects with JSON data as the response body. The specific data being
+/// returned includes:
 use crate::{
     auth::{AuthManager, BlockchainAuth},
     integration::unified_data_system::UnifiedDataSystem,
