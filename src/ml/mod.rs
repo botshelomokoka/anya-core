@@ -31,9 +31,15 @@ use log::{info, error};
 // Current ML Module Structure
 pub mod core;
 pub mod agents;
+pub mod research;
+pub mod ragentic;
+pub mod auto_adjust;
+pub mod ml_core;
+pub mod adaptive_model;
+pub mod model_adaptation;
+pub mod pipeline_optimizer;
 pub mod web5;
 pub mod nlp;
-pub mod research;
 pub mod federated;
 pub mod monitoring;
 pub mod types;
@@ -74,4 +80,53 @@ pub async fn init() -> Result<()> {
 pub use ndarray::{Array1, Array2};
 pub use tch::{Tensor, Device};
 
+pub use std::sync::Arc;
+pub use tokio::sync::RwLock;
 
+use crate::metrics::MetricsCollector;
+use crate::ml::ragentic::RAGenticCoordinator;
+use crate::ml::research::ResearchModule;
+use crate::ml::agents::MLAgent;
+
+pub struct MLSystem {
+    metrics: Arc<MetricsCollector>,
+    research_module: Arc<ResearchModule>,
+    rag_coordinator: Arc<RAGenticCoordinator>,
+    agents: Vec<Arc<dyn MLAgent>>,
+}
+
+impl MLSystem {
+    pub fn new(metrics: Arc<MetricsCollector>) -> Result<Self> {
+        let research_module = Arc::new(ResearchModule::new(metrics.clone(), Default::default()));
+        let agents = Vec::new();
+        let rag_coordinator = Arc::new(RAGenticCoordinator::new(
+            metrics.clone(),
+            Arc::clone(&research_module),
+            agents.clone(),
+        ));
+
+        Ok(Self {
+            metrics,
+            research_module,
+            rag_coordinator,
+            agents,
+        })
+    }
+
+    pub async fn initialize(&mut self) -> Result<()> {
+        // Initialize RAG coordinator
+        self.rag_coordinator.initialize_roles().await?;
+
+        // Update research module with RAG coordinator
+        self.research_module = Arc::new(
+            ResearchModule::new(self.metrics.clone(), Default::default())
+                .with_rag_coordinator(Arc::clone(&self.rag_coordinator))
+        );
+
+        Ok(())
+    }
+
+    pub async fn process_query(&self, query: &str) -> Result<String> {
+        self.rag_coordinator.process_query(query).await
+    }
+}

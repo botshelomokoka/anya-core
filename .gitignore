@@ -33,8 +33,9 @@ Cargo.lock
 *.db
 *.db-*
 
-# Large files
+# Large files (Web5 handled)
 *.exe
+!*.exe.web5ref
 *.msi
 *.zip
 *.tar.gz

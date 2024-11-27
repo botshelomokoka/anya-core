@@ -163,3 +163,125 @@ Special thanks to our contributors and the following projects:
 - Web5
 - TBD
 - Block
+
+# Anya: Advanced Web5 Data Management System
+
+## Overview
+
+Anya is a comprehensive Web5-based data management system that provides decentralized storage, advanced caching, batch operations, and real-time monitoring capabilities. Built with Rust, it emphasizes performance, security, and reliability.
+
+## Features
+
+### Core Web5 Features
+- Decentralized identity (DID) management
+- Schema-driven data validation
+- Decentralized Web Node (DWN) integration
+- Flexible query capabilities
+- Version control and history tracking
+
+### Performance Features
+- LRU caching with TTL support
+- Concurrent batch operations
+- Rate-limited processing
+- Performance metrics tracking
+- Query optimization
+
+### Monitoring & Events
+- Real-time health monitoring
+- Component-level health tracking
+- Event-driven architecture
+- Metrics collection and reporting
+- System status dashboard
+
+### Security & Reliability
+- DID-based authentication
+- Schema validation
+- Error handling and recovery
+- Circuit breaker pattern
+- Audit logging
+
+## Getting Started
+
+### Prerequisites
+- Rust 1.70 or higher
+- Cargo package manager
+- Web5 SDK
+
+### Installation
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/anya.git
+
+# Change to project directory
+cd anya
+
+# Install dependencies
+cargo build
+```
+
+### Basic Usage
+```rust
+use anya::web5::Web5Store;
+
+// Create a new Web5 store
+let store = Web5Store::new().await?;
+
+// Store data with caching
+store.create_record("users", json!({
+    "name": "Alice",
+    "age": 30
+})).await?;
+
+// Batch operations
+let records = vec![
+    json!({"name": "Bob", "age": 25}),
+    json!({"name": "Charlie", "age": 35})
+];
+store.bulk_create("users", records).await?;
+
+// Monitor health
+let health = store.get_health_status().await;
+println!("System status: {:?}", health.status);
+```
+
+## Architecture
+
+Anya follows a modular architecture with these key components:
+
+1. **Web5Store**: Core data management
+2. **Cache Layer**: Performance optimization
+3. **Batch Processor**: Bulk operations
+4. **Event System**: Real-time notifications
+5. **Health Monitor**: System monitoring
+
+For detailed architecture information, see [Architecture Documentation](docs/architecture.md).
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Documentation
+
+- [API Documentation](docs/api.md)
+- [Architecture Guide](docs/architecture.md)
+- [Development Guide](docs/development.md)
+- [Security Guide](docs/security.md)
+
+## Support
+
+For support, please:
+1. Check the [Documentation](docs/)
+2. Open an issue
+3. Join our Discord community
+
+## Roadmap
+
+- [ ] Enhanced query optimization
+- [ ] Advanced caching strategies
+- [ ] Automated backup system
+- [ ] Extended monitoring capabilities
+- [ ] Performance benchmarking tools
