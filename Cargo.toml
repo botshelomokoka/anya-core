@@ -1,3 +1,5 @@
+cargo-features = ["edition2024"]
+
 [package]
 name = "anya"
 version.workspace = true
@@ -6,16 +8,19 @@ authors.workspace = true
 license.workspace = true
 
 [dependencies]
-anya-enterprise = { path = "./enterprise" }
+web5 = "0.1"  # Web5 protocol implementation
+did-key = "0.1"  # DID key management
+dwn-sdk = "0.1"  # Decentralized Web Node SDK
 tokio = { version = "1.0", features = ["full"] }
-log = "0.4"
-env_logger = "0.11.5"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-futures = "0.3"
+chrono = "0.4"
+uuid = { version = "1.0", features = ["v4"] }
 async-trait = "0.1"
 thiserror = "2.0.3"
-chrono = "0.4"
+log = "0.4"
+env_logger = "0.11.5"
+futures = "0.3"
 
 [[bin]]
 name = "run_fixes"
@@ -33,3 +38,8 @@ path = "scripts/run_alignment.rs"
 members = [
     "scripts",
 ]
+
+[workspace.package]
+version = "0.1.0"
+authors = ["Anya Core Contributors"]
+license = "MIT"

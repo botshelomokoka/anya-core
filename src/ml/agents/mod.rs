@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use async_trait::async_trait;
 use tokio::sync::{mpsc, broadcast};
 use anyhow::Result;
@@ -209,7 +235,7 @@ impl AgentCoordinator {
         let semaphore = Arc::new(tokio::sync::Semaphore::new(self.max_concurrent_actions));
         
         for agent in &mut self.agents {
-            let permit = semaphore.clone().acquire_owned().await.unwrap();
+            let permit = semaphore.clone().acquire_owned().await?;
             let mut agent = agent.clone();
             
             let handle = tokio::spawn(async move {
@@ -316,4 +342,6 @@ mod tests {
         assert_eq!(coordinator.agents.len(), 0);
     }
 }
+
+
 

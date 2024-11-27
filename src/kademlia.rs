@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use std::collections::HashMap;
 use std::net::{IpAddr, SocketAddr};
 use std::time::Duration;
@@ -135,7 +161,7 @@ impl KademliaServer {
 
     async fn handle_closest_peers(&mut self, peers: GetClosestPeersOk) {
         for peer in peers.peers {
-            self.swarm.behaviour_mut().kademlia.add_address(&peer, "/ip4/0.0.0.0/tcp/0".parse().unwrap());
+            self.swarm.behaviour_mut().kademlia.add_address(&peer, "/ip4/0.0.0.0/tcp/0".parse()?);
         }
     }
 
@@ -219,7 +245,7 @@ impl KademliaModule {
             publisher: None,
             expires: None,
         };
-        self.kademlia.put_record(record, libp2p::kad::Quorum::One).unwrap();
+        self.kademlia.put_record(record, libp2p::kad::Quorum::One)?;
     }
 
     pub async fn get_value(&mut self, key: &[u8]) -> Option<Vec<u8>> {
@@ -236,3 +262,5 @@ impl KademliaModule {
         found_peers
     }
 }
+
+

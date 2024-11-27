@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 /// The code defines an integrated API scope in Rust for handling various endpoints related to
 /// processing with analytics, getting insights, updating system models, retrieving revenue metrics,
 /// checking security status, and fetching ML predictions.
@@ -16,7 +42,7 @@ use crate::{
     web5::data_manager::Web5DataManager,
 };
 
-pub fn integrated_api_scope() -> Scope {
+pub fn integrated_api_scope() -> Scope  -> Result<(), Box<dyn Error>> {
     web::scope("/api/v1/integrated")
         .service(process_with_analytics)
         .service(get_unified_insights)
@@ -33,7 +59,7 @@ async fn process_with_analytics(
     processor: web::Data<Arc<AdvancedMLProcessor>>,
     revenue_tracker: web::Data<Arc<AdvancedRevenueTracker>>,
     web5_manager: web::Data<Arc<Web5DataManager>>,
-) -> HttpResponse {
+) -> HttpResponse  -> Result<(), Box<dyn Error>> {
     // Verify security context with multi-factor auth
     let context = match security
         .verify_multi_factor(&data.credentials, &data.security_context)
@@ -88,7 +114,7 @@ async fn get_unified_insights(
     security: web::Data<Arc<AdvancedSecurity>>,
     processor: web::Data<Arc<AdvancedMLProcessor>>,
     revenue_tracker: web::Data<Arc<AdvancedRevenueTracker>>,
-) -> HttpResponse {
+) -> HttpResponse  -> Result<(), Box<dyn Error>> {
     // Implementation for unified insights
     let context = match security
         .verify_multi_factor(&params.credentials, &params.security_context)
@@ -123,7 +149,7 @@ async fn update_system_models(
     params: web::Json<ModelUpdateParams>,
     security: web::Data<Arc<AdvancedSecurity>>,
     processor: web::Data<Arc<AdvancedMLProcessor>>,
-) -> HttpResponse {
+) -> HttpResponse  -> Result<(), Box<dyn Error>> {
     // Implementation for model updates
     todo!("Implement model updates endpoint")
 }
@@ -133,7 +159,7 @@ async fn get_revenue_metrics(
     params: web::Query<MetricsParams>,
     security: web::Data<Arc<AdvancedSecurity>>,
     revenue_tracker: web::Data<Arc<AdvancedRevenueTracker>>,
-) -> HttpResponse {
+) -> HttpResponse  -> Result<(), Box<dyn Error>> {
     // Implementation for revenue metrics
     todo!("Implement revenue metrics endpoint")
 }
@@ -141,7 +167,7 @@ async fn get_revenue_metrics(
 #[get("/security/status")]
 async fn get_security_status(
     security: web::Data<Arc<AdvancedSecurity>>,
-) -> HttpResponse {
+) -> HttpResponse  -> Result<(), Box<dyn Error>> {
     // Implementation for security status
     todo!("Implement security status endpoint")
 }
@@ -151,7 +177,9 @@ async fn get_ml_predictions(
     params: web::Query<PredictionParams>,
     security: web::Data<Arc<AdvancedSecurity>>,
     processor: web::Data<Arc<AdvancedMLProcessor>>,
-) -> HttpResponse {
+) -> HttpResponse  -> Result<(), Box<dyn Error>> {
     // Implementation for ML predictions
     todo!("Implement ML predictions endpoint")
 }
+
+

@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use super::file_tracker::{FileTracker, FileCategory};
 use anyhow::Result;
 use tokio::fs;
@@ -31,7 +57,7 @@ impl ModuleManager {
         let mut entries = fs::read_dir(core_path).await?;
         while let Some(entry) = entries.next_entry().await? {
             let source = entry.path();
-            let target = target_path.join(source.file_name().unwrap());
+            let target = target_path.join(source.file_name()?);
             
             if source.is_dir() {
                 fs::create_dir_all(&target).await?;
@@ -60,7 +86,7 @@ async fn copy_dir_all(src: &Path, dst: &Path) -> Result<()> {
     while let Some(entry) = entries.next_entry().await? {
         let ty = entry.file_type().await?;
         let source = entry.path();
-        let target = dst.join(source.file_name().unwrap());
+        let target = dst.join(source.file_name()?);
 
         if ty.is_dir() {
             copy_dir_all(&source, &target).await?;
@@ -71,3 +97,5 @@ async fn copy_dir_all(src: &Path, dst: &Path) -> Result<()> {
     
     Ok(())
 }
+
+

@@ -1,8 +1,36 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `rust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use thiserror::Error;
 use log::{info, warn, error};
 use metrics::{counter, gauge};
+use sysinfo::{System, SystemExt, CpuExt};
+use metrics::{Counter, Gauge, Histogram, register_counter, register_gauge, register_histogram};
 
 #[derive(Error, Debug)]
 pub enum ArchitectureError {
@@ -12,6 +40,46 @@ pub enum ArchitectureError {
     RegisterOverflow(String),
     #[error("Bit conversion error: {0}")]
     BitConversionError(String),
+    #[error("Recovery failed: {0}")]
+    RecoveryFailed(String),
+    #[error("Degradation failed: {0}")]
+    DegradationFailed(String),
+}
+
+pub struct SystemResources {
+    cpu_usage: f32,
+    memory_usage: f32,
+    gpu_available: bool,
+    tpu_available: bool,
+}
+
+pub struct HardwareAcceleration {
+    cuda_enabled: bool,
+    opencl_enabled: bool,
+    tpu_enabled: bool,
+    current_device: String,
+}
+
+pub struct ResourceMetrics {
+    cpu_usage: Gauge,
+    memory_usage: Gauge,
+    gpu_usage: Gauge,
+    operation_latency: Histogram,
+    recovery_attempts: Counter,
+    degradation_level: Gauge,
+}
+
+impl ResourceMetrics {
+    pub fn new() -> Self {
+        Self {
+            cpu_usage: register_gauge!("system_cpu_usage"),
+            memory_usage: register_gauge!("system_memory_usage"),
+            gpu_usage: register_gauge!("system_gpu_usage"),
+            operation_latency: register_histogram!("system_operation_latency"),
+            recovery_attempts: register_counter!("system_recovery_attempts"),
+            degradation_level: register_gauge!("system_degradation_level"),
+        }
+    }
 }
 
 pub struct SystemArchitecture {
@@ -20,16 +88,40 @@ pub struct SystemArchitecture {
     bit_converter: BitConverter,
     metrics: ArchitectureMetrics,
     upgrade_ready: bool,
+    resources: Arc<Mutex<SystemResources>>,
+    hardware_accel: Arc<Mutex<HardwareAcceleration>>,
+    resource_metrics: ResourceMetrics,
+    recovery_manager: Arc<Mutex<RecoveryManager>>,
+    degradation_manager: Arc<Mutex<DegradationManager>>,
 }
 
 impl SystemArchitecture {
     pub fn new() -> Result<Self, ArchitectureError> {
+        let resources = SystemResources {
+            cpu_usage: 0.0,
+            memory_usage: 0.0,
+            gpu_available: Self::check_gpu_availability(),
+            tpu_available: Self::check_tpu_availability(),
+        };
+
+        let hardware_accel = HardwareAcceleration {
+            cuda_enabled: false,
+            opencl_enabled: false,
+            tpu_enabled: false,
+            current_device: "cpu".to_string(),
+        };
+
         Ok(Self {
             register_size: 64,
             memory_controller: MemoryController::new(64)?,
             bit_converter: BitConverter::new(),
             metrics: ArchitectureMetrics::new(),
             upgrade_ready: false,
+            resources: Arc::new(Mutex::new(resources)),
+            hardware_accel: Arc::new(Mutex::new(hardware_accel)),
+            resource_metrics: ResourceMetrics::new(),
+            recovery_manager: Arc::new(Mutex::new(RecoveryManager::new())),
+            degradation_manager: Arc::new(Mutex::new(DegradationManager::new())),
         })
     }
 
@@ -45,7 +137,7 @@ impl SystemArchitecture {
         
         // Verify conversion capabilities
         self.verify_conversion_support()?;
-
+        
         self.upgrade_ready = true;
         self.metrics.record_upgrade_preparation();
         Ok(())
@@ -121,6 +213,65 @@ impl SystemArchitecture {
             result.extend_from_slice(&value.to_le_bytes());
         }
         Ok(result)
+    }
+
+    pub async fn monitor_resources(&self) -> Result<(), ArchitectureError> {
+        let mut sys = System::new_all();
+        sys.refresh_all();
+
+        let mut resources = self.resources.lock().await;
+        resources.cpu_usage = sys.global_cpu_info().cpu_usage();
+        resources.memory_usage = sys.used_memory() as f32 / sys.total_memory() as f32;
+
+        // Update metrics
+        self.resource_metrics.cpu_usage.set(resources.cpu_usage);
+        self.resource_metrics.memory_usage.set(resources.memory_usage);
+
+        Ok(())
+    }
+
+    pub async fn select_optimal_device(&self) -> Result<String, ArchitectureError> {
+        let resources = self.resources.lock().await;
+        let mut hardware = self.hardware_accel.lock().await;
+
+        // Select based on availability and current load
+        if resources.tpu_available && resources.cpu_usage > 80.0 {
+            hardware.tpu_enabled = true;
+            hardware.current_device = "tpu".to_string();
+        } else if resources.gpu_available && resources.cpu_usage > 60.0 {
+            hardware.cuda_enabled = true;
+            hardware.current_device = "gpu".to_string();
+        } else {
+            hardware.current_device = "cpu".to_string();
+        }
+
+        Ok(hardware.current_device.clone())
+    }
+
+    pub async fn handle_error(&self, error: &ArchitectureError) -> Result<(), ArchitectureError> {
+        let mut recovery = self.recovery_manager.lock().await;
+        self.resource_metrics.recovery_attempts.increment(1);
+
+        match recovery.attempt_recovery(error).await {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                // If recovery fails, try graceful degradation
+                let mut degradation = self.degradation_manager.lock().await;
+                degradation.degrade_service(e).await?;
+                self.resource_metrics.degradation_level.set(degradation.current_level() as f64);
+                Ok(())
+            }
+        }
+    }
+
+    fn check_gpu_availability() -> bool {
+        // Implementation for GPU check
+        true // Placeholder
+    }
+
+    fn check_tpu_availability() -> bool {
+        // Implementation for TPU check
+        false // Placeholder
     }
 }
 
@@ -203,13 +354,85 @@ impl ArchitectureMetrics {
     }
 }
 
+struct RecoveryManager {
+    max_attempts: u32,
+    current_attempts: u32,
+    backoff_strategy: BackoffStrategy,
+}
+
+impl RecoveryManager {
+    fn new() -> Self {
+        Self {
+            max_attempts: 3,
+            current_attempts: 0,
+            backoff_strategy: BackoffStrategy::Exponential,
+        }
+    }
+
+    async fn attempt_recovery(&mut self, error: &ArchitectureError) -> Result<(), ArchitectureError> {
+        if self.current_attempts >= self.max_attempts {
+            return Err(ArchitectureError::RecoveryFailed("Max attempts reached".into()));
+        }
+
+        self.current_attempts += 1;
+        self.backoff_strategy.wait(self.current_attempts).await;
+        
+        // Implement recovery logic based on error type
+        Ok(())
+    }
+}
+
+struct DegradationManager {
+    current_level: u32,
+    max_level: u32,
+}
+
+impl DegradationManager {
+    fn new() -> Self {
+        Self {
+            current_level: 0,
+            max_level: 3,
+        }
+    }
+
+    async fn degrade_service(&mut self, error: ArchitectureError) -> Result<(), ArchitectureError> {
+        if self.current_level >= self.max_level {
+            return Err(ArchitectureError::DegradationFailed("Max degradation level reached".into()));
+        }
+
+        self.current_level += 1;
+        // Implement service degradation logic
+        Ok(())
+    }
+
+    fn current_level(&self) -> u32 {
+        self.current_level
+    }
+}
+
+#[derive(Debug)]
+enum BackoffStrategy {
+    Linear,
+    Exponential,
+}
+
+impl BackoffStrategy {
+    async fn wait(&self, attempt: u32) {
+        let delay = match self {
+            Self::Linear => attempt * 1000,
+            Self::Exponential => 1000 * (2_u32.pow(attempt - 1)),
+        };
+        tokio::time::sleep(tokio::time::Duration::from_millis(delay as u64)).await;
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[tokio::test]
     async fn test_system_architecture() {
-        let mut arch = SystemArchitecture::new().unwrap();
+        let mut arch = SystemArchitecture::new()?;
         assert_eq!(arch.register_size, 64);
         
         // Test 128-bit preparation
@@ -220,7 +443,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_data_processing() {
-        let arch = SystemArchitecture::new().unwrap();
+        let arch = SystemArchitecture::new()?;
         let test_data = vec![1u8; 32];
         let result = arch.process_data(&test_data).await;
         assert!(result.is_ok());

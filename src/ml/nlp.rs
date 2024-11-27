@@ -1,3 +1,28 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
 use std::error::Error;
 use crate::ml_core::{MLCore, ProcessedData, TrainedModel, Prediction};
 use ml_core::{MLCore, MLInput, MLOutput, TrainedModel, Prediction};
@@ -94,3 +119,4 @@ pub fn integrate_with_ml_core(ml_core: &mut MLCore, text: &str) -> Result<(), Bo
 }
 //     self.metrics.insert(MetricType::OptimizationScore, 0.8); // Placeholder value    
 //     optimized_action
+

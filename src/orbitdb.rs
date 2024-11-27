@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use std::collections::HashMap;
 use thiserror::Error;
 
@@ -42,13 +68,14 @@ impl OrbitDB {
 }
 
 fn main() {
-    let mut db = OrbitDB::new().expect("Failed to create OrbitDB instance");
+    let mut db = OrbitDB::new()?;
 
-    db.insert("key1", "value1").expect("Failed to insert data");
-    db.insert("key2", "value2").expect("Failed to insert data");
+    db.insert("key1", "value1")?;
+    db.insert("key2", "value2")?;
 
     match db.query("value") {
         Ok(results) => println!("Query results: {:?}", results),
         Err(e) => println!("Error querying database: {}", e),
     }
 }
+

@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use crate::chain_support::{ChainSupport, BitcoinSupport};
 use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use log::error;
@@ -28,7 +54,7 @@ struct SendTransactionRequest {
         (status = 500, description = "Internal server error")
     )
 )]
-async fn handle_create_wallet(bitcoin_support: web::Data<BitcoinSupport>, req: web::Json<CreateWalletRequest>) -> impl Responder {
+async fn handle_create_wallet(bitcoin_support: web::Data<BitcoinSupport>, req: web::Json<CreateWalletRequest>) -> impl Responder  -> Result<(), Box<dyn Error>> {
     match bitcoin_support.create_wallet(&req.name).await {
         Ok(_) => HttpResponse::Ok().body("Wallet created successfully"),
         Err(e) => {
@@ -47,7 +73,7 @@ async fn handle_create_wallet(bitcoin_support: web::Data<BitcoinSupport>, req: w
         (status = 500, description = "Internal server error")
     )
 )]
-async fn handle_send_transaction(bitcoin_support: web::Data<BitcoinSupport>, req: web::Json<SendTransactionRequest>) -> impl Responder {
+async fn handle_send_transaction(bitcoin_support: web::Data<BitcoinSupport>, req: web::Json<SendTransactionRequest>) -> impl Responder  -> Result<(), Box<dyn Error>> {
     match bitcoin_support.send_transaction(&req.to, req.amount).await {
         Ok(txid) => HttpResponse::Ok().body(txid),
         Err(e) => {
@@ -57,7 +83,7 @@ async fn handle_send_transaction(bitcoin_support: web::Data<BitcoinSupport>, req
     }
 }
 
-pub async fn start_api_server(config: PyConfig) -> std::io::Result<()> {
+pub async fn start_api_server(config: PyConfig) -> std::io::Result<()>  -> Result<(), Box<dyn Error>> {
     info!("Starting API server");
     let openapi = ApiDoc::openapi();
     let bitcoin_support = web::Data::new(BitcoinSupport::new(
@@ -84,3 +110,4 @@ pub async fn start_api_server(config: PyConfig) -> std::io::Result<()> {
     .run()
     .await
 }
+

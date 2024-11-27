@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use metrics::{Counter, Gauge, Histogram};
 use std::time::Instant;
 
@@ -18,7 +44,7 @@ pub struct MLMetrics {
 }
 
 impl SecurityMetrics {
-    pub fn new() -> Self {
+    pub fn new() -> Self  -> Result<(), Box<dyn Error>> {
         Self {
             failed_auth_attempts: register_counter!("security_failed_auth_total"),
             key_operations: register_counter!("security_key_ops_total"),
@@ -29,7 +55,7 @@ impl SecurityMetrics {
 }
 
 impl MLMetrics {
-    pub fn new() -> Self {
+    pub fn new() -> Self  -> Result<(), Box<dyn Error>> {
         Self {
             training_samples: register_counter!("ml_training_samples_total"),
             prediction_accuracy: register_gauge!("ml_prediction_accuracy"),
@@ -38,3 +64,5 @@ impl MLMetrics {
         }
     }
 }
+
+

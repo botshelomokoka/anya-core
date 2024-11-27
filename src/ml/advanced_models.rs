@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use anya_core::ml::{MLError, MLInput, MLOutput, MLModel};
 use ndarray::{Array1, Array2};
 use tch::{nn, Device, Tensor, Kind};
@@ -271,7 +297,7 @@ impl AdvancedMarketSentimentAnalyzer {
             .add(nn::dropout(&vs.root(), 0.2))
             .add(nn::linear(&vs.root(), 256, 3, Default::default()));
         
-        let optimizer = nn::Adam::default().build(&vs, 1e-4).map(Box::new).map_err(MLError::from).unwrap();
+        let optimizer = nn::Adam::default().build(&vs, 1e-4).map(Box::new).map_err(MLError::from)?;
 
         Self {
             sentiment_model,
@@ -315,7 +341,7 @@ impl AdvancedMarketSentimentAnalyzer {
     }
 
     fn preprocess_text(&self, text: &str) -> Tensor {
-        let tokens = self.tokenizer.encode(text, true).unwrap();
+        let tokens = self.tokenizer.encode(text, true)?;
         let token_ids: Vec<i64> = tokens.get_ids().iter().map(|&id| id as i64).collect();
 
         let max_length = 512;
@@ -377,7 +403,7 @@ impl AdvancedBlockchainDataPredictor {
             .add(nn::dropout(&vs.root(), 0.2))
             .add(nn::linear(&vs.root(), 64, 1, Default::default()));
         
-        let optimizer = Box::new(nn::RmsProp::default().build(&vs, 1e-4).unwrap());
+        let optimizer = Box::new(nn::RmsProp::default().build(&vs, 1e-4)?);
 
         Self {
             blockchain_model,
@@ -442,7 +468,7 @@ struct AdvancedCryptoPortfolioOptimizer {
             .add(nn::dropout(&vs.root(), 0.2))
             .add(nn::linear(&vs.root(), 128, 35, Default::default()));
         
-        let optimizer = Box::new(nn::Adam::default().build(&vs, 1e-4).unwrap());
+        let optimizer = Box::new(nn::Adam::default().build(&vs, 1e-4)?);
 
         Self {
             portfolio_model,
@@ -799,3 +825,4 @@ struct AdvancedCryptoPortfolioOptimizer {
         adjusted_weights
     }
 }
+

@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use metrics::{counter, gauge, histogram, Counter, Gauge, Histogram};
 use once_cell::sync::Lazy;
 use std::sync::Arc;
@@ -65,7 +91,7 @@ pub struct PrivacyMetrics {
 }
 
 impl CoreMetrics {
-    pub fn new() -> Self {
+    pub fn new() -> Self  -> Result<(), Box<dyn Error>> {
         Self {
             // Bitcoin metrics
             bitcoin_transactions: counter!("bitcoin_transactions_total"),
@@ -94,7 +120,7 @@ impl CoreMetrics {
 }
 
 impl MLMetrics {
-    pub fn new() -> Self {
+    pub fn new() -> Self  -> Result<(), Box<dyn Error>> {
         Self {
             training_iterations: counter!("ml_training_iterations_total"),
             model_accuracy: gauge!("ml_model_accuracy"),
@@ -108,7 +134,7 @@ impl MLMetrics {
 }
 
 impl SecurityMetrics {
-    pub fn new() -> Self {
+    pub fn new() -> Self  -> Result<(), Box<dyn Error>> {
         Self {
             auth_attempts: counter!("security_auth_attempts_total"),
             auth_failures: counter!("security_auth_failures_total"),
@@ -120,7 +146,7 @@ impl SecurityMetrics {
 }
 
 impl StorageMetrics {
-    pub fn new() -> Self {
+    pub fn new() -> Self  -> Result<(), Box<dyn Error>> {
         Self {
             storage_operations: counter!("storage_operations_total"),
             storage_size: gauge!("storage_size_bytes"),
@@ -131,7 +157,7 @@ impl StorageMetrics {
 }
 
 impl PrivacyMetrics {
-    pub fn new() -> Self {
+    pub fn new() -> Self  -> Result<(), Box<dyn Error>> {
         Self {
             zk_proofs_generated: counter!("privacy_zk_proofs_total"),
             mpc_operations: counter!("privacy_mpc_operations_total"),
@@ -159,3 +185,4 @@ pub struct Metrics {
     pub storage: StorageMetrics,
     pub privacy: PrivacyMetrics,
 } 
+

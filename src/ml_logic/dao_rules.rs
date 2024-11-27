@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 /// The code defines structs and methods for an AI core system that integrates machine learning,
 /// blockchain interactions, data processing, and reporting functionalities.
 /// 
@@ -339,7 +365,7 @@ mod tests {
         let mock_blockchain = MockBlockchainInterface::new();
         let rules = DAORules::new(mock_blockchain);
         let inputs = vec![vec![1.0, 2.0], vec![3.0, 4.0]];
-        let result = rules.apply_secure_aggregation(inputs).await.unwrap();
+        let result = rules.apply_secure_aggregation(inputs).await?;
         assert_eq!(result.len(), 2);
     }
 
@@ -350,7 +376,7 @@ mod tests {
             .returning(|_| Ok(Transaction { fee: 0.001 }));
         let mut rules = DAORules::new(mock_blockchain);
         let transaction = Transaction { fee: 0.001 };
-        rules.execute_blockchain_transaction(transaction).await.unwrap();
+        rules.execute_blockchain_transaction(transaction).await?;
         assert!(rules.get_metrics().contains_key(&MetricType::TransactionFee));
     }
 
@@ -520,7 +546,7 @@ mod tests {
         let mock_blockchain = MockBlockchainInterface::new();
         let rules = DAORules::new(mock_blockchain);
         let inputs = vec![vec![1.0, 2.0], vec![3.0, 4.0]];
-        let result = rules.apply_secure_aggregation(inputs).await.unwrap();
+        let result = rules.apply_secure_aggregation(inputs).await?;
         assert_eq!(result.len(), 2);
     }
 
@@ -531,11 +557,13 @@ mod tests {
             .returning(|_| Ok(Transaction { fee: 0.001 }));
         let mut rules = DAORules::new(mock_blockchain);
         let transaction = Transaction { fee: 0.001 };
-        rules.execute_blockchain_transaction(transaction).await.unwrap();
+        rules.execute_blockchain_transaction(transaction).await?;
         assert!(rules.get_metrics().contains_key(&MetricType::TransactionFee));
     }
 
     // Add more tests for other functionalities
 }
+
+
 
 

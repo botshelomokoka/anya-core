@@ -1,3 +1,28 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
 /// The `AdvancedAnalytics` module in Rust provides functionality for running advanced analytics
 /// processes, performing market analysis, and handling blockchain data analysis.
 /// 
@@ -462,8 +487,10 @@ mod tests {
         let result = analytics.analyze_market_data().await;
         assert!(result.is_ok());
         
-        let analysis = result.unwrap();
+        let analysis = result?;
         assert!(analysis.confidence >= 0.0 && analysis.confidence <= 1.0);
         assert!(!analysis.proof.is_empty());
     }
 }
+
+

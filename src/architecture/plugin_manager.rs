@@ -1,3 +1,28 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
 use std::collections::HashMap;
 use std::any::Any;
 use thiserror::Error;
@@ -185,7 +210,7 @@ mod tests {
             should_fail_init: false,
             should_fail_shutdown: false,
         });
-        manager.register_plugin(plugin).unwrap();
+        manager.register_plugin(plugin)?;
         assert!(manager.init_all().is_ok());
     }
 
@@ -197,7 +222,7 @@ mod tests {
             should_fail_init: true,
             should_fail_shutdown: false,
         });
-        manager.register_plugin(plugin).unwrap();
+        manager.register_plugin(plugin)?;
         let result = manager.init_all();
         assert!(matches!(result, Err(PluginManagerError::InitializationError(_, _))));
     }
@@ -210,7 +235,7 @@ mod tests {
             should_fail_init: false,
             should_fail_shutdown: false,
         });
-        manager.register_plugin(plugin).unwrap();
+        manager.register_plugin(plugin)?;
         assert!(manager.shutdown_all().is_ok());
     }
 
@@ -222,8 +247,9 @@ mod tests {
             should_fail_init: false,
             should_fail_shutdown: true,
         });
-        manager.register_plugin(plugin).unwrap();
+        manager.register_plugin(plugin)?;
         let result = manager.shutdown_all();
         assert!(matches!(result, Err(PluginManagerError::ShutdownError(_, _))));
     }
 }
+

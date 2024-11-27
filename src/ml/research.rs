@@ -1,3 +1,28 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
 use reqwest::Client;
 use serde::Deserialize;
 use std::error::Error;
@@ -83,17 +108,17 @@ mod tests {
 
     #[test]
     fn test_crawl_mdpi() {
-        let rt = Runtime::new().unwrap();
+        let rt = Runtime::new()?;
         let researcher = Researcher::new();
         let result = rt.block_on(researcher.crawl_mdpi("cybersecurity vulnerabilities", 1));
         assert!(result.is_ok());
-        let papers = result.unwrap();
+        let papers = result?;
         assert!(!papers.is_empty());
     }
 
     #[test]
     fn test_analyze_papers() {
-        let rt = Runtime::new().unwrap();
+        let rt = Runtime::new()?;
         let researcher = Researcher::new();
         let papers = vec![Paper {
             title: "Test Paper".to_string(),
@@ -103,3 +128,4 @@ mod tests {
         assert!(result.is_ok());
     }
 }
+

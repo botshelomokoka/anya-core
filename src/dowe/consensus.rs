@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use crate::dowe::{DoweOracle, OracleData};
 use crate::privacy::zksnarks::ZKSnarkSystem;
 use crate::blockchain::BlockchainInterface;
@@ -87,7 +113,7 @@ impl DoweConsensus {
 
         // For this example, we'll take the median value
         let mut values: Vec<_> = data.to_vec();
-        values.sort_by(|a, b| a.value.partial_cmp(&b.value).unwrap());
+        values.sort_by(|a, b| a.value.partial_cmp(&b.value)?);
         let median = values[values.len() / 2].clone();
 
         Ok(median)
@@ -98,7 +124,7 @@ impl DoweConsensus {
         let tolerance = 0.01; // 1% tolerance
 
         for oracle_data in data {
-            if (oracle_data.value.as_f64().unwrap() - consensus.value.as_f64().unwrap()).abs() <= tolerance {
+            if (oracle_data.value.as_f64()? - consensus.value.as_f64()?).abs() <= tolerance {
                 agreement_count += 1;
             }
         }
@@ -157,13 +183,13 @@ mod tests {
         let oracles = vec![
             Arc::new(DoweOracle::new(
                 Arc::new(BlockchainInterface::new()),
-                Arc::new(ZKSnarkSystem::new().unwrap()),
+                Arc::new(ZKSnarkSystem::new()?),
             )),
         ];
 
         let consensus = DoweConsensus::new(
             oracles,
-            Arc::new(ZKSnarkSystem::new().unwrap()),
+            Arc::new(ZKSnarkSystem::new()?),
             Arc::new(BlockchainInterface::new()),
         );
 
@@ -181,3 +207,5 @@ mod tests {
         assert!(result.is_ok());
     }
 }
+
+

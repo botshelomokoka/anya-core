@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use crate::ml_core::{MLCore, MLInput, MLOutput, MLError};
 use crate::research::bitcoin_layers_crawler::BitcoinLayersCrawler;
 use crate::research::federated_learning_research::FederatedLearningResearcher;
@@ -126,7 +152,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_unified_ml_system() {
-        let system = UnifiedMLSystem::new().await.unwrap();
+        let system = UnifiedMLSystem::new().await?;
         
         // Test training
         assert!(system.train_with_research().await.is_ok());
@@ -141,3 +167,5 @@ mod tests {
         assert!(system.update_from_network(&network_data).await.is_ok());
     }
 }
+
+

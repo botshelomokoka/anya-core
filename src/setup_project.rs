@@ -1,3 +1,28 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
 use std::collections::HashMap;
 use std::error::Error;
 use std::fs;
@@ -441,3 +466,5 @@ impl ProjectSetup {
         Path::new(&format!("{}/dlc/wallet", self.project_name)).exists() &&
         Path::new(&format!("{}/lightning/wallet", self.project_name)).exists() &&
         Path::new(&format!("{}/bitcoin/wallet", self.project_name)).existsuse std::collections::HashMap;
+
+

@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use log::{info, warn, error};
 use std::collections::HashMap;
 use std::fs::File;
@@ -250,7 +276,7 @@ pub async fn check_and_fix_setup(user_type: UserType, user_data: HashMap<String,
     let mut swarm = {
         let kademlia = Kademlia::new(peer_id.clone(), libp2p::kad::store::MemoryStore::new(peer_id.clone()));
         let gossipsub_config = GossipsubConfig::default();
-        let gossipsub = Gossipsub::new(MessageAuthenticity::Signed(id_keys.clone()), gossipsub_config).unwrap();
+        let gossipsub = Gossipsub::new(MessageAuthenticity::Signed(id_keys.clone()), gossipsub_config)?;
         
         SwarmBuilder::new(transport, libp2p::behaviour::Behaviour::new(kademlia, gossipsub), peer_id)
             .executor(Box::new(|fut| {
@@ -281,3 +307,5 @@ pub async fn check_and_fix_setup(user_type: UserType, user_data: HashMap<String,
     info!("Setup check and fix completed successfully");
     Ok(())
 }
+
+

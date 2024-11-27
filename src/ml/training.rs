@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use super::model::{MLModel, Feature, FeatureCategory};
 use ndarray::{Array2, Array1};
 use rand::seq::SliceRandom;
@@ -21,7 +47,7 @@ impl ModelTrainer {
         // Add data to training set
         let feature_array = Array1::from(features);
         self.features.push_row(feature_array.view())
-            .expect("Failed to add features");
+            ?;
         self.labels.push(label);
     }
 
@@ -54,3 +80,5 @@ impl ModelTrainer {
         todo!("Implement model validation")
     }
 }
+
+

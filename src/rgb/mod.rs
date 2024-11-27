@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use rgb_core::{
     contract::{Contract, ContractId},
     schema::{Schema, SchemaId, StateType, Transition},
@@ -135,14 +161,16 @@ mod tests {
         let mut rgb = RGBModule::new();
         
         // Create asset
-        let contract_id = rgb.create_asset("TEST", 1000).await.unwrap();
+        let contract_id = rgb.create_asset("TEST", 1000).await?;
         
         // Create transfer
         let destination = OutPoint::new(bitcoin::Txid::all_zeros(), 0);
-        let tx = rgb.transfer_asset(contract_id, 100, destination).await.unwrap();
+        let tx = rgb.transfer_asset(contract_id, 100, destination).await?;
         
         // Validate state
-        let status = rgb.validate_state(contract_id).await.unwrap();
+        let status = rgb.validate_state(contract_id).await?;
         assert!(matches!(status, Status::Valid));
     }
 }
+
+

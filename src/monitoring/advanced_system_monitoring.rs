@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use crate::{
     auth::enterprise::advanced_security::AdvancedSecurity,
     web5::advanced_integration::AdvancedWeb5Integration,
@@ -18,7 +44,7 @@ pub struct AdvancedSystemMonitoring {
 }
 
 impl AdvancedSystemMonitoring {
-    pub async fn monitor_system_health(&self) -> SystemHealth {
+    pub async fn monitor_system_health(&self) -> SystemHealth  -> Result<(), Box<dyn Error>> {
         // Monitor core components
         let security_health = self.monitor_security().await;
         let web5_health = self.monitor_web5().await;
@@ -39,7 +65,7 @@ impl AdvancedSystemMonitoring {
         }
     }
 
-    async fn monitor_security(&self) -> ComponentHealth {
+    async fn monitor_security(&self) -> ComponentHealth  -> Result<(), Box<dyn Error>> {
         let metrics = self.security.get_security_metrics().await;
         
         ComponentHealth {
@@ -49,7 +75,7 @@ impl AdvancedSystemMonitoring {
         }
     }
 
-    async fn monitor_web5(&self) -> ComponentHealth {
+    async fn monitor_web5(&self) -> ComponentHealth  -> Result<(), Box<dyn Error>> {
         let metrics = self.web5_integration.get_web5_metrics().await;
         
         ComponentHealth {
@@ -59,7 +85,7 @@ impl AdvancedSystemMonitoring {
         }
     }
 
-    async fn monitor_ml(&self) -> ComponentHealth {
+    async fn monitor_ml(&self) -> ComponentHealth  -> Result<(), Box<dyn Error>> {
         let metrics = self.ml_features.get_ml_metrics().await;
         
         ComponentHealth {
@@ -74,7 +100,7 @@ impl AdvancedSystemMonitoring {
         security_health: &ComponentHealth,
         web5_health: &ComponentHealth,
         ml_health: &ComponentHealth,
-    ) {
+    )  -> Result<(), Box<dyn Error>> {
         // Update system metrics
         self.system_metrics.update(
             security_health,
@@ -124,3 +150,5 @@ struct PerformanceMetrics {
     error_count: Counter,
     success_rate: Gauge,
 }
+
+

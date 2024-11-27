@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 pub mod federated_learning;
 pub mod system_evaluation;
 pub mod dao_rules;
@@ -41,7 +67,7 @@ mod gorules;
 use gorules::{init_gorules, execute_rule};
 use log::info;
 
-pub fn initialize_modules() {
+pub fn initialize_modules()  -> Result<(), Box<dyn Error>> {
 	// Initialize GoRules
 	if let Err(e) = init_gorules("path/to/config") {
 		eprintln!("Error initializing GoRules: {}", e);
@@ -51,10 +77,11 @@ pub fn initialize_modules() {
 	info!("Modules initialized successfully");
 }
 
-pub fn execute_business_logic(rule: &str) {
+pub fn execute_business_logic(rule: &str)  -> Result<(), Box<dyn Error>> {
 	// Execute a business rule using GoRules
 	match execute_rule(rule) {
 		Ok(_) => info!("Rule executed successfully"),
 		Err(e) => eprintln!("Error executing rule: {}", e),
 	}
 }
+

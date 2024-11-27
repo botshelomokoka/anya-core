@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use metrics::{Counter, Gauge, Histogram, Key, KeyName, Unit};
 use opentelemetry::trace::{Tracer, TracerProvider};
 
@@ -7,10 +33,10 @@ pub struct Monitoring {
 }
 
 impl Monitoring {
-    pub fn new() -> Self {
+    pub fn new() -> Self  -> Result<(), Box<dyn Error>> {
         let provider = opentelemetry_jaeger::new_pipeline()
             .install_batch(opentelemetry::runtime::Tokio)
-            .expect("Failed to initialize tracer");
+            ?;
             
         Self {
             tracer: provider.tracer("anya"),
@@ -18,12 +44,12 @@ impl Monitoring {
         }
     }
 
-    pub fn record_ml_prediction(&self, duration_ms: f64) {
+    pub fn record_ml_prediction(&self, duration_ms: f64)  -> Result<(), Box<dyn Error>> {
         self.metrics.ml_prediction_duration
             .record(duration_ms, &[]);
     }
 
-    pub fn record_key_generation(&self) {
+    pub fn record_key_generation(&self)  -> Result<(), Box<dyn Error>> {
         self.metrics.key_generation_total
             .increment(1);
     }
@@ -56,7 +82,7 @@ pub struct MetricsRegistry {
 }
 
 impl MetricsRegistry {
-    pub fn new() -> Self {
+    pub fn new() -> Self  -> Result<(), Box<dyn Error>> {
         Self {
             ml_prediction_duration: register_histogram!("ml_prediction_duration_seconds"),
             ml_training_duration: register_histogram!("ml_training_duration_seconds"),
@@ -79,3 +105,5 @@ impl MetricsRegistry {
         }
     }
 }
+
+

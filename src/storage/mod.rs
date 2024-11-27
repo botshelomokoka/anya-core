@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 //! Storage module provides secure and distributed storage capabilities.
 //! This includes platform-specific secure storage and distributed storage systems.
 
@@ -27,7 +53,7 @@ struct StorageMetrics {
 }
 
 impl StorageMetrics {
-    fn new() -> Self {
+    fn new() -> Self  -> Result<(), Box<dyn Error>> {
         Self {
             storage_operations: counter!("storage_operations_total"),
             storage_size: gauge!("storage_size_bytes"),
@@ -46,3 +72,5 @@ pub use secure::windows::WindowsSecureStorage as SecureStorage;
 pub use secure::macos::MacOSSecureStorage as SecureStorage;
 #[cfg(not(any(target_os = "linux", target_os = "windows", target_os = "macos")))]
 pub use secure::fallback::FallbackSecureStorage as SecureStorage;
+
+

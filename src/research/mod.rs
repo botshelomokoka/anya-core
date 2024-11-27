@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use crate::ml_core::{MLCore, MLInput, MLOutput};
 use crate::blockchain::BlockchainInterface;
 use crate::privacy::zksnarks::ZKSnarkSystem;
@@ -194,7 +220,7 @@ mod tests {
     async fn test_research_analysis() {
         let ml_core = Arc::new(MLCore::new());
         let blockchain = Arc::new(BlockchainInterface::new());
-        let zk_system = Arc::new(ZKSnarkSystem::new().unwrap());
+        let zk_system = Arc::new(ZKSnarkSystem::new()?);
         
         let research_module = ResearchModule::new(ml_core, blockchain, zk_system);
         
@@ -205,3 +231,5 @@ mod tests {
         assert!(federated_learning_result.is_ok());
     }
 }
+
+

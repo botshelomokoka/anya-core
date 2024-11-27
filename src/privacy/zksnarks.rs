@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use bellman::{
     groth16::{
         create_random_proof, generate_random_parameters, prepare_verifying_key, verify_proof,
@@ -108,22 +134,22 @@ mod tests {
 
     #[test]
     fn test_zk_snark_proof() {
-        let system = ZKSnarkSystem::new().unwrap();
+        let system = ZKSnarkSystem::new()?;
         
         let circuit = ZKCircuit {
             inputs: vec![Scalar::one()],
             witness: vec![],
         };
         
-        let proof = system.create_proof(circuit.clone()).unwrap();
-        let verified = system.verify_proof(&proof, &[Scalar::one()]).unwrap();
+        let proof = system.create_proof(circuit.clone())?;
+        let verified = system.verify_proof(&proof, &[Scalar::one()])?;
         
         assert!(verified);
     }
 
     #[test]
     fn test_batch_proofs() {
-        let system = ZKSnarkSystem::new().unwrap();
+        let system = ZKSnarkSystem::new()?;
         
         let circuits = vec![
             ZKCircuit {
@@ -136,7 +162,9 @@ mod tests {
             },
         ];
         
-        let results = system.create_and_verify_batch(circuits).unwrap();
+        let results = system.create_and_verify_batch(circuits)?;
         assert!(results.iter().all(|&x| x));
     }
 }
+
+

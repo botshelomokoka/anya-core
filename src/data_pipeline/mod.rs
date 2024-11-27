@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use crate::ml_core::{MLCore, MLInput, MLOutput};
 use crate::blockchain::BlockchainInterface;
 use crate::dowe::DoweOracle;
@@ -242,7 +268,7 @@ mod tests {
         let ml_core = Arc::new(Mutex::new(MLCore::new()));
         let blockchain = Arc::new(BlockchainInterface::new());
         let dowe_oracle = Arc::new(DoweOracle::new(blockchain.clone(), zk_system.clone()));
-        let zk_system = Arc::new(ZKSnarkSystem::new().unwrap());
+        let zk_system = Arc::new(ZKSnarkSystem::new()?);
 
         let mut pipeline = UnifiedDataPipeline::new(
             ml_core,
@@ -267,3 +293,5 @@ mod tests {
         assert!(result.is_ok());
     }
 }
+
+

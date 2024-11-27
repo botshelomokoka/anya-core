@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use super::file_tracker::{FileTracker, FileCategory, FileMetadata};
 use anyhow::{Result, Context};
 use std::path::{Path, PathBuf};
@@ -156,7 +182,7 @@ impl DirectoryManager {
         }
 
         Ok(ModuleInfo {
-            name: path.file_name().unwrap().to_string_lossy().to_string(),
+            name: path.file_name()?.to_string_lossy().to_string(),
             path: path.to_path_buf(),
             dependencies: dependencies.into_iter().collect(),
             files,
@@ -221,10 +247,12 @@ mod tests {
 
     #[tokio::test]
     async fn test_directory_manager() {
-        let mut manager = DirectoryManager::new().await.unwrap();
-        manager.scan_directory().await.unwrap();
+        let mut manager = DirectoryManager::new().await?;
+        manager.scan_directory().await?;
         
-        let report = manager.generate_report().await.unwrap();
+        let report = manager.generate_report().await?;
         assert!(!report.is_empty());
     }
 }
+
+

@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use super::super::IdentityError;
 use ring::aead::{self, BoundKey, Nonce, NonceSequence, UnboundKey, AES_256_GCM};
 use ring::rand::{SecureRandom, SystemRandom};
@@ -65,7 +91,7 @@ impl AdvancedEncryption {
         }
 
         let (nonce_bytes, ciphertext) = encrypted.split_at(12);
-        let nonce_gen = NonceGen { nonce: nonce_bytes.try_into().unwrap() };
+        let nonce_gen = NonceGen { nonce: nonce_bytes.try_into()? };
 
         let key = self.key_encryption.get_opening_key()?;
         let mut opening_key = aead::OpeningKey::new(key, nonce_gen);
@@ -77,3 +103,5 @@ impl AdvancedEncryption {
         Ok(decrypted.to_vec())
     }
 }
+
+

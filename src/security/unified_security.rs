@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use crate::privacy::zksnarks::ZKSnarkSystem;
 use crate::blockchain::BlockchainInterface;
 use crate::metrics::{counter, gauge};
@@ -160,8 +186,8 @@ mod tests {
     #[tokio::test]
     async fn test_unified_security_system() {
         let blockchain = Arc::new(BlockchainInterface::new());
-        let zk_system = Arc::new(ZKSnarkSystem::new().unwrap());
-        let security = UnifiedSecuritySystem::new(blockchain, zk_system).unwrap();
+        let zk_system = Arc::new(ZKSnarkSystem::new()?);
+        let security = UnifiedSecuritySystem::new(blockchain, zk_system)?;
 
         let tx = Transaction {
             amount: 100.0,
@@ -171,8 +197,10 @@ mod tests {
         let result = security.validate_transaction(&tx).await;
         assert!(result.is_ok());
 
-        let audit_report = security.audit_system().await.unwrap();
+        let audit_report = security.audit_system().await?;
         assert!(audit_report.quantum_resistance_score >= 0.0);
         assert!(audit_report.quantum_resistance_score <= 1.0);
     }
 }
+
+

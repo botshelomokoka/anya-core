@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 //! This module provides the network adapter for interacting with the Kademlia DHT.
 
 use crate::kademlia::KademliaModule;
@@ -11,17 +37,17 @@ pub struct NetworkAdapter {
 }
 
 impl NetworkAdapter {
-    pub fn new() -> Self {
+    pub fn new() -> Self  -> Result<(), Box<dyn Error>> {
         Self {
             kademlia: Arc::new(Mutex::new(KademliaModule::new())),
             // Initialize other fields...
         }
     }
-        pub async fn find_nodes(&self) -> Vec<PeerId> {
+        pub async fn find_nodes(&self) -> Vec<PeerId>  -> Result<(), Box<dyn Error>> {
             let locked_kademlia = self.kademlia.lock().await;
             locked_kademlia.find_nodes().await
         }
-    pub async fn store_value(&self, key: &[u8], value: &[u8]) {
+    pub async fn store_value(&self, key: &[u8], value: &[u8])  -> Result<(), Box<dyn Error>> {
         let locked_kademlia = self.kademlia.lock().await;
         let key = key.to_vec();
         let value = value.to_vec();
@@ -36,7 +62,7 @@ impl NetworkAdapter {
         value
     }
 
-    pub async fn get_value(&self, key: &[u8]) -> Option<Vec<u8>> {
+    pub async fn get_value(&self, key: &[u8]) -> Option<Vec<u8>>  -> Result<(), Box<dyn Error>> {
         let mut kademlia = self.kademlia.lock().await;
         kademlia.get_value(key).await
     }
@@ -75,7 +101,7 @@ struct NetworkMetrics {
 }
 
 impl NetworkMetrics {
-    fn new() -> Self {
+    fn new() -> Self  -> Result<(), Box<dyn Error>> {
         Self {
             peer_count: gauge!("network_peers_total"),
             message_count: counter!("network_messages_total"),
@@ -84,3 +110,5 @@ impl NetworkMetrics {
         }
     }
 }
+
+

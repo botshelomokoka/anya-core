@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use anyhow::Result;
 use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
@@ -81,3 +107,4 @@ impl UnifiedSystem {
     async fn validate_system_state(&self) -> Result<()> {
         // Referenced from ml/manager.rs lines 57-72
         let validation = self.run_validation_
+

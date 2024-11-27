@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use std::collections::{HashMap, HashSet};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, UdpSocket};
 use std::time::Duration;
@@ -94,7 +120,7 @@ pub struct NodeState {
 }
 
 impl Default for NodeState {
-    fn default() -> Self {
+    fn default() -> Self  -> Result<(), Box<dyn Error>> {
         NodeState {
             dao_progress: 0.0,
             network_state: HashMap::new(),
@@ -143,13 +169,13 @@ pub struct NetworkDiscovery {
 }
 
 impl NetworkDiscovery {
-    pub async fn new() -> Self {
+    pub async fn new() -> Self  -> Result<(), Box<dyn Error>> {
         let secp = Secp256k1::new();
         let private_key = PrivateKey::new(&secp, &mut rand::thread_rng());
         let public_key = PublicKey::from_private_key(&secp, &private_key);
 
         let rng = &mut thread_rng();
-        let (zk_proving_key, zk_verifying_key) = Groth16::<Bls12_381>::setup(dummy_circuit(), rng).unwrap();
+        let (zk_proving_key, zk_verifying_key) = Groth16::<Bls12_381>::setup(dummy_circuit(), rng)?;
 
         let clarity_instance = ClarityInstance::new(StacksEpochId::Epoch21, None);
 
@@ -192,7 +218,7 @@ impl NetworkDiscovery {
 
         let behaviour = NodeBehaviour {
             floodsub: Floodsub::new(local_peer_id),
-            mdns: Mdns::new(Default::default()).await.unwrap(),
+            mdns: Mdns::new(Default::default()).await?,
             kademlia: Kademlia::new(local_peer_id, MemoryStore::new(local_peer_id)),
         };
 
@@ -210,7 +236,7 @@ impl NetworkDiscovery {
 
         let stx_rpc_client = StacksRpcClient::new("https://stacks-node-api.mainnet.stacks.co");
 
-        let web5_did = DIDKey::generate(KeyMethod::Ed25519).unwrap();
+        let web5_did = DIDKey::generate(KeyMethod::Ed25519)?;
 
         NetworkDiscovery {
             state: Arc::new(Mutex::new(NodeState::default())),
@@ -239,9 +265,9 @@ impl NetworkDiscovery {
         }
     }
 
-    pub async fn handle_stx_operations(&mut self) {
+    pub async fn handle_stx_operations(&mut self)  -> Result<(), Box<dyn Error>> {
         loop {
-            let contract_id = QualifiedContractIdentifier::parse("ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.my-contract").unwrap();
+            let contract_id = QualifiedContractIdentifier::parse("ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.my-contract")?;
             let function_name = "my-function";
             let args = vec![];
 
@@ -269,7 +295,7 @@ impl NetworkDiscovery {
         }
     }
 
-    pub async fn handle_dlc_operations(&mut self) {
+    pub async fn handle_dlc_operations(&mut self)  -> Result<(), Box<dyn Error>> {
         loop {
             let contract = self.dlc_support.create_contract(
                 self.dlc_public_key.clone(),
@@ -293,13 +319,13 @@ impl NetworkDiscovery {
         }
     }
 
-    pub async fn handle_lightning_operations(&mut self) {
+    pub async fn handle_lightning_operations(&mut self)  -> Result<(), Box<dyn Error>> {
         loop {
             if let Some(event) = self.channel_manager.get_and_clear_pending_events().pop() {
                 self.lightning_support.handle_event(event).await;
             }
 
-            let counterparty_node_id = PublicKey::from_slice(&[/* node id bytes */]).unwrap();
+            let counterparty_node_id = PublicKey::from_slice(&[/* node id bytes */])?;
             match self.lightning_support.create_channel(
                 &mut self.channel_manager,
                 counterparty_node_id,
@@ -318,7 +344,7 @@ impl NetworkDiscovery {
         }
     }
 
-    pub async fn handle_libp2p_events(&mut self) {
+    pub async fn handle_libp2p_events(&mut self)  -> Result<(), Box<dyn Error>> {
         loop {
             match self.swarm.select_next_some().await {
                 SwarmEvent::NewListenAddr { address, .. } => {
@@ -352,15 +378,16 @@ impl NetworkDiscovery {
     }
 }
 
-fn dummy_circuit() -> impl ark_relations::r1cs::ConstraintSynthesizer<ark_bls12_381::Fr> {
+fn dummy_circuit() -> impl ark_relations::r1cs::ConstraintSynthesizer<ark_bls12_381::Fr>  -> Result<(), Box<dyn Error>> {
     struct DummyCircuit;
     impl ark_relations::r1cs::ConstraintSynthesizer<ark_bls12_381::Fr> for DummyCircuit {
         fn generate_constraints(
             self,
             cs: ark_relations::r1cs::ConstraintSystemRef<ark_bls12_381::Fr>,
-        ) -> ark_relations::r1cs::Result<()> {
+        ) -> ark_relations::r1cs::Result<()>  -> Result<(), Box<dyn Error>> {
             Ok(())
         }
     }
     DummyCircuit
 }
+

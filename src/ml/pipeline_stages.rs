@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use crate::ml_core::{MLCore, MLInput, MLOutput};
 use crate::metrics::{counter, gauge};
 use thiserror::Error;
@@ -200,7 +226,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_pipeline_processing() {
-        let npu_interface = Arc::new(Mutex::new(NPUInterface::new().unwrap()));
+        let npu_interface = Arc::new(Mutex::new(NPUInterface::new()?));
         let target_latency = Duration::from_millis(100);
         
         let mut pipeline = OptimizedPipeline::new(npu_interface, target_latency);
@@ -210,3 +236,5 @@ mod tests {
         assert!(result.is_ok());
     }
 }
+
+

@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use bitcoin::secp256k1::{Secp256k1, SecretKey, PublicKey, Message};
 use bitcoin::util::taproot::{TaprootBuilder, TaprootSpendInfo, LeafVersion};
 use bitcoin::util::key::KeyPair;
@@ -96,7 +122,7 @@ mod tests {
 
     #[test]
     fn test_taproot_workflow() {
-        let taproot = TaprootModule::new().unwrap();
+        let taproot = TaprootModule::new()?;
         
         // Create test scripts
         let script1 = Script::new();
@@ -104,19 +130,21 @@ mod tests {
         let scripts = vec![(script1, 1), (script2, 1)];
         
         // Test spend info creation
-        let spend_info = taproot.create_taproot_spend_info(scripts).unwrap();
+        let spend_info = taproot.create_taproot_spend_info(scripts)?;
         
         // Test signing
         let msg = b"test message";
-        let signature = taproot.sign_taproot(msg, &spend_info).unwrap();
+        let signature = taproot.sign_taproot(msg, &spend_info)?;
         
         // Test verification
         let result = taproot.verify_taproot_signature(
             msg,
             &signature,
             &spend_info.output_key()
-        ).unwrap();
+        )?;
         
         assert!(result);
     }
 }
+
+

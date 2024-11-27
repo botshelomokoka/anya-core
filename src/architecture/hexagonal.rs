@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 /// The code defines a Rust implementation of a hexagonal architecture with core domain logic, port
 /// interfaces, adapters, dimensional processing, CPU ML architecture integration, metrics and
 /// monitoring, and initialization functions.
@@ -373,7 +399,7 @@ mod tests {
     #[async_trait]
     impl BlockchainPort for MockBlockchainCore {
         async fn submit_transaction(&self, _tx: Transaction) -> Result<TxHash, HexagonalError> {
-            Ok(TxHash::from_slice(&[0u8; 32]).unwrap())
+            Ok(TxHash::from_slice(&[0u8; 32])?)
         }
 
         async fn verify_block(&self, _block: Block) -> Result<bool, HexagonalError> {
@@ -407,7 +433,7 @@ mod tests {
         let data = vec![1, 2, 3, 4];
         let result = core_domain.process_dimensional_data(&data).await;
         assert!(result.is_ok());
-        let output = result.unwrap();
+        let output = result?;
         assert_eq!(output.score, 2.0);
     }
 
@@ -443,3 +469,5 @@ mod tests {
 
     // Additional tests can be added to simulate failures in any of the cores
 }
+
+

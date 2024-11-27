@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use crate::errors::SMCError;
 use rand::Rng;
 use num_bigint::BigUint;
@@ -23,15 +49,15 @@ impl SecureMultipartyComputation {
             b"FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E08"
             b"8A67CC74020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245E485B576625E7EC6F44C42E9A63A36210000000000090563", 
             16
-        ).unwrap();
+        )?;
         let q = BigUint::parse_bytes(
             b"7FFFFFFFFFFFFFFFE487ED5110B4611A62633145C06E0E68948127044533E63A0105DF5318D89C9128A505C7C1A026EF7CA8CD9E1D1A18D15985B7F62A262170800000000000482B1",
             16
-        ).unwrap();
+        )?;
         let g = BigUint::parse_bytes(
             b"2",
             16
-        ).unwrap();
+        )?;
 
         Ok(Self { num_parties, threshold, p, q, g })
         // Initialize p, q, and g with some default values or generate them
@@ -40,15 +66,15 @@ impl SecureMultipartyComputation {
             b"FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E08"
             b"8A67CC74020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245E485B576625E7EC6F44C42E9A63A36210000000000090563", 
             16
-        ).unwrap();
+        )?;
         let q = BigUint::parse_bytes(
             b"7FFFFFFFFFFFFFFFE487ED5110B4611A62633145C06E0E68948127044533E63A0105DF5318D89C9128A505C7C1A026EF7CA8CD9E1D1A18D15985B7F62A262170800000000000482B1",
             16
-        ).unwrap();
+        )?;
         let g = BigUint::parse_bytes(
             b"2",
             16
-        ).unwrap();
+        )?;
 
         Ok(Self { num_parties, threshold, p, q, g })
     }
@@ -162,3 +188,5 @@ impl SecureMultipartyComputation {
         })
     }
 }
+
+

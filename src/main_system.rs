@@ -1,3 +1,28 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
 // Standard library imports
 use std::collections::HashSet;
 use std::sync::{Arc, Mutex};
@@ -171,15 +196,15 @@ impl System {
     }
 
     fn connect_to_bitcoin_rpc() -> BitcoinRpcClient {
-        let rpc_url = env::var("BITCOIN_RPC_URL").expect("BITCOIN_RPC_URL must be set");
-        let rpc_user = env::var("BITCOIN_RPC_USER").expect("BITCOIN_RPC_USER must be set");
-        let rpc_pass = env::var("BITCOIN_RPC_PASS").expect("BITCOIN_RPC_PASS must be set");
-        let client = BitcoinRpcClient::new(&rpc_url, rpc_user, rpc_pass).expect("Failed to connect to Bitcoin RPC");
+        let rpc_url = env::var("BITCOIN_RPC_URL")?;
+        let rpc_user = env::var("BITCOIN_RPC_USER")?;
+        let rpc_pass = env::var("BITCOIN_RPC_PASS")?;
+        let client = BitcoinRpcClient::new(&rpc_url, rpc_user, rpc_pass)?;
         client
     }
 
     async fn update_state(&mut self) {
-        let _lock = self.lock.lock().unwrap();
+        let _lock = self.lock.lock()?;
         let current_time = Instant::now();
         if current_time.duration_since(self.last_update_time) > Duration::from_secs(60) {
             info!("Updating system state.");
@@ -793,5 +818,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
+
+
 
 

@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use anyhow::Result;
 use stacks_core::{
     StacksAddress,
@@ -132,7 +158,7 @@ mod tests {
     async fn test_get_balance() {
         let network = StacksNetwork::Testnet;
         let stx_support = STXSupport::new(network);
-        let address = StacksAddress::from_string("SP2C2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2").unwrap();
+        let address = StacksAddress::from_string("SP2C2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2")?;
         let balance = stx_support.get_balance(&address).await;
         assert!(balance.is_ok());
     }
@@ -158,16 +184,16 @@ mod tests {
     async fn test_deploy_contract() {
         let network = StacksNetwork::Testnet;
         let stx_support = STXSupport::new(network);
-        let contract = QualifiedContractIdentifier::from_str("SP2C2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2.contract-name").unwrap();
+        let contract = QualifiedContractIdentifier::from_str("SP2C2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2.contract-name")?;
         let code = "(define-public (hello-world) (ok \"hello world\"))";
-        let sender = StacksPrivateKey::from_string("your-private-key-here").unwrap();
+        let sender = StacksPrivateKey::from_string("your-private-key-here")?;
         let result = stx_support.deploy_contract(contract, code, &sender).await;
         assert!(result.is_ok()); // The method should succeed, so we check for Ok
     }
 }
         let network = StacksNetwork::Testnet;
         let stx_support = STXSupport::new(network);
-        let address = StacksAddress::from_string("SP2C2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2").unwrap();
+        let address = StacksAddress::from_string("SP2C2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2")?;
         let balance = stx_support.get_balance(&address).await;
         assert!(balance.is_ok());
     }
@@ -193,10 +219,11 @@ mod tests {
     async fn test_deploy_contract() {
         let network = StacksNetwork::Testnet;
         let stx_support = STXSupport::new(network);
-        let contract = QualifiedContractIdentifier::from_str("SP2C2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2.contract-name").unwrap();
+        let contract = QualifiedContractIdentifier::from_str("SP2C2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2WJ2.contract-name")?;
         let code = "(define-public (hello-world) (ok \"hello world\"))";
-        let sender = StacksPrivateKey::from_string("your-private-key-here").unwrap();
+        let sender = StacksPrivateKey::from_string("your-private-key-here")?;
         let result = stx_support.deploy_contract(contract, code, &sender).await;
         assert!(result.is_ok()); // The method should succeed, so we check for Ok
     }
 }
+

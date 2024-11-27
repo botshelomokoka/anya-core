@@ -1,3 +1,29 @@
+//! Module documentation for $moduleName
+//!
+//! # Overview
+//! This module is part of the Anya Core project, located at $modulePath.
+//!
+//! # Architecture
+//! [Add module-specific architecture details]
+//!
+//! # API Reference
+//! [Document public functions and types]
+//!
+//! # Usage Examples
+//! `ust
+//! // Add usage examples
+//! `
+//!
+//! # Error Handling
+//! This module uses proper error handling with Result types.
+//!
+//! # Security Considerations
+//! [Document security features and considerations]
+//!
+//! # Performance
+//! [Document performance characteristics]
+
+use std::error::Error;
 use crate::ml::{MLModel, SimpleLinearRegression, MLInput, MLOutput, MLError};
 use log::{info, error};
 use serde::{Serialize, Deserialize};
@@ -57,7 +83,7 @@ impl Interlink {
         
         let ml_inputs: Vec<MLInput> = self.transactions.iter().map(|t| MLInput {
             timestamp: t.timestamp,
-            features: vec![t.amount.to_f64().unwrap()],
+            features: vec![t.amount.to_f64()?],
         }).collect();
 
         self.ml_model.update(&ml_inputs).map_err(|e| InterlinkError::MLModelError(e.to_string()))?;
@@ -101,7 +127,7 @@ impl Interlink {
             features: vec![days as f64],
         };
         let output = self.ml_model.predict(&input).map_err(|e| InterlinkError::MLModelError(e.to_string()))?;
-        Ok(Decimal::from_f64(output.prediction).unwrap())
+        Ok(Decimal::from_f64(output.prediction)?)
     }
 }
 
@@ -124,3 +150,4 @@ pub fn init() -> Result<(), Box<dyn std::error::Error>> {
     // Perform any necessary initialization
     Ok(())
 }
+
