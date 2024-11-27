@@ -33,3 +33,9 @@ path = "scripts/run_alignment.rs"
 members = [
     "scripts",
 ]
+package = { version = "0.1.0", authors = ["Anya Core Contributors"], license = "MIT" }
+
+[workspace.package]
+version = "0.1.0"
+authors = ["Anya Core Contributors"]
+license = "MIT"
