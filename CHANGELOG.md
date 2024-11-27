@@ -2,6 +2,44 @@
 
 All notable changes to the Anya Core project will be documented in this file.
 
+## [1.1.0] - 2024-01-15
+
+### Added
+- Protocol versioning system with semantic versioning support
+- Role-based access control for Web5 protocols
+- Advanced error recovery mechanisms
+- Resource-aware scaling system
+- Hardware acceleration support
+- Comprehensive metrics tracking
+- Dash33 integration with ML capabilities
+- Model versioning in Web5 storage
+- Federated learning checkpointing
+- Batch operation capabilities
+
+### Enhanced
+- Web5 protocol definitions with versioning
+- Security measures with granular permissions
+- System architecture for better scalability
+- ML integration with compression support
+- Error handling with retry mechanisms
+- Metrics collection and monitoring
+- Documentation for enterprise features
+
+### Fixed
+- Merge conflicts in dependency management
+- Workspace inheritance configuration
+- Protocol compatibility issues
+- Resource management efficiency
+- Error recovery procedures
+- Build system configuration
+
+### Security
+- Enhanced protocol access control
+- Improved audit logging
+- Secure aggregation for federated learning
+- Connection pooling strategies
+- Request batching optimization
+
 ## [1.0.0] - 2023-11-26
 
 ### Added
