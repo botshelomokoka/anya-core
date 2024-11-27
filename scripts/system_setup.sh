@@ -119,52 +119,53 @@ sed -i "s/ZONE=.*/ZONE=$ZONE/" .env
 sed -i "s/INSTANCE_ID=.*/INSTANCE_ID=$INSTANCE_ID/" .env
 sed -i "s/USERNAME=.*/USERNAME=$USERNAME/" .env
 
-# Set up database
-sed -i "s|DATABASE_URL=.*|DATABASE_URL=postgres://postgres:anya_core_password@localhost/anya_core|" .env
-sudo apt-get install -y postgresql postgresql-contrib
-sudo -u postgres createdb anya_core
-sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'anya_core_password';"
-sed -i "s/DATABASE_URL=.*/DATABASE_URL=postgres:\/\/postgres:anya_core_password@localhost\/anya_core/" .env
+# Set up Web5 database
+print_status "Setting up Web5 database..."
+cargo install web5-cli
+web5 db init
+web5 db migrate
 
-# Run database migrations
-print_status "Running database migrations..."
-cargo install diesel_cli --no-default-features --features postgres
-diesel setup
-diesel migration run
+# Set up Web5 DID configuration
+print_status "Configuring Web5 DID..."
+echo "WEB5_DID_METHOD=key" >> .env
+echo "WEB5_CREDENTIAL_STATUS_TYPE=RevocationList2020" >> .env
+echo "WEB5_STORAGE_PATH=.web5/data" >> .env
+echo "WEB5_PROTOCOL_URL=http://localhost:3000" >> .env
 
 # Install additional tools
 print_status "Installing additional tools..."
 cargo install cargo-watch
 cargo install cargo-audit
 
-# Install dependencies for ZK proofs, STX, DLC, Lightning, and Bitcoin support
-print_status "Installing dependencies for advanced features..."
-sudo apt-get install -y libgmp-dev libsodium-dev
-
-# Set up Kademlia and libp2p
-print_status "Setting up Kademlia and libp2p..."
-cargo install libp2p-cli
-echo "KADEMLIA_BOOTSTRAP_NODES=<bootstrap_node_addresses>" >> .env
-echo "LIBP2P_LISTENING_ADDRESS=/ip4/0.0.0.0/tcp/4001" >> .env
-
-# Set up Web5 support
-print_status "Setting up Web5 support..."
-cargo install web5-cli
-echo "WEB5_DID_METHOD=key" >> .env
-echo "WEB5_CREDENTIAL_STATUS_TYPE=RevocationList2020" >> .env
-
-# Set up ML logic
-print_status "Setting up ML logic..."
-sudo apt-get install -y python3-pip
-pip3 install tensorflow numpy pandas scikit-learn
-echo "ML_MODEL_PATH=/path/to/ml/model" >> .env
-echo "ML_DATA_DIR=/path/to/ml/data" >> .env
+# Set up Web5 protocol definitions
+print_status "Setting up Web5 protocol definitions..."
+mkdir -p .web5/protocols
+cat > .web5/protocols/anya.json << EOL
+{
+  "protocol": "https://anya.ai/protocol",
+  "published": true,
+  "types": {
+    "proposal": {
+      "schema": "https://anya.ai/schemas/proposal",
+      "dataFormats": ["application/json"]
+    },
+    "vote": {
+      "schema": "https://anya.ai/schemas/vote",
+      "dataFormats": ["application/json"]
+    },
+    "configuration": {
+      "schema": "https://anya.ai/schemas/config",
+      "dataFormats": ["application/json"]
+    }
+  }
+}
+EOL
 
 # Run integration tests
 print_status "Running integration tests..."
 cargo test --test integration_tests
 
-print_status "Full project setup and installation on GCloud complete!"
+print_status "Full project setup and installation complete!"
 print_status "Instance: $INSTANCE_NAME"
 print_status "Zone: $ZONE"
 print_status "Username: $USERNAME"

@@ -8,6 +8,8 @@ use std::error::Error;
 use chrono::{DateTime, Utc};
 use stacks_common::types::chainstate::StacksAddress;
 use clarity_repl::clarity::ClarityConnection;
+use crate::monitoring::{metrics::MetricsCollector, audit::AuditLogger};
+use crate::governance::analysis::ProposalAnalyzer;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Proposal {
@@ -80,41 +82,41 @@ pub struct DAOMetrics {
 pub struct DAOGovernance {
     blockchain: BlockchainInterface,
     protocol: ProtocolDefinition,
-    proposals: RwLock<HashMap<String, Proposal>>,
-    metrics: RwLock<DAOMetrics>,
     security_context: SecurityContext,
     stacks_dao: Option<StacksDAO>,
+    metrics: Arc<MetricsCollector>,
+    audit_logger: Arc<AuditLogger>,
+    proposal_analyzer: Arc<ProposalAnalyzer>,
+    active_proposals: RwLock<HashMap<String, Proposal>>,
 }
 
 impl DAOGovernance {
-    pub fn new(
+    pub async fn new(
         blockchain: BlockchainInterface,
         protocol: ProtocolDefinition,
         security_context: SecurityContext,
         stacks_dao_config: Option<StacksDAOConfig>,
-    ) -> Self {
+    ) -> Result<Self, Box<dyn Error>> {
+        let metrics = Arc::new(MetricsCollector::new());
+        let audit_logger = Arc::new(AuditLogger::new(protocol.clone()).await?);
+        let proposal_analyzer = Arc::new(ProposalAnalyzer::new().await?);
+        
         let stacks_dao = if let Some(config) = stacks_dao_config {
-            let connection = ClarityConnection::new("https://stacks-node-api.testnet.stacks.co");
-            Some(StacksDAO::new(connection, config).unwrap())
+            Some(StacksDAO::new(blockchain.clarity_connection()?, config)?)
         } else {
             None
         };
 
-        Self {
+        Ok(Self {
             blockchain,
             protocol,
-            proposals: RwLock::new(HashMap::new()),
-            metrics: RwLock::new(DAOMetrics {
-                total_proposals: 0,
-                active_proposals: 0,
-                total_voters: 0,
-                total_votes: 0,
-                average_participation: 0.0,
-                treasury_balance: 0.0,
-            }),
             security_context,
             stacks_dao,
-        }
+            metrics,
+            audit_logger,
+            proposal_analyzer,
+            active_proposals: RwLock::new(HashMap::new()),
+        })
     }
 
     pub async fn create_proposal(
@@ -125,47 +127,53 @@ impl DAOGovernance {
         proposal_type: ProposalType,
         execution_params: ExecutionParameters,
     ) -> Result<String, Box<dyn Error>> {
-        // Verify proposer's eligibility
+        let start_time = std::time::Instant::now();
+
+        // Verify proposer eligibility
         self.verify_proposer_eligibility(&proposer).await?;
 
+        // Create proposal
         let proposal = Proposal {
             id: uuid::Uuid::new_v4().to_string(),
             title,
             description,
-            proposer,
-            created_at: Utc::now(),
-            voting_ends_at: Utc::now() + chrono::Duration::days(7), // Configurable voting period
+            proposer: proposer.clone(),
+            created_at: chrono::Utc::now(),
+            voting_ends_at: chrono::Utc::now() + chrono::Duration::days(7),
             status: ProposalStatus::Active,
             proposal_type,
-            required_quorum: 0.5, // Configurable
-            required_majority: 0.66, // Configurable
+            required_quorum: 0.5,
+            required_majority: 0.66,
             votes: HashMap::new(),
             execution_params,
         };
 
+        // Analyze proposal
+        let analysis = self.proposal_analyzer.analyze_proposal(&proposal).await?;
+
+        // Record metrics and audit
+        self.metrics.record_governance_action("create_proposal", start_time.elapsed().as_secs_f64()).await;
+        self.audit_logger.log_event(
+            crate::monitoring::audit::AuditEventType::Governance,
+            self.security_context.did().clone(),
+            "create_proposal".to_string(),
+            serde_json::json!({
+                "proposal_id": proposal.id,
+                "risk_score": analysis.risk_score,
+                "recommendations": analysis.recommendations,
+            }),
+            crate::monitoring::audit::AuditEventStatus::Success,
+            crate::monitoring::audit::AuditMetadata {
+                chain_id: Some(self.blockchain.chain_id().to_string()),
+                ..Default::default()
+            },
+        ).await?;
+
         // Store proposal
-        let mut proposals = self.proposals.write().await;
-        proposals.insert(proposal.id.clone(), proposal.clone());
+        self.active_proposals.write().await.insert(proposal.id.clone(), proposal.clone());
 
-        // Update metrics
-        let mut metrics = self.metrics.write().await;
-        metrics.total_proposals += 1;
-        metrics.active_proposals += 1;
-
-        // Emit blockchain event
+        // Emit event
         self.emit_proposal_created(&proposal).await?;
-
-        if let Some(stacks_dao) = &self.stacks_dao {
-            let proposal_id = stacks_dao.create_proposal(
-                StacksAddress::from_string("SP3FBR6F4A4V5T2NWKCCPQ6Y54P4KDYFZW73PYRDN").unwrap(),
-                title,
-                description,
-                StacksAddress::from_string("SP3FBR6F4A4V5T2NWKCCPQ6Y54P4KDYFZW73PYRDN").unwrap(),
-                "test".to_string(),
-                vec!["arg1".to_string(), "arg2".to_string()],
-            ).await?;
-            println!("Stacks proposal ID: {}", proposal_id);
-        }
 
         Ok(proposal.id)
     }
@@ -177,45 +185,51 @@ impl DAOGovernance {
         decision: VoteDecision,
         signature: String,
     ) -> Result<(), Box<dyn Error>> {
-        // Verify voter eligibility
+        let start_time = std::time::Instant::now();
+
+        // Get proposal
+        let mut proposals = self.active_proposals.write().await;
+        let proposal = proposals.get_mut(proposal_id)
+            .ok_or_else(|| Box::new(std::io::Error::new(std::io::ErrorKind::NotFound, "Proposal not found")))?;
+
+        // Calculate vote weight
         let vote_weight = self.calculate_vote_weight(&voter).await?;
 
+        // Create vote
         let vote = Vote {
-            voter,
+            voter: voter.clone(),
             vote_weight,
-            decision,
-            timestamp: Utc::now(),
+            decision: decision.clone(),
+            timestamp: chrono::Utc::now(),
             signature,
         };
 
-        // Store vote
-        let mut proposals = self.proposals.write().await;
-        let proposal = proposals.get_mut(proposal_id)
-            .ok_or("Proposal not found")?;
-
-        if proposal.status != ProposalStatus::Active {
-            return Err("Proposal is not active".into());
-        }
-
-        proposal.votes.insert(vote.voter.clone(), vote.clone());
+        // Add vote
+        proposal.votes.insert(voter.clone(), vote);
 
         // Check if proposal can be finalized
         if self.can_finalize_proposal(proposal) {
             self.finalize_proposal(proposal).await?;
         }
 
-        // Update metrics
-        let mut metrics = self.metrics.write().await;
-        metrics.total_votes += 1;
-        metrics.average_participation = self.calculate_participation_rate().await;
-
-        if let Some(stacks_dao) = &self.stacks_dao {
-            stacks_dao.cast_vote(
-                StacksAddress::from_string("SP3FBR6F4A4V5T2NWKCCPQ6Y54P4KDYFZW73PYRDN").unwrap(),
-                1,
-                true,
-            ).await?;
-        }
+        // Record metrics and audit
+        self.metrics.record_governance_action("cast_vote", start_time.elapsed().as_secs_f64()).await;
+        self.audit_logger.log_event(
+            crate::monitoring::audit::AuditEventType::Governance,
+            self.security_context.did().clone(),
+            "cast_vote".to_string(),
+            serde_json::json!({
+                "proposal_id": proposal_id,
+                "voter": voter,
+                "decision": decision,
+                "weight": vote_weight,
+            }),
+            crate::monitoring::audit::AuditEventStatus::Success,
+            crate::monitoring::audit::AuditMetadata {
+                chain_id: Some(self.blockchain.chain_id().to_string()),
+                ..Default::default()
+            },
+        ).await?;
 
         Ok(())
     }
@@ -436,7 +450,7 @@ mod tests {
             ExecutionParameters::default(),
         ).await?;
 
-        let proposals = dao.proposals.read().await;
+        let proposals = dao.active_proposals.read().await;
         assert!(proposals.contains_key(&proposal_id));
 
         Ok(())
@@ -466,7 +480,7 @@ mod tests {
             "signature".to_string(),
         ).await?;
 
-        let proposals = dao.proposals.read().await;
+        let proposals = dao.active_proposals.read().await;
         let proposal = proposals.get(&proposal_id).unwrap();
         assert_eq!(proposal.votes.len(), 1);
 

@@ -1,380 +1,113 @@
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use lru::LruCache;
-use serde::{Serialize, Deserialize};
-use clarity_sdk::{
-    clarity_type::ClarityType,
-    types::{Value, ToClarityValue, FromClarityValue},
+use web5::{
+    did::{Did, DidMethod},
+    protocol::{Protocol, ProtocolDefinition},
+    storage::{Storage, StorageOptions},
 };
-use crate::stacks_client::{StacksContractClient, Error as ClientError};
+use serde::{Deserialize, Serialize};
+use thiserror::Error;
 
-#[derive(Debug, Clone, Hash, Eq, PartialEq)]
-pub enum StateKey {
-    Protocol,
-    Proposal(u64),
-    Vote(u64, String),
-    Token(String),
+#[derive(Debug, Error)]
+pub enum StateError {
+    #[error("Storage error: {0}")]
+    StorageError(String),
+    #[error("Protocol error: {0}")]
+    ProtocolError(String),
+    #[error("DID error: {0}")]
+    DidError(String),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProtocolState {
     pub config_parameters: Vec<ConfigParameter>,
-    pub active_contracts: Vec<ContractInfo>,
-    pub permissions: Vec<PermissionInfo>,
-    pub treasury_balance: u64,
-}
-
-impl ToClarityValue for ProtocolState {
-    fn to_clarity_value(&self) -> Value {
-        let mut tuple = Vec::new();
-        
-        tuple.push(("config-parameters".into(), 
-            Value::list(self.config_parameters.iter()
-                .map(|p| p.to_clarity_value())
-                .collect())
-        ));
-        
-        tuple.push(("active-contracts".into(),
-            Value::list(self.active_contracts.iter()
-                .map(|c| c.to_clarity_value())
-                .collect())
-        ));
-        
-        tuple.push(("permissions".into(),
-            Value::list(self.permissions.iter()
-                .map(|p| p.to_clarity_value())
-                .collect())
-        ));
-        
-        tuple.push(("treasury-balance".into(),
-            Value::UInt(self.treasury_balance)
-        ));
-        
-        Value::Tuple(tuple)
-    }
-}
-
-impl FromClarityValue for ProtocolState {
-    fn from_clarity_value(value: Value) -> Option<Self> {
-        if let Value::Tuple(tuple) = value {
-            let mut state = ProtocolState {
-                config_parameters: Vec::new(),
-                active_contracts: Vec::new(),
-                permissions: Vec::new(),
-                treasury_balance: 0,
-            };
-            
-            for (key, value) in tuple {
-                match key.as_str() {
-                    "config-parameters" => {
-                        if let Value::List(params) = value {
-                            state.config_parameters = params.iter()
-                                .filter_map(|v| ConfigParameter::from_clarity_value(v.clone()))
-                                .collect();
-                        }
-                    },
-                    "active-contracts" => {
-                        if let Value::List(contracts) = value {
-                            state.active_contracts = contracts.iter()
-                                .filter_map(|v| ContractInfo::from_clarity_value(v.clone()))
-                                .collect();
-                        }
-                    },
-                    "permissions" => {
-                        if let Value::List(perms) = value {
-                            state.permissions = perms.iter()
-                                .filter_map(|v| PermissionInfo::from_clarity_value(v.clone()))
-                                .collect();
-                        }
-                    },
-                    "treasury-balance" => {
-                        if let Value::UInt(balance) = value {
-                            state.treasury_balance = balance;
-                        }
-                    },
-                    _ => {}
-                }
-            }
-            Some(state)
-        } else {
-            None
-        }
-    }
+    pub contract_info: ContractInfo,
+    pub permission_info: PermissionInfo,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConfigParameter {
     pub key: String,
     pub value: String,
-}
-
-impl ToClarityValue for ConfigParameter {
-    fn to_clarity_value(&self) -> Value {
-        Value::Tuple(vec![
-            ("key".into(), Value::string_ascii(&self.key)?),
-            ("value".into(), Value::string_ascii(&self.value)?),
-        ])
-    }
-}
-
-impl FromClarityValue for ConfigParameter {
-    fn from_clarity_value(value: Value) -> Option<Self> {
-        if let Value::Tuple(tuple) = value {
-            let mut param = ConfigParameter {
-                key: String::new(),
-                value: String::new(),
-            };
-            
-            for (key, value) in tuple {
-                match key.as_str() {
-                    "key" => {
-                        if let Value::String(s) = value {
-                            param.key = s;
-                        }
-                    },
-                    "value" => {
-                        if let Value::String(s) = value {
-                            param.value = s;
-                        }
-                    },
-                    _ => {}
-                }
-            }
-            Some(param)
-        } else {
-            None
-        }
-    }
+    pub last_updated: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ContractInfo {
-    pub name: String,
     pub address: String,
+    pub name: String,
     pub version: String,
-}
-
-impl ToClarityValue for ContractInfo {
-    fn to_clarity_value(&self) -> Value {
-        Value::Tuple(vec![
-            ("name".into(), Value::string_ascii(&self.name)?),
-            ("address".into(), Value::string_ascii(&self.address)?),
-            ("version".into(), Value::string_ascii(&self.version)?),
-        ])
-    }
-}
-
-impl FromClarityValue for ContractInfo {
-    fn from_clarity_value(value: Value) -> Option<Self> {
-        if let Value::Tuple(tuple) = value {
-            let mut info = ContractInfo {
-                name: String::new(),
-                address: String::new(),
-                version: String::new(),
-            };
-            
-            for (key, value) in tuple {
-                match key.as_str() {
-                    "name" => {
-                        if let Value::String(s) = value {
-                            info.name = s;
-                        }
-                    },
-                    "address" => {
-                        if let Value::String(s) = value {
-                            info.address = s;
-                        }
-                    },
-                    "version" => {
-                        if let Value::String(s) = value {
-                            info.version = s;
-                        }
-                    },
-                    _ => {}
-                }
-            }
-            Some(info)
-        } else {
-            None
-        }
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PermissionInfo {
-    pub role: String,
-    pub address: String,
+    pub roles: Vec<String>,
     pub permissions: Vec<String>,
 }
 
-impl ToClarityValue for PermissionInfo {
-    fn to_clarity_value(&self) -> Value {
-        Value::Tuple(vec![
-            ("role".into(), Value::string_ascii(&self.role)?),
-            ("address".into(), Value::string_ascii(&self.address)?),
-            ("permissions".into(), Value::list(
-                self.permissions.iter()
-                    .map(|p| Value::string_ascii(p))
-                    .collect::<Option<Vec<_>>>()?
-            )),
-        ])
-    }
-}
-
-impl FromClarityValue for PermissionInfo {
-    fn from_clarity_value(value: Value) -> Option<Self> {
-        if let Value::Tuple(tuple) = value {
-            let mut info = PermissionInfo {
-                role: String::new(),
-                address: String::new(),
-                permissions: Vec::new(),
-            };
-            
-            for (key, value) in tuple {
-                match key.as_str() {
-                    "role" => {
-                        if let Value::String(s) = value {
-                            info.role = s;
-                        }
-                    },
-                    "address" => {
-                        if let Value::String(s) = value {
-                            info.address = s;
-                        }
-                    },
-                    "permissions" => {
-                        if let Value::List(perms) = value {
-                            info.permissions = perms.iter()
-                                .filter_map(|v| {
-                                    if let Value::String(s) = v {
-                                        Some(s.clone())
-                                    } else {
-                                        None
-                                    }
-                                })
-                                .collect();
-                        }
-                    },
-                    _ => {}
-                }
-            }
-            Some(info)
-        } else {
-            None
-        }
-    }
-}
-
 pub struct ProtocolStateManager {
-    contract_client: Arc<StacksContractClient>,
-    cache: Arc<RwLock<LruCache<StateKey, Box<dyn StateValue>>>>,
+    storage: Arc<Storage>,
+    protocol: Arc<Protocol>,
+    did: Arc<Did>,
+    state_cache: Arc<RwLock<Option<ProtocolState>>>,
 }
 
 impl ProtocolStateManager {
-    pub fn new(contract_client: StacksContractClient, cache_size: usize) -> Self {
-        Self {
-            contract_client: Arc::new(contract_client),
-            cache: Arc::new(RwLock::new(LruCache::new(cache_size))),
-        }
+    pub async fn new() -> Result<Self, StateError> {
+        let storage = Storage::new(StorageOptions::default())
+            .map_err(|e| StateError::StorageError(e.to_string()))?;
+            
+        let protocol_def = ProtocolDefinition::from_file(".web5/protocols/anya.json")
+            .map_err(|e| StateError::ProtocolError(e.to_string()))?;
+            
+        let protocol = Protocol::new(protocol_def)
+            .map_err(|e| StateError::ProtocolError(e.to_string()))?;
+            
+        let did = Did::create(DidMethod::Key, None)
+            .map_err(|e| StateError::DidError(e.to_string()))?;
+
+        Ok(Self {
+            storage: Arc::new(storage),
+            protocol: Arc::new(protocol),
+            did: Arc::new(did),
+            state_cache: Arc::new(RwLock::new(None)),
+        })
     }
 
-    pub async fn get_protocol_state(&self) -> Result<ProtocolState, ClientError> {
-        // Try cache first
-        if let Some(state) = self.cache.read().await.get(&StateKey::Protocol) {
-            if let Some(protocol_state) = state.as_any().downcast_ref::<ProtocolState>() {
-                return Ok(protocol_state.clone());
-            }
+    pub async fn get_protocol_state(&self) -> Result<ProtocolState, StateError> {
+        if let Some(state) = self.state_cache.read().await.as_ref() {
+            return Ok(state.clone());
         }
 
-        // Fetch from blockchain
-        let state: Value = self.contract_client
-            .call_read_only(
-                "protocol",
-                "get-protocol-state",
-                &[],
+        let state = self.storage
+            .query_records(self.protocol.as_ref(), "configuration", None)
+            .await
+            .map_err(|e| StateError::StorageError(e.to_string()))?
+            .first()
+            .and_then(|record| serde_json::from_value(record.data.clone()).ok())
+            .unwrap_or_default();
+
+        *self.state_cache.write().await = Some(state.clone());
+        Ok(state)
+    }
+
+    pub async fn update_protocol_state(&self, state: ProtocolState) -> Result<(), StateError> {
+        self.storage
+            .create_record(
+                self.protocol.as_ref(),
+                "configuration",
+                serde_json::to_value(state.clone()).unwrap(),
+                None,
             )
-            .await?;
+            .await
+            .map_err(|e| StateError::StorageError(e.to_string()))?;
 
-        let protocol_state = ProtocolState::from_clarity_value(state)
-            .ok_or_else(|| ClientError::DeserializationError)?;
-
-        // Update cache
-        self.cache.write().await.put(
-            StateKey::Protocol,
-            Box::new(protocol_state.clone()),
-        );
-
-        Ok(protocol_state)
-    }
-
-    pub async fn get_proposal(&self, proposal_id: u64) -> Result<ProposalInfo, ClientError> {
-        let key = StateKey::Proposal(proposal_id);
-
-        // Try cache first
-        if let Some(state) = self.cache.read().await.get(&key) {
-            if let Some(proposal) = state.as_any().downcast_ref::<ProposalInfo>() {
-                return Ok(proposal.clone());
-            }
-        }
-
-        // Fetch from blockchain
-        let proposal: Value = self.contract_client
-            .call_read_only(
-                "dao",
-                "get-proposal",
-                &[proposal_id],
-            )
-            .await?;
-
-        let proposal_info = ProposalInfo::from_clarity_value(proposal)
-            .ok_or_else(|| ClientError::DeserializationError)?;
-
-        // Update cache
-        self.cache.write().await.put(
-            key,
-            Box::new(proposal_info.clone()),
-        );
-
-        Ok(proposal_info)
-    }
-
-    pub async fn get_vote(&self, proposal_id: u64, voter: &str) -> Result<VoteInfo, ClientError> {
-        let key = StateKey::Vote(proposal_id, voter.to_string());
-
-        // Try cache first
-        if let Some(state) = self.cache.read().await.get(&key) {
-            if let Some(vote) = state.as_any().downcast_ref::<VoteInfo>() {
-                return Ok(vote.clone());
-            }
-        }
-
-        // Fetch from blockchain
-        let vote: Value = self.contract_client
-            .call_read_only(
-                "dao",
-                "get-vote",
-                &[proposal_id, voter],
-            )
-            .await?;
-
-        let vote_info = VoteInfo::from_clarity_value(vote)
-            .ok_or_else(|| ClientError::DeserializationError)?;
-
-        // Update cache
-        self.cache.write().await.put(
-            key,
-            Box::new(vote_info.clone()),
-        );
-
-        Ok(vote_info)
-    }
-
-    pub async fn invalidate_cache(&self, key: StateKey) {
-        self.cache.write().await.pop(&key);
+        *self.state_cache.write().await = Some(state);
+        Ok(())
     }
 
     pub async fn clear_cache(&self) {
-        self.cache.write().await.clear();
+        *self.state_cache.write().await = None;
     }
 }
 
@@ -393,108 +126,6 @@ pub struct ProposalInfo {
     pub canceled: bool,
 }
 
-impl ToClarityValue for ProposalInfo {
-    fn to_clarity_value(&self) -> Value {
-        Value::Tuple(vec![
-            ("id".into(), Value::UInt(self.id)),
-            ("proposer".into(), Value::string_ascii(&self.proposer)?),
-            ("title".into(), Value::string_ascii(&self.title)?),
-            ("description".into(), Value::string_ascii(&self.description)?),
-            ("start-block".into(), Value::UInt(self.start_block)),
-            ("end-block".into(), Value::UInt(self.end_block)),
-            ("execution-block".into(), Value::UInt(self.execution_block)),
-            ("votes-for".into(), Value::UInt(self.votes_for)),
-            ("votes-against".into(), Value::UInt(self.votes_against)),
-            ("executed".into(), Value::Bool(self.executed)),
-            ("canceled".into(), Value::Bool(self.canceled)),
-        ])
-    }
-}
-
-impl FromClarityValue for ProposalInfo {
-    fn from_clarity_value(value: Value) -> Option<Self> {
-        if let Value::Tuple(tuple) = value {
-            let mut info = ProposalInfo {
-                id: 0,
-                proposer: String::new(),
-                title: String::new(),
-                description: String::new(),
-                start_block: 0,
-                end_block: 0,
-                execution_block: 0,
-                votes_for: 0,
-                votes_against: 0,
-                executed: false,
-                canceled: false,
-            };
-            
-            for (key, value) in tuple {
-                match key.as_str() {
-                    "id" => {
-                        if let Value::UInt(id) = value {
-                            info.id = id;
-                        }
-                    },
-                    "proposer" => {
-                        if let Value::String(s) = value {
-                            info.proposer = s;
-                        }
-                    },
-                    "title" => {
-                        if let Value::String(s) = value {
-                            info.title = s;
-                        }
-                    },
-                    "description" => {
-                        if let Value::String(s) = value {
-                            info.description = s;
-                        }
-                    },
-                    "start-block" => {
-                        if let Value::UInt(block) = value {
-                            info.start_block = block;
-                        }
-                    },
-                    "end-block" => {
-                        if let Value::UInt(block) = value {
-                            info.end_block = block;
-                        }
-                    },
-                    "execution-block" => {
-                        if let Value::UInt(block) = value {
-                            info.execution_block = block;
-                        }
-                    },
-                    "votes-for" => {
-                        if let Value::UInt(votes) = value {
-                            info.votes_for = votes;
-                        }
-                    },
-                    "votes-against" => {
-                        if let Value::UInt(votes) = value {
-                            info.votes_against = votes;
-                        }
-                    },
-                    "executed" => {
-                        if let Value::Bool(executed) = value {
-                            info.executed = executed;
-                        }
-                    },
-                    "canceled" => {
-                        if let Value::Bool(canceled) = value {
-                            info.canceled = canceled;
-                        }
-                    },
-                    _ => {}
-                }
-            }
-            Some(info)
-        } else {
-            None
-        }
-    }
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VoteInfo {
     pub power: u64,
@@ -503,79 +134,65 @@ pub struct VoteInfo {
     pub timestamp: u64,
 }
 
-impl ToClarityValue for VoteInfo {
-    fn to_clarity_value(&self) -> Value {
-        Value::Tuple(vec![
-            ("power".into(), Value::UInt(self.power)),
-            ("support".into(), Value::Bool(self.support)),
-            ("reason".into(), self.reason.as_ref().map_or(Value::None, |s| Value::string_ascii(s)?)),
-            ("timestamp".into(), Value::UInt(self.timestamp)),
-        ])
-    }
+pub async fn get_proposal(&self, proposal_id: u64) -> Result<ProposalInfo, StateError> {
+    let key = format!("proposal-{}", proposal_id);
+
+    let proposal = self.storage
+        .query_records(self.protocol.as_ref(), &key, None)
+        .await
+        .map_err(|e| StateError::StorageError(e.to_string()))?
+        .first()
+        .and_then(|record| serde_json::from_value(record.data.clone()).ok())
+        .unwrap_or_default();
+
+    Ok(proposal)
 }
 
-impl FromClarityValue for VoteInfo {
-    fn from_clarity_value(value: Value) -> Option<Self> {
-        if let Value::Tuple(tuple) = value {
-            let mut info = VoteInfo {
-                power: 0,
-                support: false,
-                reason: None,
-                timestamp: 0,
-            };
-            
-            for (key, value) in tuple {
-                match key.as_str() {
-                    "power" => {
-                        if let Value::UInt(power) = value {
-                            info.power = power;
-                        }
-                    },
-                    "support" => {
-                        if let Value::Bool(support) = value {
-                            info.support = support;
-                        }
-                    },
-                    "reason" => {
-                        if let Value::Some(s) = value {
-                            if let Value::String(reason) = s {
-                                info.reason = Some(reason);
-                            }
-                        }
-                    },
-                    "timestamp" => {
-                        if let Value::UInt(timestamp) = value {
-                            info.timestamp = timestamp;
-                        }
-                    },
-                    _ => {}
-                }
-            }
-            Some(info)
-        } else {
-            None
-        }
-    }
+pub async fn get_vote(&self, proposal_id: u64, voter: &str) -> Result<VoteInfo, StateError> {
+    let key = format!("vote-{}-{}", proposal_id, voter);
+
+    let vote = self.storage
+        .query_records(self.protocol.as_ref(), &key, None)
+        .await
+        .map_err(|e| StateError::StorageError(e.to_string()))?
+        .first()
+        .and_then(|record| serde_json::from_value(record.data.clone()).ok())
+        .unwrap_or_default();
+
+    Ok(vote)
 }
 
-pub trait StateValue: std::any::Any + Send + Sync {
-    fn as_any(&self) -> &dyn std::any::Any;
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tokio;
 
-impl StateValue for ProtocolState {
-    fn as_any(&self) -> &dyn std::any::Any {
-        self
-    }
-}
+    #[tokio::test]
+    async fn test_protocol_state_manager() {
+        let manager = ProtocolStateManager::new().await.unwrap();
+        
+        let state = ProtocolState {
+            config_parameters: vec![ConfigParameter {
+                key: "test_key".to_string(),
+                value: "test_value".to_string(),
+                last_updated: 123,
+            }],
+            contract_info: ContractInfo {
+                address: "test_address".to_string(),
+                name: "test_contract".to_string(),
+                version: "1.0.0".to_string(),
+            },
+            permission_info: PermissionInfo {
+                roles: vec!["admin".to_string()],
+                permissions: vec!["write".to_string()],
+            },
+        };
 
-impl StateValue for ProposalInfo {
-    fn as_any(&self) -> &dyn std::any::Any {
-        self
-    }
-}
-
-impl StateValue for VoteInfo {
-    fn as_any(&self) -> &dyn std::any::Any {
-        self
+        manager.update_protocol_state(state.clone()).await.unwrap();
+        let retrieved_state = manager.get_protocol_state().await.unwrap();
+        assert_eq!(
+            retrieved_state.config_parameters[0].key,
+            state.config_parameters[0].key
+        );
     }
 }

@@ -1,169 +1,253 @@
 # Anya Core Architecture
 
 ## Overview
-Anya Core is a decentralized AI assistant framework built on Bitcoin principles. The system is designed with security, privacy, and decentralization as core tenets.
+
+Anya Core is built on a hexagonal architecture (ports and adapters) pattern, emphasizing clean separation of concerns, domain-driven design, and modularity. The system is designed with security, privacy, and decentralization as core tenets.
+
+![Hexagonal Architecture](images/hexagonal_architecture.png)
 
 ## Core Components
+
+### 1. Domain Layer (Core)
+- Business logic and rules
+- Domain entities and value objects
+- Use cases and domain services
+- Domain events and handlers
+- Error types and handling
+
+### 2. Application Layer (Ports)
+#### Input Ports (Primary/Driving)
+- Command handlers
+- Query handlers
+- Event handlers
+- API interfaces
+- RPC interfaces
+
+#### Output Ports (Secondary/Driven)
+- Repository interfaces
+- External service interfaces
+- Messaging interfaces
+- Cache interfaces
+- Storage interfaces
+
+### 3. Infrastructure Layer (Adapters)
+#### Input Adapters
+- REST API controllers
+- gRPC handlers
+- CLI commands
+- WebSocket handlers
+- Message consumers
+
+#### Output Adapters
+- Database repositories
+- External service clients
+- Message publishers
+- Cache implementations
+- File system adapters
+
+## System Architecture
 
 ### 1. Bitcoin Integration
 - Core Bitcoin functionality with RPC client
 - Transaction validation and processing
-- Network management
-- Metrics collection
-- Quantum resistance implementation
+- Network management and monitoring
 - Advanced script validation
+- Lightning Network integration
+- Multi-signature support
 
-### 2. ML System
-- Core ML infrastructure
-- Federated learning implementation
+### 2. Error Handling System
+```rust
+// Comprehensive error handling with context
+pub struct ErrorContext {
+    error: HexagonalError,
+    severity: ErrorSeverity,
+    trace_id: Option<String>,
+    retry_count: u32,
+    metrics: ErrorMetrics
+}
+
+// Circuit breaker pattern
+pub struct CircuitBreaker {
+    state: CircuitState,
+    failure_threshold: u32,
+    reset_timeout: Duration
+}
+```
+
+### 3. Metrics & Monitoring
+- Real-time performance metrics
+- Custom business metrics
+- Error and failure metrics
+- Resource utilization tracking
+- Health check system
+- Circuit breaker monitoring
+
+### 4. Security Layer
+- Multi-factor authentication
+- Role-based access control
+- Audit logging
+- Encryption at rest
+- Secure communication
+- HSM integration
+
+### 5. Machine Learning System
+- Federated learning
 - Model optimization
-- Data processing pipeline
-- Natural language processing
-- Privacy-preserving ML techniques
+- Privacy-preserving ML
+- Anomaly detection
+- Predictive analytics
+- Risk assessment
 
-### 3. Security Layer
-- Comprehensive validation framework
-- Multi-level security (Standard/Enhanced/Maximum)
-- Privacy modes (Standard/ZeroKnowledge/FullPrivacy)
-- Quantum resistance
-- Advanced cryptography
+## Component Interaction
 
-### 4. Privacy Layer
-- Zero-knowledge proofs
-- Homomorphic encryption
-- Secure multi-party computation
-- Privacy-preserving features
-- Validation constraints
+### 1. Request Flow
+```mermaid
+graph LR
+    A[Client] --> B[Input Port]
+    B --> C[Domain Service]
+    C --> D[Output Port]
+    D --> E[External System]
+```
 
-### 5. Metrics System
-- Comprehensive metrics collection
-- Performance monitoring
-- Security metrics
-- Privacy metrics
-- ML system metrics
+### 2. Error Handling Flow
+```mermaid
+graph TD
+    A[Error Occurs] --> B[Error Context]
+    B --> C[Circuit Breaker]
+    C --> D[Retry Logic]
+    D --> E[Metrics Collection]
+    E --> F[Logging]
+```
 
-### 6. Error Handling
-- Centralized error types
-- Comprehensive error categorization
-- Error propagation
-- Error recovery strategies
+## Implementation Details
 
-## System Architecture
+### 1. Domain Layer
+```rust
+// Core domain types
+pub trait DomainService {
+    async fn execute(&self, command: Command) -> DomainResult;
+}
 
-### Layer 1 (Core)
-- Bitcoin consensus
-- Transaction validation
-- Network management
-- Security primitives
+// Domain events
+pub trait DomainEvent {
+    fn event_type(&self) -> &str;
+    fn occurred_at(&self) -> DateTime<Utc>;
+}
+```
 
-### Layer 2 (Extensions)
-- Lightning Network
-- DLC implementation
-- RGB protocol
-- Stacks integration
+### 2. Application Layer
+```rust
+// Input ports
+#[async_trait]
+pub trait CommandHandler<T> {
+    async fn handle(&self, command: T) -> ApplicationResult<()>;
+}
 
-### Layer 3 (Applications)
-- ML applications
-- Analytics
-- User interfaces
-- API endpoints
+// Output ports
+#[async_trait]
+pub trait Repository<T> {
+    async fn save(&self, entity: T) -> RepositoryResult<()>;
+    async fn find_by_id(&self, id: &str) -> RepositoryResult<Option<T>>;
+}
+```
 
-## Security Considerations
+### 3. Infrastructure Layer
+```rust
+// Input adapter
+pub struct RestController {
+    command_handler: Arc<dyn CommandHandler>,
+    metrics: MetricsCollector
+}
 
-### 1. Transaction Validation
-- Input validation
-- Output validation
-- Script validation
-- Quantum resistance checks
-- Privacy constraints
+// Output adapter
+pub struct PostgresRepository {
+    pool: PgPool,
+    circuit_breaker: CircuitBreaker
+}
+```
 
-### 2. ML Model Validation
-- Model integrity
-- Performance validation
-- Security validation
-- Privacy validation
+## Error Handling Strategy
 
-### 3. Privacy Protection
-- Zero-knowledge proofs
-- Homomorphic encryption
-- Multi-party computation
-- Privacy constraints
+### 1. Error Classification
+- Domain Errors
+- Application Errors
+- Infrastructure Errors
+- Integration Errors
+- Security Errors
+
+### 2. Error Recovery
+- Retry Mechanisms
+- Circuit Breaker
+- Fallback Strategies
+- Compensation Actions
+
+### 3. Error Monitoring
+- Error Metrics
+- Error Patterns
+- Recovery Success Rate
+- System Health Impact
 
 ## Metrics and Monitoring
 
 ### 1. Core Metrics
-- Bitcoin transactions
-- Network performance
-- System health
-- Error rates
+- Transaction throughput
+- Error rates and types
+- Response times
+- Resource utilization
+- Cache hit rates
 
-### 2. ML Metrics
-- Model performance
-- Training metrics
-- Inference metrics
-- Validation scores
+### 2. Business Metrics
+- Transaction volumes
+- User activity
+- Feature usage
+- Success rates
+- Business KPIs
 
-### 3. Security Metrics
-- Authentication attempts
-- Security violations
-- Encryption operations
-- Quantum resistance operations
+### 3. ML Metrics
+- Model accuracy
+- Training performance
+- Prediction latency
+- Feature importance
+- Drift detection
 
-### 4. Privacy Metrics
-- ZK proof generations
-- MPC operations
-- Privacy scores
-- Encryption times
+## Security Considerations
 
-## Error Handling
+### 1. Authentication
+- Multi-factor authentication
+- Token management
+- Session handling
+- Identity verification
 
-### 1. Error Categories
-- Bitcoin errors
-- ML errors
-- Security errors
-- Privacy errors
-- Network errors
-- Storage errors
+### 2. Authorization
+- Role-based access control
+- Permission management
+- Policy enforcement
+- Access auditing
 
-### 2. Error Recovery
-- Automatic retry mechanisms
-- Fallback strategies
-- Error reporting
-- Incident management
-
-## Future Enhancements
-
-### 1. Security
-- Advanced quantum resistance
-- Enhanced privacy features
-- Additional validation layers
-
-### 2. ML System
-- Advanced model optimization
-- Enhanced privacy preservation
-- Improved federated learning
-
-### 3. Scalability
-- Enhanced performance
-- Improved resource utilization
-- Better error handling
+### 3. Data Protection
+- Encryption at rest
+- Secure communication
+- Key management
+- Data anonymization
 
 ## Development Guidelines
 
 ### 1. Code Organization
-- Modular architecture
-- Clear separation of concerns
-- Comprehensive documentation
-- Thorough testing
+- Domain-driven structure
+- Clean architecture principles
+- SOLID principles
+- Dependency injection
 
-### 2. Security Practices
-- Regular security audits
-- Privacy by design
-- Secure coding practices
-- Comprehensive validation
+### 2. Testing Strategy
+- Unit tests
+- Integration tests
+- Property-based tests
+- Performance tests
+- Security tests
 
-### 3. Performance
-- Efficient resource usage
-- Optimized algorithms
-- Regular benchmarking
-- Performance monitoring
+### 3. Documentation
+- API documentation
+- Architecture diagrams
+- Component interaction
+- Error handling
+- Security guidelines

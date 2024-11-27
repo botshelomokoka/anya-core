@@ -1,26 +1,63 @@
 [package]
 name = "anya"
-version.workspace = true
-edition.workspace = true
-authors.workspace = true
-license.workspace = true
-repository.workspace = true
-description.workspace = true
+version = "0.1.0"
+edition = "2021"
+description = "Decentralized AI Governance System"
+authors = ["Botshelo Mokoka <botshelomokoka@gmail.com>"]
+license = "MIT"
 
 [dependencies]
-anya-core = { path = "dependencies/anya-core" }
-anya-enterprise = { path = "dependencies/anya-enterprise" }
-anya-bitcoin = { path = "dependencies/anya-bitcoin" }
-tokio = { version = "1.0", features = ["full"] }
+# Async Runtime
+tokio = { version = "1.34", features = ["full", "tracing"] }
+futures = "0.3"
+
+# Serialization
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-chrono = "0.4"
-uuid = { version = "1.0", features = ["v4"] }
+
+# Error Handling
+thiserror = "1.0"
+anyhow = "1.0"
+backtrace = "0.3"
+
+# Async Traits
 async-trait = "0.1"
-thiserror = "2.0.3"
-log = "0.4"
-env_logger = "0.11.5"
-futures = "0.3"
+
+# Web5 Integration
+web5 = "0.1"
+web5-credentials = "0.1"
+web5-did = "0.1"
+web5-protocol = "0.1"
+web5-storage = "0.1"
+
+# Blockchain Integration
+clarity-sdk = "0.1"
+stacks-rpc-client = "0.1"
+
+# Networking
+libp2p = { version = "0.51", features = ["full"] }
+
+# Logging and Metrics
+tracing = { version = "0.1", features = ["attributes", "async-await"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+tracing-futures = "0.2"
+metrics = "0.21"
+metrics-exporter-prometheus = "0.12"
+
+# Time and Date
+chrono = { version = "0.4", features = ["serde"] }
+
+# Utilities
+uuid = { version = "1.6", features = ["v4", "serde"] }
+parking_lot = "0.12"
+once_cell = "1.18"
+
+[dev-dependencies]
+tokio-test = "0.4"
+mockall = "0.12"
+proptest = "1.3"
+test-log = { version = "0.2", features = ["trace"] }
+tracing-test = "0.2"
 
 [[bin]]
 name = "run_fixes"

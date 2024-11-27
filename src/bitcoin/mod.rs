@@ -10,7 +10,7 @@
 //! [Document public functions and types]
 //!
 //! # Usage Examples
-//! `ust
+//! `rust
 //! // Add usage examples
 //! `
 //!
@@ -31,6 +31,7 @@ pub mod lightning;
 pub mod dlc;
 pub mod privacy;
 pub mod taproot;
+pub mod standards;
 
 pub use core::BitcoinCore;
 pub use lightning::Lightning;

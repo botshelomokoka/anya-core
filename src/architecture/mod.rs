@@ -10,7 +10,7 @@
 //! [Document public functions and types]
 //!
 //! # Usage Examples
-//! `ust
+//! `rust
 //! // Add usage examples
 //! `
 //!
@@ -29,8 +29,29 @@ pub use plugin_manager::PluginManager;
 pub use hexagonal::HexagonalArchitecture;
 use thiserror::Error;
 
+// Module declarations
 mod plugin_manager;
 mod hexagonal;
+mod types;
+mod errors;
+mod circuit_breaker;
+mod telemetry;
+mod cache;
+mod health;
+
+// Public re-exports
+pub use errors::{HexagonalError, HexagonalResult, ErrorContext, ErrorSeverity};
+pub use types::{
+    ModelStatus, NetworkStatus, ConnectionStatus, FeeEstimate,
+    Trace, Span, SpanGuard, PerformanceMetrics, ErrorMetrics,
+    ResourceMetrics, BusinessMetrics, CompleteMetrics, ResourceUtilization,
+    HealthStatus, HealthState, ComponentHealth, HealthCheck,
+    Cache, CacheConfig, CacheEntry,
+};
+pub use circuit_breaker::{CircuitBreaker, CircuitBreakerConfig, CircuitState};
+pub use telemetry::{Telemetry, MetricsCollector};
+pub use cache::{CacheLayer, CacheManager, CacheStats};
+pub use health::{HealthChecker, HealthMonitor, HealthSubscriber, SystemHealthCheck, DatabaseHealthCheck};
 
 /// Custom error type for the Architecture module
 #[derive(Error, Debug)]
@@ -40,6 +61,18 @@ pub enum ArchitectureError {
 
     #[error("Hexagonal Architecture Error: {0}")]
     HexagonalError(#[from] hexagonal::HexagonalError),
+
+    #[error("Circuit Breaker Error: {0}")]
+    CircuitBreakerError(String),
+
+    #[error("Cache Error: {0}")]
+    CacheError(String),
+
+    #[error("Health Check Error: {0}")]
+    HealthCheckError(String),
+
+    #[error("Telemetry Error: {0}")]
+    TelemetryError(String),
 }
 
 /// Initializes the architecture module by setting up the plugin manager and hexagonal architecture.
@@ -79,4 +112,3 @@ mod tests {
         // Similar to above, use mocking to simulate failure
     }
 }
-
