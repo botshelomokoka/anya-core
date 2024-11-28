@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Anya Core - Next-generation decentralized banking and AI governance platform">
+    <title>Anya Core Documentation</title>
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/assets/images/favicon.svg">
+    <link rel="alternate icon" type="image/png" href="/assets/images/favicon.png">
+    <!-- Open Graph tags -->
+    <meta property="og:title" content="Anya Core Documentation">
+    <meta property="og:description" content="Next-generation decentralized banking and AI governance platform">
+    <meta property="og:image" content="/assets/images/og-image.png">
+    <meta property="og:url" content="https://botshelomokoka.github.io/anya-core/">
+</head>
+<body class="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+    <!-- Navigation -->
+    <nav class="bg-white dark:bg-gray-800 shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <!-- Logo -->
+                <a href="/" class="flex items-center space-x-3">
+                    <img src="/assets/images/logo.svg" alt="Anya Core ASCII Logo" class="h-12 w-auto dark:invert">
+                    <span class="text-xl font-bold gradient-text">Anya Core</span>
+                </a>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="/pages/getting-started.html" class="nav-link">Getting Started</a>
+                    <a href="/pages/documentation.html" class="nav-link">Documentation</a>
+                    <a href="/pages/features.html" class="nav-link">Features</a>
+                    <div class="relative">
+                        <input type="search" 
+                               class="search-input pl-10 pr-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary"
+                               placeholder="Search docs...">
+                        <div class="search-results hidden absolute top-full mt-2 w-96 bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden"></div>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button class="mobile-menu-button md:hidden p-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div class="mobile-menu hidden md:hidden py-4">
+                <a href="/pages/getting-started.html" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-700">Getting Started</a>
+                <a href="/pages/documentation.html" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-700">Documentation</a>
+                <a href="/pages/features.html" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-700">Features</a>
+                <div class="px-4 py-2">
+                    <input type="search" 
+                           class="search-input w-full pl-10 pr-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700"
+                           placeholder="Search docs...">
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-pattern py-20 md:py-32">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6 gradient-text">
+                Next-Gen Decentralized Banking
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-600 dark:text-gray-400 mb-12 max-w-3xl mx-auto">
+                Empower your financial future with AI-driven governance and secure decentralized banking solutions.
+            </p>
+            <div class="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-6">
+                <a href="/pages/getting-started.html" class="btn btn-primary">
+                    Get Started
+                </a>
+                <a href="/pages/documentation.html" class="btn btn-outline">
+                    View Documentation
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-20 bg-white dark:bg-gray-800">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 gradient-text">Core Features</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="feature-card p-6">
+                    <div class="text-primary-600 mb-4">
+                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Multi-Signature Wallets</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Enhanced security with multi-signature verification and advanced encryption protocols.</p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="feature-card p-6">
+                    <div class="text-primary-600 mb-4">
+                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">AI-Powered Analysis</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Real-time transaction analysis and risk assessment powered by advanced AI algorithms.</p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="feature-card p-6">
+                    <div class="text-primary-600 mb-4">
+                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Cross-Platform Support</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Seamless integration across desktop, mobile, and web platforms.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enterprise Section -->
+    <section class="py-20 bg-gray-50 dark:bg-gray-900">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 gradient-text">Enterprise Solutions</h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Enterprise Feature 1 -->
+                    <div class="enterprise-feature bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                        <h3 class="text-xl font-semibold mb-4">Custom Integration</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Tailored solutions for enterprise-scale deployment with dedicated support.</p>
+                    </div>
+
+                    <!-- Enterprise Feature 2 -->
+                    <div class="enterprise-feature bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                        <h3 class="text-xl font-semibold mb-4">Advanced Security</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Enterprise-grade security features with real-time monitoring and alerts.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 bg-white dark:bg-gray-800">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-8 gradient-text">Ready to Get Started?</h2>
+            <p class="text-xl text-gray-600 dark:text-gray-400 mb-12 max-w-2xl mx-auto">
+                Join the future of decentralized banking with Anya Core's comprehensive solution.
+            </p>
+            <div class="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-6">
+                <a href="/pages/getting-started.html" class="btn btn-primary">
+                    Start Integration
+                </a>
+                <a href="/pages/documentation.html" class="btn btn-outline">
+                    Read Documentation
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-50 dark:bg-gray-900 mt-auto">
+        <div class="container mx-auto px-4 py-12">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Anya Core</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Next-generation decentralized banking and AI governance platform.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Documentation</h3>
+                    <ul class="space-y-2">
+                        <li><a href="/pages/getting-started.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">Getting Started</a></li>
+                        <li><a href="/pages/documentation.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">API Reference</a></li>
+                        <li><a href="/pages/features.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">Features</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Community</h3>
+                    <ul class="space-y-2">
+                        <li><a href="https://github.com/botshelomokoka/anya-core" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">GitHub</a></li>
+                        <li><a href="/CONTRIBUTING.md" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">Contributing</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Legal</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-200 dark:border-gray-700 mt-8 pt-8 text-center text-gray-600 dark:text-gray-400">
+                <p>&copy; 2024 Anya Core. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle fixed bottom-4 right-4 p-2 bg-white dark:bg-gray-800 rounded-full shadow-lg">
+        <!-- Icon will be inserted by JavaScript -->
+    </button>
+
+    <!-- Scripts -->
+    <script src="/assets/js/main.js"></script>
+</body>
+</html>
