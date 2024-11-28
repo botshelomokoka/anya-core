@@ -3,8 +3,9 @@
 # Health check script for Anya operations
 # Monitors system health and writes to a tracked log file
 
-# Import log manager
+# Import managers
 source "$(dirname "$0")/log_manager.sh"
+source "$(dirname "$0")/deprecation_manager.sh"
 
 # Configuration
 LOG_FILE="../logs/ops_health.log"
@@ -81,6 +82,12 @@ monitor_services() {
     done
 }
 
+check_deprecation_schedule() {
+    if [[ $(date +%H:%M) == "02:00" ]]; then
+        main  # Run deprecation manager main function
+    fi
+}
+
 main() {
     log_message "Starting health check monitoring"
     
@@ -94,6 +101,7 @@ main() {
         
         check_thresholds "$cpu_usage" "$mem_usage" "$disk_usage"
         monitor_services
+        check_deprecation_schedule
         
         sleep "$CHECK_INTERVAL"
     done

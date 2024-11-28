@@ -50,6 +50,56 @@ monitoring:
       weekly: 4
       monthly: 3
 
+  deprecation:
+    enabled: true
+    resources:
+      temp:
+        path: "../temp"
+        max_age_days: 1
+        requirements:
+          - type: "not_in_use"
+            timeout_minutes: 60
+      
+      cache:
+        path: "../cache"
+        max_age_days: 7
+        requirements:
+          - type: "not_accessed"
+            timeout_hours: 24
+          - type: "backed_up"
+            status: true
+        archive:
+          enabled: true
+          retention_days: 90
+      
+      metrics:
+        path: "../metrics"
+        max_age_days: 30
+        requirements:
+          - type: "exported"
+            status: true
+          - type: "archived"
+            status: true
+        archive:
+          enabled: true
+          retention_days: 365
+      
+      search_index:
+        path: "../web5/advanced_search/cache"
+        max_age_days: 14
+        requirements:
+          - type: "not_in_use"
+            timeout_minutes: 30
+          - type: "backed_up"
+            status: true
+        backup:
+          enabled: true
+          retention_days: 180
+
+  cleanup:
+    schedule: "0 2 * * *"  # Run at 2 AM daily
+    disk_threshold: 85  # Force cleanup if disk usage above 85%
+
 services:
   - name: "web5_service"
     type: "core"
