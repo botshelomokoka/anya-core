@@ -1,23 +1,31 @@
 #!/bin/bash
+set -euo pipefail
 
 # Health check script for Anya operations
 # Monitors system health and writes to a tracked log file
 
+# Import common utilities
+# shellcheck source=../lib/common.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"
+
 # Import managers
-source "$(dirname "$0")/log_manager.sh"
-source "$(dirname "$0")/deprecation_manager.sh"
+# shellcheck source=./log_manager.sh
+source "$(dirname "${BASH_SOURCE[0]}")/log_manager.sh"
+# shellcheck source=./deprecation_manager.sh
+source "$(dirname "${BASH_SOURCE[0]}")/deprecation_manager.sh"
 
 # Configuration
-LOG_FILE="../logs/ops_health.log"
-METRICS_FILE="../metrics/system_metrics.json"
-ALERT_THRESHOLD=90
-CHECK_INTERVAL=300  # 5 minutes
+readonly LOG_FILE="../logs/ops_health.log"
+readonly METRICS_FILE="../metrics/system_metrics.json"
+readonly ALERT_THRESHOLD=90
+readonly CHECK_INTERVAL=300  # 5 minutes
 
 # Ensure directories exist
 mkdir -p "$(dirname "$LOG_FILE")" "$(dirname "$METRICS_FILE")"
 
 log_message() {
-    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    local timestamp
+    timestamp=$(date '+%Y-%m-%d %H:%M:%S')
     echo "[$timestamp] $1" >> "$LOG_FILE"
     
     # Check if log management is needed
@@ -28,15 +36,17 @@ log_message() {
 }
 
 get_system_metrics() {
+    local cpu_usage mem_info mem_usage disk_usage
+    
     # CPU Usage
-    local cpu_usage=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}')
+    cpu_usage=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}')
     
     # Memory Usage
-    local mem_info=$(free -m)
-    local mem_usage=$(echo "$mem_info" | awk 'NR==2{printf "%.2f", $3*100/$2}')
+    mem_info=$(free -m)
+    mem_usage=$(echo "$mem_info" | awk 'NR==2{printf "%.2f", $3*100/$2}')
     
     # Disk Usage
-    local disk_usage=$(df -h / | awk 'NR==2{print $5}' | sed 's/%//')
+    disk_usage=$(df -h / | awk 'NR==2{print $5}' | sed 's/%//')
     
     # Write metrics to JSON file
     cat > "$METRICS_FILE" << EOF
@@ -56,22 +66,22 @@ check_thresholds() {
     local mem_usage=$2
     local disk_usage=$3
     
-    if [ $(echo "$cpu_usage > $ALERT_THRESHOLD" | bc -l) -eq 1 ]; then
+    if (( $(echo "$cpu_usage > $ALERT_THRESHOLD" | bc -l) )); then
         log_message "ALERT: High CPU usage: $cpu_usage%"
     fi
     
-    if [ $(echo "$mem_usage > $ALERT_THRESHOLD" | bc -l) -eq 1 ]; then
+    if (( $(echo "$mem_usage > $ALERT_THRESHOLD" | bc -l) )); then
         log_message "ALERT: High memory usage: $mem_usage%"
     fi
     
-    if [ $(echo "$disk_usage > $ALERT_THRESHOLD" | bc -l) -eq 1 ]; then
+    if (( $(echo "$disk_usage > $ALERT_THRESHOLD" | bc -l) )); then
         log_message "ALERT: High disk usage: $disk_usage%"
     fi
 }
 
 monitor_services() {
-    # Check if core services are running
     local services=("web5_service" "bitcoin_service" "search_service")
+    local service
     
     for service in "${services[@]}"; do
         if systemctl is-active --quiet "$service" 2>/dev/null; then
@@ -84,20 +94,27 @@ monitor_services() {
 
 check_deprecation_schedule() {
     if [[ $(date +%H:%M) == "02:00" ]]; then
-        main  # Run deprecation manager main function
+        run_deprecation  # Run deprecation manager main function
     fi
+}
+
+cleanup() {
+    log_message "Stopping health check monitoring"
+    rm -f "$METRICS_FILE"
 }
 
 main() {
     log_message "Starting health check monitoring"
+    trap cleanup EXIT
     
     while true; do
         get_system_metrics
         
         # Read metrics from JSON
-        local cpu_usage=$(jq -r '.metrics.cpu_usage' "$METRICS_FILE")
-        local mem_usage=$(jq -r '.metrics.memory_usage' "$METRICS_FILE")
-        local disk_usage=$(jq -r '.metrics.disk_usage' "$METRICS_FILE")
+        local cpu_usage mem_usage disk_usage
+        cpu_usage=$(jq -r '.metrics.cpu_usage' "$METRICS_FILE")
+        mem_usage=$(jq -r '.metrics.memory_usage' "$METRICS_FILE")
+        disk_usage=$(jq -r '.metrics.disk_usage' "$METRICS_FILE")
         
         check_thresholds "$cpu_usage" "$mem_usage" "$disk_usage"
         monitor_services

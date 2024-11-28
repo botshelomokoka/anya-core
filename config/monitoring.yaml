@@ -186,18 +186,41 @@ monitoring:
 services:
   - name: "web5_service"
     type: "core"
-    healthcheck: "/health"
+    healthcheck:
+      endpoint: "/health"
+      interval: "30s"
+      timeout: "5s"
+      retries: 3
+      start_period: "60s"
   - name: "bitcoin_service"
     type: "core"
-    healthcheck: "/health"
+    healthcheck:
+      endpoint: "/health"
+      interval: "30s"
+      timeout: "5s"
+      retries: 3
+      start_period: "60s"
   - name: "search_service"
     type: "core"
-    healthcheck: "/health"
+    healthcheck:
+      endpoint: "/health"
+      interval: "30s"
+      timeout: "5s"
+      retries: 3
+      start_period: "60s"
 
 logging:
   level: "info"
   format: "json"
   output:
-    - type: "file"
-      path: "../logs/ops_health.log"
-    - type: "stdout"
+    file:
+      path: "../logs/app.log"
+      rotate: true
+      max_size: "100M"
+      max_files: 5
+    console:
+      enabled: true
+      color: true
+    metrics:
+      enabled: true
+      prometheus: true

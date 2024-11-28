@@ -192,24 +192,34 @@ jobs:
     name: Data Workflow
     runs-on: ubuntu-latest
     needs: [build-test, fmt, clippy, coverage, build, security]
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v3
-        # Checkout the repository code
       - name: Set up Rust
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: stable
+          components: ["rustfmt", "clippy"]
+          target: x86_64-unknown-linux-gnu
           override: true
-        # Set up Rust toolchain
-      - name: Run Database Migrations
+      - name: Cache Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Process Data
         run: |
-          cargo install sqlx-cli
-          sqlx migrate run
-        # Apply database migrations
-      - name: Test Data Processing Scripts
-        run: cargo test --package data-processing -- --nocapture
-        # Run tests for data processing components
-      - name: Validate ETL Pipelines
-        run: cargo run --package etl -- validate
-        # Validate ETL pipelines (example command)
+          cargo run --bin data-processor
+          cargo test --test data_integration
+      - name: Validate Results
+        run: cargo run --bin validate-data
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: processed-data
+          path: data/processed
+          retention-days: 5
