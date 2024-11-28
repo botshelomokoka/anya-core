@@ -10,7 +10,8 @@
 //! [Document public functions and types]
 //!
 //! # Usage Examples
-//! `ust
+//! `
+ust
 //! // Add usage examples
 //! `
 //!

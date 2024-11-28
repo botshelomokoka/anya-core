@@ -1,0 +1,11 @@
+<svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background Shield -->
+    <path d="M20 4L36 12V24L20 36L4 24V12L20 4Z" fill="#6366F1"/>
+    
+    <!-- Inner Diamond -->
+    <path d="M20 8L32 16V24L20 32L8 24V16L20 8Z" fill="white"/>
+    <path d="M20 12L28 18V24L20 28L12 24V18L20 12Z" fill="#6366F1"/>
+    
+    <!-- Text -->
+    <text x="44" y="28" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#1F2937">Anya</text>
+</svg>

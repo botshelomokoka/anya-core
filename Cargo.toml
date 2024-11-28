@@ -1,6 +1,6 @@
 [package]
-name = "anya"
-version = "0.1.0"
+name = "anya-core"
+version = "0.2.0"
 edition = "2021"
 description = "Decentralized AI Governance System"
 authors = ["Botshelo Mokoka <botshelomokoka@gmail.com>"]

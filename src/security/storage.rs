@@ -8,6 +8,12 @@ use aes_gcm::{
     Aes256Gcm, Nonce,
 };
 use rand::{thread_rng, RngCore};
+use std::path::{Path, PathBuf};
+use std::fs::{self, File};
+use std::io::{self, Read, Write};
+use ring::aead::{self, BoundKey, OpeningKey, SealingKey, UnboundKey, AES_256_GCM};
+use ring::rand::{SecureRandom, SystemRandom};
+use data_encoding::BASE64;
 
 #[derive(Error, Debug)]
 pub enum SecureStorageError {
@@ -23,10 +29,20 @@ pub struct SecureStorage {
     encrypted_store: Arc<RwLock<HashMap<String, Vec<u8>>>>,
     encryption_key: Secret<Vec<u8>>,
     cipher: Aes256Gcm,
+    root_path: PathBuf,
+    key: Arc<RwLock<[u8; 32]>>,
+    rng: SystemRandom,
 }
 
 impl SecureStorage {
-    pub fn new(encryption_key: Secret<Vec<u8>>) -> Result<Self, SecureStorageError> {
+    pub fn new(encryption_key: Secret<Vec<u8>>, root_path: PathBuf) -> Result<Self, SecureStorageError> {
+        fs::create_dir_all(&root_path)?;
+        
+        let rng = SystemRandom::new();
+        let mut key = [0u8; 32];
+        rng.fill(&mut key)
+            .map_err(|e| SecureStorageError::StorageError(e.to_string()))?;
+        
         let key = encryption_key.expose_secret();
         if key.len() != 32 {
             return Err(SecureStorageError::EncryptionError(
@@ -41,6 +57,9 @@ impl SecureStorage {
             encrypted_store: Arc::new(RwLock::new(HashMap::new())),
             encryption_key,
             cipher,
+            root_path,
+            key: Arc::new(RwLock::new(key)),
+            rng,
         })
     }
 
@@ -63,6 +82,27 @@ impl SecureStorage {
     pub async fn remove(&self, key: &str) -> Result<(), SecureStorageError> {
         let mut store = self.encrypted_store.write().await;
         store.remove(key);
+        Ok(())
+    }
+
+    pub async fn store_file(&self, key: &str, data: &[u8]) -> Result<(), SecureStorageError> {
+        let encrypted = self.encrypt_file(data).await?;
+        let path = self.get_path(key);
+        fs::write(path, encrypted)?;
+        Ok(())
+    }
+
+    pub async fn load_file(&self, key: &str) -> Result<Vec<u8>, SecureStorageError> {
+        let path = self.get_path(key);
+        let encrypted = fs::read(path)?;
+        self.decrypt_file(&encrypted).await
+    }
+
+    pub async fn delete_file(&self, key: &str) -> Result<(), SecureStorageError> {
+        let path = self.get_path(key);
+        if path.exists() {
+            fs::remove_file(path)?;
+        }
         Ok(())
     }
 
@@ -97,6 +137,57 @@ impl SecureStorage {
             .decrypt(nonce, ciphertext)
             .map_err(|e| SecureStorageError::EncryptionError(e.to_string()))
     }
+
+    async fn encrypt_file(&self, data: &[u8]) -> Result<Vec<u8>, SecureStorageError> {
+        let key = self.key.read().await;
+        let unbound_key = UnboundKey::new(&AES_256_GCM, &key)
+            .map_err(|e| SecureStorageError::EncryptionError(e.to_string()))?;
+
+        let mut nonce = [0u8; 12];
+        self.rng.fill(&mut nonce)
+            .map_err(|e| SecureStorageError::EncryptionError(e.to_string()))?;
+
+        let mut sealing_key = SealingKey::new(unbound_key, aead::Nonce::assume_unique_for_key(nonce));
+        let mut in_out = data.to_vec();
+        sealing_key.seal_in_place_append_tag(aead::Aad::empty(), &mut in_out)
+            .map_err(|e| SecureStorageError::EncryptionError(e.to_string()))?;
+
+        let mut result = nonce.to_vec();
+        result.extend(in_out);
+        Ok(result)
+    }
+
+    async fn decrypt_file(&self, encrypted: &[u8]) -> Result<Vec<u8>, SecureStorageError> {
+        if encrypted.len() < 12 {
+            return Err(SecureStorageError::EncryptionError(
+                "Invalid encrypted data".to_string(),
+            ));
+        }
+
+        let key = self.key.read().await;
+        let unbound_key = UnboundKey::new(&AES_256_GCM, &key)
+            .map_err(|e| SecureStorageError::EncryptionError(e.to_string()))?;
+
+        let nonce = &encrypted[..12];
+        let ciphertext = &encrypted[12..];
+
+        let mut opening_key = OpeningKey::new(
+            unbound_key,
+            aead::Nonce::try_assume_unique_for_key(nonce)
+                .map_err(|e| SecureStorageError::EncryptionError(e.to_string()))?
+        );
+
+        let mut in_out = ciphertext.to_vec();
+        let decrypted = opening_key.open_in_place(aead::Aad::empty(), &mut in_out)
+            .map_err(|e| SecureStorageError::EncryptionError(e.to_string()))?;
+
+        Ok(decrypted.to_vec())
+    }
+
+    fn get_path(&self, key: &str) -> PathBuf {
+        let encoded = BASE64.encode(key.as_bytes());
+        self.root_path.join(encoded)
+    }
 }
 
 // Credential Manager for handling sensitive configuration
@@ -105,9 +196,9 @@ pub struct CredentialManager {
 }
 
 impl CredentialManager {
-    pub fn new(encryption_key: Secret<Vec<u8>>) -> Result<Self, SecureStorageError> {
+    pub fn new(encryption_key: Secret<Vec<u8>>, root_path: PathBuf) -> Result<Self, SecureStorageError> {
         Ok(Self {
-            secure_storage: Arc::new(SecureStorage::new(encryption_key)?),
+            secure_storage: Arc::new(SecureStorage::new(encryption_key, root_path)?),
         })
     }
 
@@ -131,14 +222,16 @@ impl CredentialManager {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use tempfile::tempdir;
 
     #[tokio::test]
     async fn test_secure_storage() -> Result<(), SecureStorageError> {
+        let temp_dir = tempdir().unwrap();
         let mut key = vec![0u8; 32];
         thread_rng().fill_bytes(&mut key);
         let secret_key = Secret::new(key);
 
-        let storage = SecureStorage::new(secret_key)?;
+        let storage = SecureStorage::new(secret_key, temp_dir.path()).await?;
         let test_data = b"Hello, World!";
         
         // Test store and retrieve
@@ -150,16 +243,25 @@ mod tests {
         storage.remove("test").await?;
         assert!(storage.get("test").await.is_err());
 
+        // Test file operations
+        storage.store_file("test_file", test_data).await?;
+        let loaded = storage.load_file("test_file").await?;
+        assert_eq!(&loaded, test_data);
+
+        storage.delete_file("test_file").await?;
+        assert!(storage.load_file("test_file").await.is_err());
+
         Ok(())
     }
 
     #[tokio::test]
     async fn test_credential_manager() -> Result<(), SecureStorageError> {
+        let temp_dir = tempdir().unwrap();
         let mut key = vec![0u8; 32];
         thread_rng().fill_bytes(&mut key);
         let secret_key = Secret::new(key);
 
-        let manager = CredentialManager::new(secret_key)?;
+        let manager = CredentialManager::new(secret_key, temp_dir.path()).await?;
         let mut creds = HashMap::new();
         creds.insert("username".to_string(), "test_user".to_string());
         creds.insert("password".to_string(), "test_pass".to_string());

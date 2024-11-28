@@ -1,0 +1,85 @@
+{{ ... }}
+<main class="container mx-auto px-4 py-8">
+    <h1 class="text-4xl font-bold mb-8 text-center gradient-text">Getting Started with Anya Core</h1>
+
+    <!-- Quick Start -->
+    <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-6">Quick Start</h2>
+        <div class="bg-white p-6 rounded-lg shadow">
+            <ol class="space-y-6">
+                <li class="flex items-start">
+                    <span class="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-800 font-semibold mr-4">1</span>
+                    <div>
+                        <h3 class="font-semibold mb-2">Clone the Repository</h3>
+                        <pre class="bg-gray-100 p-4 rounded"><code>git clone https://github.com/botshelomokoka/anya-core.git
+cd anya-core</code></pre>
+                    </div>
+                </li>
+                <li class="flex items-start">
+                    <span class="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-800 font-semibold mr-4">2</span>
+                    <div>
+                        <h3 class="font-semibold mb-2">Install Dependencies</h3>
+                        <pre class="bg-gray-100 p-4 rounded"><code>curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+rustup update</code></pre>
+                    </div>
+                </li>
+                <li class="flex items-start">
+                    <span class="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-800 font-semibold mr-4">3</span>
+                    <div>
+                        <h3 class="font-semibold mb-2">Build the Project</h3>
+                        <pre class="bg-gray-100 p-4 rounded"><code>cargo build --release</code></pre>
+                    </div>
+                </li>
+                <li class="flex items-start">
+                    <span class="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-800 font-semibold mr-4">4</span>
+                    <div>
+                        <h3 class="font-semibold mb-2">Run Anya Core</h3>
+                        <pre class="bg-gray-100 p-4 rounded"><code>cargo run --release</code></pre>
+                    </div>
+                </li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- Configuration -->
+    <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-6">Configuration</h2>
+        <div class="bg-white p-6 rounded-lg shadow">
+            <p class="mb-4">Create a configuration file at <code class="bg-gray-100 px-2 py-1 rounded">~/.config/anya-core/config.toml</code>:</p>
+            <pre class="bg-gray-100 p-4 rounded"><code>[network]
+type = "testnet"  # or "mainnet"
+enable_ai = true
+
+[security]
+encryption_level = "high"
+multi_sig = true
+
+[api]
+port = 8000
+enable_cors = true</code></pre>
+        </div>
+    </section>
+
+    <!-- Next Steps -->
+    <section>
+        <h2 class="text-2xl font-semibold mb-6">Next Steps</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="font-semibold mb-2">Set Up Your Wallet</h3>
+                <p class="text-gray-600 mb-4">Configure your Bitcoin and Lightning Network wallets</p>
+                <a href="#" class="text-blue-600 hover:text-blue-800">Learn More →</a>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="font-semibold mb-2">Enable AI Features</h3>
+                <p class="text-gray-600 mb-4">Set up AI-powered analytics and insights</p>
+                <a href="#" class="text-blue-600 hover:text-blue-800">Learn More →</a>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="font-semibold mb-2">Join the Network</h3>
+                <p class="text-gray-600 mb-4">Connect to the Anya Core network</p>
+                <a href="#" class="text-blue-600 hover:text-blue-800">Learn More →</a>
+            </div>
+        </div>
+    </section>
+</main>
+{{ ... }}

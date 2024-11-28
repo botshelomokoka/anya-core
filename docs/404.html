@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found - Anya</title>
+    <meta name="description" content="404 error page - Page not found">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
+    <style>
+        .error-container {
+            min-height: 60vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .error-code {
+            font-size: 6rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .error-message {
+            font-size: 1.5rem;
+            color: var(--text-color);
+            margin-bottom: 2rem;
+        }
+
+        .error-description {
+            color: var(--light-text);
+            max-width: 600px;
+            margin-bottom: 2rem;
+        }
+
+        .error-links {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <img src="assets/images/logo.svg" alt="Anya Logo">
+                <span>Anya</span>
+            </div>
+            <ul>
+                <li><a href="pages/getting-started.html">Getting Started</a></li>
+                <li><a href="pages/features.html">Features</a></li>
+                <li><a href="pages/documentation.html">Documentation</a></li>
+                <li><a href="https://github.com/yourusername/anya" target="_blank">GitHub</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="error-container">
+            <div class="error-code">404</div>
+            <h1 class="error-message">Page Not Found</h1>
+            <p class="error-description">
+                The page you're looking for doesn't exist or has been moved.
+                Try checking the URL or navigate to one of our main sections below.
+            </p>
+            <div class="error-links">
+                <a href="index.html" class="primary-button">Go Home</a>
+                <a href="pages/documentation.html" class="secondary-button">View Documentation</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Documentation</h4>
+                <ul>
+                    <li><a href="pages/getting-started.html">Getting Started</a></li>
+                    <li><a href="pages/documentation.html">API Reference</a></li>
+                    <li><a href="pages/features.html">Features</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Community</h4>
+                <ul>
+                    <li><a href="https://github.com/yourusername/anya">GitHub</a></li>
+                    <li><a href="https://github.com/yourusername/anya/issues">Issue Tracker</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Anya Project. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
