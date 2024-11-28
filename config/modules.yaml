@@ -1,0 +1,94 @@
+# Module configuration for Anya project
+
+modules:
+  # Core modules
+  common:
+    path: "../scripts/lib/common.sh"
+    version: "1.0.0"
+    required: true
+  
+  bitcoin_standards:
+    path: "../scripts/lib/bitcoin_standards.sh"
+    version: "1.0.0"
+    dependencies: ["common"]
+    required: true
+  
+  module_manager:
+    path: "../scripts/lib/module_manager.sh"
+    version: "1.0.0"
+    dependencies: ["common", "bitcoin_standards"]
+    required: true
+  
+  # Operational modules
+  health_check:
+    path: "../scripts/ops/health_check.sh"
+    version: "1.0.0"
+    dependencies: ["common", "log_manager", "deprecation_manager"]
+    required: true
+  
+  log_manager:
+    path: "../scripts/ops/log_manager.sh"
+    version: "1.0.0"
+    dependencies: ["common"]
+    required: true
+  
+  deprecation_manager:
+    path: "../scripts/ops/deprecation_manager.sh"
+    version: "1.0.0"
+    dependencies: ["common", "log_manager", "ml_deprecation"]
+    required: true
+  
+  ml_deprecation:
+    path: "../scripts/ops/ml_deprecation.sh"
+    version: "1.0.0"
+    dependencies: ["common", "log_manager"]
+    required: true
+
+  # System modules
+  web5_search:
+    path: "../scripts/web5/search.sh"
+    version: "1.0.0"
+    dependencies: ["common", "ml_deprecation"]
+    required: false
+  
+  bitcoin_validation:
+    path: "../scripts/bitcoin/validation.sh"
+    version: "1.0.0"
+    dependencies: ["common", "bitcoin_standards"]
+    required: false
+  
+  rgb_protocol:
+    path: "../scripts/rgb/protocol.sh"
+    version: "1.0.0"
+    dependencies: ["common", "bitcoin_standards"]
+    required: false
+
+# Module settings
+settings:
+  auto_load: true
+  strict_versioning: true
+  load_order:
+    - common
+    - bitcoin_standards
+    - module_manager
+    - log_manager
+    - ml_deprecation
+    - deprecation_manager
+    - health_check
+    - web5_search
+    - bitcoin_validation
+    - rgb_protocol
+
+# Module paths
+paths:
+  lib: "../scripts/lib"
+  ops: "../scripts/ops"
+  web5: "../scripts/web5"
+  bitcoin: "../scripts/bitcoin"
+  rgb: "../scripts/rgb"
+
+# Version compatibility
+compatibility:
+  min_version: "1.0.0"
+  max_version: "2.0.0"
+  check_dependencies: true
