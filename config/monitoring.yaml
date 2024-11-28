@@ -1,0 +1,43 @@
+# Anya Monitoring Configuration
+
+monitoring:
+  health_check:
+    interval: 300  # seconds
+    log_file: "../logs/ops_health.log"
+    metrics_file: "../metrics/system_metrics.json"
+    thresholds:
+      cpu: 90
+      memory: 90
+      disk: 90
+
+  prometheus:
+    port: 9090
+    metrics_path: "/metrics"
+    scrape_interval: 60  # seconds
+
+  alerts:
+    enabled: true
+    channels:
+      - type: "log"
+        path: "../logs/alerts.log"
+      - type: "prometheus"
+        endpoint: "http://localhost:9090/metrics"
+
+services:
+  - name: "web5_service"
+    type: "core"
+    healthcheck: "/health"
+  - name: "bitcoin_service"
+    type: "core"
+    healthcheck: "/health"
+  - name: "search_service"
+    type: "core"
+    healthcheck: "/health"
+
+logging:
+  level: "info"
+  format: "json"
+  output:
+    - type: "file"
+      path: "../logs/ops_health.log"
+    - type: "stdout"
