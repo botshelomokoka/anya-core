@@ -1,0 +1,42 @@
+# Anya Platform Configuration
+
+# Network Settings
+network:
+  capacity: 1000
+  node_connection_limit: 100
+  performance_threshold: 0.6
+  false_positive_threshold: 0.7
+
+# DAO Governance
+dao:
+  contract_name: "anya-dao"
+  governance_token: "anya-governance-token"
+  proposal_threshold: 100000000  # 100 tokens
+  voting_period_blocks: 1008     # ~1 week (144 * 7)
+  timelock_period_blocks: 288    # ~2 days (144 * 2)
+  voting_threshold: 0.7
+
+# NPU Settings
+npu:
+  capacity_gb: 4.5
+  pipeline_depth: 24
+  optimization_level: 0.5
+
+# Agent Strategy
+agent:
+  resource_allocation: 0.5
+  maintenance_frequency: 0.3
+  update_aggressiveness: 0.4
+  security_level: 0.7
+
+# Feature Flags
+features:
+  experimental_ml: false
+  advanced_optimization: false
+  quantum_resistant: false
+  enhanced_security: true
+
+# Metrics
+metrics:
+  max_history_length: 100
+  collection_interval_ms: 5000

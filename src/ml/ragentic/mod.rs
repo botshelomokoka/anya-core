@@ -6,6 +6,7 @@ use tokio::sync::RwLock;
 use crate::metrics::MetricsCollector;
 use crate::ml::agents::{MLAgent, AgentConfig};
 use crate::ml::research::{ResearchModule, ResearchMetrics};
+use crate::web5::semantic_search::{SemanticSearch, SearchOptions, SortCriteria, SearchMetadata};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RAGMetrics {
@@ -30,6 +31,7 @@ pub struct RAGenticCoordinator {
     agents: Vec<Arc<dyn MLAgent>>,
     knowledge_base: Arc<RwLock<KnowledgeBase>>,
     agent_roles: Arc<RwLock<Vec<AgentRole>>>,
+    semantic_search: Arc<SemanticSearch>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -55,12 +57,15 @@ pub struct Metadata {
 }
 
 impl RAGenticCoordinator {
-    pub fn new(
+    pub async fn new(
         metrics: Arc<MetricsCollector>,
         research_module: Arc<ResearchModule>,
         agents: Vec<Arc<dyn MLAgent>>,
-    ) -> Self {
-        Self {
+        cache: Arc<Web5Cache>,
+    ) -> Result<Self> {
+        let semantic_search = Arc::new(SemanticSearch::new(cache).await?);
+        
+        Ok(Self {
             metrics,
             research_module,
             agents,
@@ -70,7 +75,8 @@ impl RAGenticCoordinator {
                 metadata: Vec::new(),
             })),
             agent_roles: Arc::new(RwLock::new(Vec::new())),
-        }
+            semantic_search,
+        })
     }
 
     pub async fn initialize_roles(&self) -> Result<()> {
@@ -160,13 +166,22 @@ impl RAGenticCoordinator {
     }
 
     async fn retrieve_context(&self, query: &str) -> Result<Vec<Document>> {
-        let kb = self.knowledge_base.read().await;
-        let mut relevant_docs = Vec::new();
+        // Use semantic search for context retrieval
+        let options = SearchOptions {
+            threshold: 0.7,
+            max_results: 5,
+            include_context: true,
+            filter_tags: None,
+            sort_by: SortCriteria::Relevance,
+        };
 
-        // Implement semantic search using embeddings
-        // For now, using a simple relevance-based filter
-        for (i, doc) in kb.documents.iter().enumerate() {
-            if kb.metadata[i].relevance_score > 0.7 {
+        let search_results = self.semantic_search.search(query, options).await?;
+        
+        let mut relevant_docs = Vec::new();
+        let kb = self.knowledge_base.read().await;
+        
+        for result in search_results {
+            if let Some(doc) = kb.documents.iter().find(|d| d.content == result.document_id) {
                 relevant_docs.push(doc.clone());
             }
         }
@@ -217,23 +232,30 @@ impl RAGenticCoordinator {
     async fn update_knowledge_base(&self, query: &str, response: &str, context: &[Document]) -> Result<()> {
         let mut kb = self.knowledge_base.write().await;
         
-        // Add new document
-        kb.documents.push(Document {
+        // Create new document
+        let doc = Document {
             content: response.to_string(),
             source: "agent_collaboration".to_string(),
             timestamp: chrono::Utc::now(),
-        });
+        };
 
-        // Add metadata
-        kb.metadata.push(Metadata {
+        // Add to knowledge base
+        kb.documents.push(doc.clone());
+
+        // Index for semantic search
+        let metadata = SearchMetadata {
+            title: format!("Response to: {}", query),
+            source: "agent_collaboration".to_string(),
+            timestamp: chrono::Utc::now(),
             tags: vec!["response".to_string()],
-            relevance_score: 1.0,
-            last_accessed: chrono::Utc::now(),
-            usage_count: 1,
-        });
+            embedding_type: "bert".to_string(),
+        };
 
-        // TODO: Update embeddings
-        kb.embeddings.push(vec![0.0; 768]); // Placeholder embedding
+        self.semantic_search.index_document(
+            &response,
+            response,
+            metadata,
+        ).await?;
 
         Ok(())
     }
@@ -260,9 +282,10 @@ mod tests {
         let metrics = Arc::new(MetricsCollector::new());
         let research_module = Arc::new(ResearchModule::new(metrics.clone(), Default::default()));
         let agents: Vec<Arc<dyn MLAgent>> = Vec::new(); // Add test agents
+        let cache = Arc::new(Web5Cache::new()); // Add test cache
 
         // Create coordinator
-        let coordinator = RAGenticCoordinator::new(metrics, research_module, agents);
+        let coordinator = RAGenticCoordinator::new(metrics, research_module, agents, cache).await.unwrap();
 
         // Initialize roles
         coordinator.initialize_roles().await.unwrap();

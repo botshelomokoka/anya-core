@@ -1,5 +1,7 @@
 # Anya Core Project Roadmap
 
+> Note: For Enterprise features and roadmap, please see [Enterprise Roadmap](./enterprise/ROADMAP.md)
+
 ## Current Status (v1.1.0)
 
 ### Core Features 
@@ -11,43 +13,13 @@
 - P2P Network Infrastructure
 - Secure Storage Implementation
 - Advanced Analytics Pipeline
-- Enterprise Integration Layer
 - Cross-chain Bridge Foundation
-
-### Enterprise Features 
-- Advanced Analytics with ML Support
-  * Comprehensive Business Intelligence
-  * Financial Analytics Engine
-  * Market Analysis System
-  * Risk Assessment Framework
-  * Innovation Metrics Tracking
-  * Strategic Planning Tools
-- High Volume Trading Engine
-- Multi-chain Support
-  * Bitcoin Core & Lightning
-  * Stacks Blockchain
-  * Cosmos SDK
-  * Polkadot Network
-  * Interledger Protocol
-- Privacy Features
-  * Bulletproofs Integration
-  * Zero-knowledge Systems
-  * Secure Enclaves
-- Trading Analytics
-  * Technical Analysis Tools
-  * Statistical Models
-  * Linear Regression Models
-  * Time Series Analysis
 
 ### In Progress 
 - Production Hardening
 - Cross-chain Interoperability
 - Quantum Resistance Implementation
 - AI/ML Model Optimization
-- Enterprise Deployment Tools
-- Advanced Business Analytics Integration
-- Risk Management Framework Enhancement
-- Innovation Pipeline Optimization
 - RAGEntic Implementation
   - [x] Multi-Agent Architecture
     * Role-based agent coordination
@@ -76,46 +48,26 @@
     * Performance optimization
 
 ### Upcoming Features (Q1 2024) 
-1. Production Readiness
+1. Core Infrastructure
    - System monitoring and alerting
    - Automated deployment pipelines
    - Performance benchmarking
-   - Production configuration templates
    - Load testing framework
-   - Enterprise metrics dashboard
-   - Business intelligence tools
-   - Risk assessment portal
+   - Core metrics system
 
-2. Enterprise Analytics Enhancement
-   - Real-time business metrics
-   - Predictive analytics dashboard
-   - Risk assessment visualization
-   - Market analysis tools
-   - Innovation tracking system
-   - Strategic planning interface
-   - Resource optimization tools
-   - Performance analytics suite
+2. Protocol Enhancements
+   - Lightning Network optimizations
+   - DLC protocol improvements
+   - Cross-chain atomic swaps
+   - State channel upgrades
+   - Network layer optimizations
 
 3. Security Enhancements
    - Full security audit
    - Penetration testing
-   - Advanced encryption implementation
-   - Key management system upgrade
-   - Role-based access control
-
-4. Scalability & Performance
-   - Network throughput improvements
-   - Database optimization
-   - Cache layer implementation
-   - Load balancing setup
-   - Horizontal scaling support
-
-5. Developer Experience
-   - Comprehensive documentation
-   - SDK development
-   - API versioning
-   - Developer portal
-   - Integration examples
+   - Core protocol hardening
+   - Cryptographic improvements
+   - Network security updates
 
 ## Implementation Status & Test Results
 
@@ -149,106 +101,10 @@
 - [x] Coordinator (90% tested)
 - [-] Advanced Monitoring (80% tested)
 
-### Enterprise Features (80% Complete)
-
-#### Analytics Dashboard (85% Complete)
-- [x] Financial Metrics (90% tested)
-- [x] Market Analysis Tools (85% tested)
-- [-] Risk Assessment Views (75% tested)
-- [-] Innovation Tracking (70% tested)
-- [ ] Strategic Planning Interface (In Progress)
-
-#### Business Intelligence (75% Complete)
-- [x] Real-time Analytics (85% tested)
-  * Market trend analysis
-  * Customer behavior tracking
-  * Performance metrics monitoring
-  * Resource utilization analytics
-- [-] Predictive Models (70% tested)
-  * Revenue forecasting
-  * Customer churn prediction
-  * Market trend prediction
-  * Resource optimization models
-- [-] Performance Monitoring (75% tested)
-  * System health tracking
-  * Resource utilization
-  * Bottleneck detection
-  * Optimization recommendations
-- [ ] Advanced Reporting (In Progress)
-  * Custom dashboard creation
-  * Automated report generation
-  * Data visualization tools
-  * Export capabilities
-- [ ] Custom Analytics Tools (Planned)
-  * Business metric customization
-  * Custom KPI tracking
-  * Industry-specific analytics
-  * Integration capabilities
-
-#### Risk Management (82% Complete)
-- [x] Market Risk Analysis (90% tested)
-  * Market volatility assessment
-  * Competitive analysis
-  * Market trend impact
-  * Opportunity cost analysis
-- [x] Operational Risk (85% tested)
-  * Process efficiency monitoring
-  * Resource allocation tracking
-  * System reliability analysis
-  * Performance optimization
-- [-] Financial Risk Tools (75% tested)
-  * Revenue stream analysis
-  * Cost structure monitoring
-  * Investment return tracking
-  * Cash flow prediction
-- [-] Compliance Monitoring (80% tested)
-  * Regulatory requirement tracking
-  * Policy compliance checking
-  * Audit trail management
-  * Violation detection
-- [ ] Strategic Risk Assessment (In Progress)
-  * Long-term risk analysis
-  * Strategic planning tools
-  * Decision impact assessment
-  * Risk mitigation planning
-
-### Research and Alignment (85% Complete)
-- [x] Model Performance Research (90% tested)
-  * Accuracy metrics
-  * Precision and recall analysis
-  * F1 score calculation
-  * AUC-ROC evaluation
-  * Performance tracking
-- [x] Alignment Evaluation (85% tested)
-  * Value consistency tracking
-  * Goal alignment measurement
-  * Safety metrics analysis
-  * Ethical principles validation
-  * Transparency assessment
-- [-] Research Data Collection (80% tested)
-  * Performance metrics gathering
-  * Alignment data collection
-  * Historical trend analysis
-  * Comparative studies
-  * Improvement tracking
-- [-] Model Behavior Analysis (75% tested)
-  * Decision pattern analysis
-  * Output consistency checks
-  * Edge case handling
-  * Failure mode analysis
-  * Recovery mechanisms
-- [ ] Advanced Research Tools (In Progress)
-  * Automated analysis pipelines
-  * Custom research frameworks
-  * Comparative analysis tools
-  * Visualization capabilities
-  * Report generation
-
 ### Testing Progress
 
 #### Unit Tests
 - Core Systems: 2,450 tests (95% pass rate)
-- Enterprise Features: 1,850 tests (90% pass rate)
 - Security Components: 980 tests (98% pass rate)
 - Integration Points: 750 tests (92% pass rate)
 
@@ -268,7 +124,6 @@
 
 #### Production Environment
 - Core Systems: Deployed 
-- Enterprise Features: 80% Deployed
 - Security Systems: 90% Deployed
 - Monitoring Tools: 85% Deployed
 
@@ -308,22 +163,11 @@
 
 ### Phase 2: System Enhancement (Weeks 3-4)
 
-#### Enterprise Analytics
-- [ ] Deploy business analytics engine
-  - [ ] Financial metrics system
-  - [ ] Market analysis tools
-  - [ ] Risk assessment framework
-  - [ ] Innovation tracking
-- [ ] Implement strategic planning tools
-  - [ ] Objective setting interface
-  - [ ] Resource allocation system
-  - [ ] Timeline management
-  - [ ] Success metrics tracking
-- [ ] Set up business intelligence
-  - [ ] Real-time dashboards
-  - [ ] Predictive analytics
-  - [ ] Performance monitoring
-  - [ ] Trend analysis
+#### Protocol Enhancements
+- [ ] Implement Lightning Network optimizations
+- [ ] Finalize DLC protocol improvements
+- [ ] Test cross-chain atomic swaps
+- [ ] Verify state channel upgrades
 
 #### System Management
 - [ ] Deploy monitoring infrastructure
@@ -351,17 +195,12 @@
 
 ### Phase 3: Testing and Security 
 
-#### Enterprise Feature Testing
+#### Core Testing
 - [ ] Business Analytics Testing
   - [ ] Financial metrics validation
   - [ ] Market analysis verification
   - [ ] Risk assessment testing
   - [ ] Innovation metrics validation
-- [ ] Strategic Planning Testing
-  - [ ] Objective tracking tests
-  - [ ] Resource allocation validation
-  - [ ] Timeline management testing
-  - [ ] Success metrics verification
 - [ ] Integration Testing
   - [ ] Web5 integration tests
   - [ ] Data flow validation
@@ -382,7 +221,7 @@
 
 ### Phase 4: User Interface 
 
-#### Enterprise Dashboard
+#### Core Interface
 - [ ] Business Intelligence Interface
   - [ ] Financial metrics visualization
   - [ ] Market analysis tools
@@ -408,7 +247,7 @@
 
 ## Continuous Monitoring
 
-#### Enterprise Metrics
+#### Core Metrics
 - Business analytics performance
 - Strategic planning effectiveness
 - Innovation pipeline health
@@ -442,7 +281,7 @@
 ## Future Milestones
 
 ### Q2 2024
-- Advanced Enterprise Features
+- Advanced Core Features
   * AI-powered Business Analytics
   * Predictive Risk Management
   * Automated Strategic Planning
@@ -453,7 +292,7 @@
 - Multi-region Deployment
 
 ### Q3 2024
-- Enterprise Features
+- Core Features
   * Advanced Risk Management
   * Institutional Trading Tools
   * Compliance Framework
@@ -462,13 +301,13 @@
 - Advanced Monitoring
 - AI-powered Trading
 - Regulatory Compliance Tools
-- Enterprise Support System
+- Core Support System
 
 ### Q4 2024
 - Global Scale Deployment
 - Advanced Governance
 - Community Features
-- Enterprise Solutions
+- Core Solutions
 - Institutional Integration
 
 ## Technical Focus Areas
@@ -1274,7 +1113,7 @@ lru = "0.10"
 ### Core Components
 - Web5 Decentralized Architecture
 - RAGEntic Multi-Agent System
-- Enterprise Analytics Engine
+- Core Analytics Engine
 - Research & Alignment Module
 
 ### Implementation Status
@@ -1311,12 +1150,6 @@ lru = "0.10"
 - [x] Model Behavior Analysis
 - [-] Advanced Research Tools
 
-#### Enterprise Analytics (85% Complete)
-- [x] Business Intelligence
-- [x] Market Analysis
-- [x] Performance Tracking
-- [-] Advanced Analytics
-
 ### Q1 2024 Priorities
 1. RAGEntic Enhancements
    - Advanced semantic search
@@ -1326,8 +1159,8 @@ lru = "0.10"
    - Visualization dashboards
    - Advanced metrics analysis
    - Alignment optimization
-3. Enterprise Features
-   - Advanced business analytics
+3. Core Features
+   - Advanced core analytics
    - Market intelligence
    - Risk management
 

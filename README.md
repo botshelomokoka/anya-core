@@ -1,8 +1,14 @@
-# Anya Enterprise Platform
+# Anya Core Platform
 
-A comprehensive enterprise-grade platform combining Bitcoin/crypto functionality, ML-based analytics, and Web5 decentralized data management with advanced security features and revenue tracking capabilities.
+A powerful platform combining Bitcoin/crypto functionality, ML-based analytics, and Web5 decentralized data management.
+
+> For Enterprise features and capabilities, please see our [Enterprise Platform Documentation](./enterprise/README.md)
 
 ![Anya Architecture](docs/images/anya_architecture.png)
+
+## Licensing
+
+This core platform is released under the [MIT License](LICENSE.md), allowing for free use, modification, and distribution. However, please note that the [Enterprise features](./enterprise/README.md) are subject to a separate proprietary license with different terms, including revenue sharing requirements. See the [Enterprise License](./enterprise/LICENSE) for details.
 
 ## Core Features
 
@@ -23,46 +29,37 @@ A comprehensive enterprise-grade platform combining Bitcoin/crypto functionality
 - Custom chain support
 
 ### Machine Learning & AI
-- Advanced model optimization
-- NPU/RISC-V integration
+- Model optimization
 - Federated learning
 - Pipeline optimization
-- Revenue analysis
-- Market predictions
+- Basic analytics
+- Prediction models
 
-### Web5 Integration
+### Web5 Integration & Storage
 - Decentralized Web Nodes (DWN)
-- Advanced data models
+- Decentralized data storage
+- Protocol-based data management
+- Identity-centric storage
+- Secure data encryption
+- Record-based storage
+- Automated data replication
 - Protocol optimization
 - Identity management
-- Secure storage
 - Custom protocols
-
-### Enterprise Features
-- HSM integration
-- Advanced analytics
-- Custom integrations
-- Business intelligence
-- Revenue optimization
-- Policy management
 
 ### Monitoring & Metrics
 - Distributed tracing
 - Performance metrics
 - Resource monitoring
-- Business analytics
 - Health checks
-- Custom dashboards
+- Basic dashboards
 
 ## Technical Stack
 
 ### Prerequisites
 - Rust 1.70+
-- PostgreSQL 14+
 - Bitcoin Core 24.0+
-- Redis 7.0+
-- NPU Support (Optional)
-- HSM Integration (Optional)
+- Web5 DWN Node
 
 ### Core Dependencies
 ```toml
@@ -71,7 +68,7 @@ tokio = { version = "1.34", features = ["full"] }
 bitcoin = { version = "0.31.0", features = ["rand"] }
 tracing = { version = "0.1", features = ["attributes"] }
 metrics = "0.21"
-web5 = { version = "0.1.0" }
+web5 = { version = "0.1.0", features = ["storage"] }
 ml-core = { version = "0.1.0" }
 ```
 
@@ -80,8 +77,8 @@ ml-core = { version = "0.1.0" }
 1. **Clone and Setup**
 ```bash
 # Clone the repository
-git clone https://github.com/anya/anya-enterprise.git
-cd anya-enterprise
+git clone https://github.com/anya/anya-core.git
+cd anya-core
 
 # Install dependencies
 ./scripts/setup.sh
@@ -92,9 +89,9 @@ cargo build --release
 
 2. **Configuration**
 ```env
-# Core Settings
-DATABASE_URL=postgres://user:password@localhost/anya
-REDIS_URL=redis://localhost:6379
+# Web5 Settings
+WEB5_DWN_URL=http://localhost:3000
+WEB5_STORAGE_PATH=/path/to/web5/data
 
 # Bitcoin Settings
 BITCOIN_RPC_URL=http://localhost:8332
@@ -130,6 +127,84 @@ TRACING_ENDPOINT=http://localhost:4317
 - [Configuration Guide](docs/CONFIGURATION.md)
 - [Monitoring Setup](docs/MONITORING.md)
 
+## Configuration
+
+The Anya platform uses a flexible configuration system that supports multiple configuration sources:
+
+1. **Configuration Files** (`config/`)
+   - `default.yaml`: Default configuration values
+   - Environment-specific configs (e.g., `development.yaml`, `production.yaml`)
+
+2. **Environment Variables**
+   - All configuration can be overridden using environment variables
+   - Variables are prefixed with `ANYA_`
+   - Example: `ANYA_NETWORK_CAPACITY=2000`
+
+3. **Secure Credentials**
+   - Sensitive data is stored securely using encryption
+   - Credentials are managed through the `CredentialManager`
+   - Never commit `.env` files containing secrets
+
+### Configuration Structure
+
+```yaml
+network:
+  capacity: 1000
+  node_connection_limit: 100
+  performance_threshold: 0.6
+
+dao:
+  contract_name: "anya-dao"
+  proposal_threshold: 100000000
+  voting_period_blocks: 1008
+
+features:
+  experimental_ml: false
+  advanced_optimization: false
+  quantum_resistant: false
+```
+
+### Dynamic Configuration
+
+The platform supports dynamic configuration updates:
+- Network limits adjust based on system resources
+- Timelock periods scale with network activity
+- Performance thresholds adapt to usage patterns
+
+### Security
+
+- Sensitive configuration is encrypted at rest
+- Credentials are stored securely using the `SecureStorage` module
+- Environment-specific secrets are managed via `.env` files (not committed to VCS)
+
+## Storage Architecture
+
+Anya uses Web5's Decentralized Web Nodes (DWN) for all data storage, providing:
+
+### Features
+- **Decentralized Storage**: Data is stored across the DWN network
+- **Identity-Based Access**: Data access is controlled by DIDs
+- **Protocol-Driven**: Data schemas and interactions defined by protocols
+- **Encrypted by Default**: All data is encrypted at rest
+- **Automatic Replication**: Data is replicated across nodes
+- **Flexible Querying**: Rich query capabilities for data retrieval
+
+### Data Types
+- User profiles and preferences
+- Transaction records
+- Analytics data
+- Machine learning models
+- System configurations
+- Audit logs
+
+### Benefits
+- No central database dependency
+- Built-in encryption and security
+- Automatic data replication
+- Identity-based access control
+- Protocol-based data validation
+- Offline-first capability
+
 ## Contributing
 
 We welcome contributions! See our [Contributing Guide](CONTRIBUTING.md) for details.
@@ -163,125 +238,3 @@ Special thanks to our contributors and the following projects:
 - Web5
 - TBD
 - Block
-
-# Anya: Advanced Web5 Data Management System
-
-## Overview
-
-Anya is a comprehensive Web5-based data management system that provides decentralized storage, advanced caching, batch operations, and real-time monitoring capabilities. Built with Rust, it emphasizes performance, security, and reliability.
-
-## Features
-
-### Core Web5 Features
-- Decentralized identity (DID) management
-- Schema-driven data validation
-- Decentralized Web Node (DWN) integration
-- Flexible query capabilities
-- Version control and history tracking
-
-### Performance Features
-- LRU caching with TTL support
-- Concurrent batch operations
-- Rate-limited processing
-- Performance metrics tracking
-- Query optimization
-
-### Monitoring & Events
-- Real-time health monitoring
-- Component-level health tracking
-- Event-driven architecture
-- Metrics collection and reporting
-- System status dashboard
-
-### Security & Reliability
-- DID-based authentication
-- Schema validation
-- Error handling and recovery
-- Circuit breaker pattern
-- Audit logging
-
-## Getting Started
-
-### Prerequisites
-- Rust 1.70 or higher
-- Cargo package manager
-- Web5 SDK
-
-### Installation
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/anya.git
-
-# Change to project directory
-cd anya
-
-# Install dependencies
-cargo build
-```
-
-### Basic Usage
-```rust
-use anya::web5::Web5Store;
-
-// Create a new Web5 store
-let store = Web5Store::new().await?;
-
-// Store data with caching
-store.create_record("users", json!({
-    "name": "Alice",
-    "age": 30
-})).await?;
-
-// Batch operations
-let records = vec![
-    json!({"name": "Bob", "age": 25}),
-    json!({"name": "Charlie", "age": 35})
-];
-store.bulk_create("users", records).await?;
-
-// Monitor health
-let health = store.get_health_status().await;
-println!("System status: {:?}", health.status);
-```
-
-## Architecture
-
-Anya follows a modular architecture with these key components:
-
-1. **Web5Store**: Core data management
-2. **Cache Layer**: Performance optimization
-3. **Batch Processor**: Bulk operations
-4. **Event System**: Real-time notifications
-5. **Health Monitor**: System monitoring
-
-For detailed architecture information, see [Architecture Documentation](docs/architecture.md).
-
-## Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Documentation
-
-- [API Documentation](docs/api.md)
-- [Architecture Guide](docs/architecture.md)
-- [Development Guide](docs/development.md)
-- [Security Guide](docs/security.md)
-
-## Support
-
-For support, please:
-1. Check the [Documentation](docs/)
-2. Open an issue
-3. Join our Discord community
-
-## Roadmap
-
-- [ ] Enhanced query optimization
-- [ ] Advanced caching strategies
-- [ ] Automated backup system
-- [ ] Extended monitoring capabilities
-- [ ] Performance benchmarking tools
