@@ -3,15 +3,18 @@
 # Deprecation manager for Anya operations
 # Handles deprecation of various system resources and temporary files
 
+# Import common functions
+source "$(dirname "$0")/log_manager.sh"
+
+# Import ML deprecation manager
+source "$(dirname "$0")/ml_deprecation.sh"
+
 # Configuration
 CONFIG_FILE="../../config/monitoring.yaml"
 TEMP_DIR="../temp"
 CACHE_DIR="../cache"
 METRICS_ARCHIVE="../metrics/archive"
 SEARCH_CACHE="../web5/advanced_search/cache"
-
-# Import common functions
-source "$(dirname "$0")/log_manager.sh"
 
 check_deprecation_requirements() {
     local resource_type="$1"
@@ -89,10 +92,96 @@ check_search_index_status() {
     return 1  # In use or not backed up
 }
 
+check_linked_deprecation() {
+    local resource_type="$1"
+    local resource_path="$2"
+    
+    # Check linked systems configuration
+    local linked_systems
+    linked_systems=$(yq e ".deprecation.system_requirements.linked_systems" "$CONFIG_FILE")
+    
+    # Iterate through linked systems
+    echo "$linked_systems" | yq e '.[]' | while read -r system; do
+        local system_name
+        system_name=$(echo "$system" | yq e '.name' -)
+        local dependencies
+        dependencies=$(echo "$system" | yq e '.depends_on[]' -)
+        local sync_deprecation
+        sync_deprecation=$(echo "$system" | yq e '.sync_deprecation' -)
+        
+        # Check if resource type is in dependencies
+        if echo "$dependencies" | grep -q "$resource_type"; then
+            if [[ "$sync_deprecation" == "true" ]]; then
+                # Check linked resource status
+                case "$system_name" in
+                    "web5_search")
+                        if [[ "$resource_type" == "embeddings" ]]; then
+                            check_embedding_dependencies "$resource_path"
+                        fi
+                        ;;
+                    "bitcoin_validation")
+                        if [[ "$resource_type" == "models" ]]; then
+                            check_model_dependencies "$resource_path"
+                        fi
+                        ;;
+                    "rgb_protocol")
+                        if [[ "$resource_type" == "templates" ]]; then
+                            check_template_dependencies "$resource_path"
+                        fi
+                        ;;
+                esac
+            fi
+        fi
+    done
+}
+
+check_embedding_dependencies() {
+    local embedding_path="$1"
+    # Check if embedding is used by search system
+    if [[ -f "../web5/advanced_search/current_embedding" ]]; then
+        local current_embedding
+        current_embedding=$(cat "../web5/advanced_search/current_embedding")
+        if [[ "$(basename "$embedding_path")" == "$current_embedding" ]]; then
+            return 1  # Cannot deprecate, in use
+        fi
+    fi
+    return 0
+}
+
+check_model_dependencies() {
+    local model_path="$1"
+    # Check if model is used by bitcoin validation
+    if [[ -f "../bitcoin/validation/current_model" ]]; then
+        local current_model
+        current_model=$(cat "../bitcoin/validation/current_model")
+        if [[ "$(basename "$model_path")" == "$current_model" ]]; then
+            return 1  # Cannot deprecate, in use
+        fi
+    fi
+    return 0
+}
+
+check_template_dependencies() {
+    local template_path="$1"
+    # Check if template is used by RGB protocol
+    if [[ -f "../rgb/protocol/active_templates" ]]; then
+        if grep -q "$(basename "$template_path")" "../rgb/protocol/active_templates"; then
+            return 1  # Cannot deprecate, in use
+        fi
+    fi
+    return 0
+}
+
 deprecate_resource() {
     local resource_type="$1"
     local resource_path="$2"
     local max_age="$3"
+    
+    # Check linked system dependencies first
+    if ! check_linked_deprecation "$resource_type" "$resource_path"; then
+        log_message "Cannot deprecate $resource_type at $resource_path - linked system dependencies exist"
+        return 1
+    fi
     
     if ! check_deprecation_requirements "$resource_type" "$resource_path"; then
         log_message "Cannot deprecate $resource_type at $resource_path - requirements not met"

@@ -52,6 +52,43 @@ monitoring:
 
   deprecation:
     enabled: true
+    system_requirements:
+      ml:
+        model_versions:
+          max_kept: 3
+          strategy: "performance_based"  # Keep best performing versions
+        training_data:
+          max_age_days: 90
+          min_performance_threshold: 0.85
+        checkpoints:
+          max_per_model: 5
+          keep_best: true
+        embeddings:
+          recompute_threshold_days: 30
+          version_linked: true  # Link to model versions
+        
+      performance:
+        cpu_threshold: 80
+        memory_threshold: 85
+        disk_threshold: 90
+        action: "aggressive"  # Aggressive cleanup when thresholds exceeded
+        
+      dependencies:
+        check_unused: true
+        max_versions: 2
+        exclude_critical: true
+        
+      linked_systems:
+        - name: "web5_search"
+          depends_on: ["embeddings", "models"]
+          sync_deprecation: true
+        - name: "bitcoin_validation"
+          depends_on: ["models", "scripts"]
+          priority: "high"
+        - name: "rgb_protocol"
+          depends_on: ["templates", "scripts"]
+          sync_deprecation: true
+    
     resources:
       temp:
         path: "../temp"
@@ -95,6 +132,52 @@ monitoring:
         backup:
           enabled: true
           retention_days: 180
+
+      ml_models:
+        path: "../ml/models"
+        requirements:
+          - type: "performance"
+            min_threshold: 0.85
+          - type: "usage"
+            min_requests: 100
+          - type: "freshness"
+            max_age_days: 90
+        versioning:
+          keep_best: 3
+          metric: "f1_score"
+        
+      ml_data:
+        path: "../ml/data"
+        requirements:
+          - type: "quality"
+            min_score: 0.8
+          - type: "coverage"
+            min_percent: 90
+        archive:
+          enabled: true
+          retention_days: 180
+        
+      embeddings:
+        path: "../ml/embeddings"
+        requirements:
+          - type: "model_version"
+            match: true
+          - type: "freshness"
+            max_age_days: 30
+        recompute:
+          schedule: "weekly"
+          conditions: ["model_updated", "data_changed"]
+        
+      checkpoints:
+        path: "../ml/checkpoints"
+        requirements:
+          - type: "performance_rank"
+            top_k: 5
+          - type: "model_version"
+            match: true
+        cleanup:
+          keep_best: true
+          max_per_model: 5
 
   cleanup:
     schedule: "0 2 * * *"  # Run at 2 AM daily
