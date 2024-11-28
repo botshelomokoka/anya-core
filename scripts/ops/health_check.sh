@@ -3,6 +3,9 @@
 # Health check script for Anya operations
 # Monitors system health and writes to a tracked log file
 
+# Import log manager
+source "$(dirname "$0")/log_manager.sh"
+
 # Configuration
 LOG_FILE="../logs/ops_health.log"
 METRICS_FILE="../metrics/system_metrics.json"
@@ -15,6 +18,12 @@ mkdir -p "$(dirname "$LOG_FILE")" "$(dirname "$METRICS_FILE")"
 log_message() {
     local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
     echo "[$timestamp] $1" >> "$LOG_FILE"
+    
+    # Check if log management is needed
+    if [[ -f "$LOG_FILE" ]]; then
+        rotate_logs "$LOG_FILE"
+        deprecate_logs
+    fi
 }
 
 get_system_metrics() {

@@ -23,6 +23,33 @@ monitoring:
       - type: "prometheus"
         endpoint: "http://localhost:9090/metrics"
 
+  log_retention:
+    enabled: true
+    max_age_days: 30
+    max_size_mb: 500
+    min_free_space_percent: 20
+    requirements:
+      - type: "backup_exists"
+        path: "../backups/logs"
+      - type: "metrics_exported"
+        status: true
+      - type: "min_retention_period"
+        days: 7
+
+  log_rotation:
+    enabled: true
+    max_files: 5
+    compress: true
+    size_trigger: "100M"
+
+  log_backup:
+    enabled: true
+    schedule: "0 0 * * *"  # Daily at midnight
+    retention:
+      daily: 7
+      weekly: 4
+      monthly: 3
+
 services:
   - name: "web5_service"
     type: "core"
