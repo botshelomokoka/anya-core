@@ -18,19 +18,17 @@ permissions:
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+# Allow only one concurrent deployment
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -39,21 +37,12 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Build documentation site
-        run: |
-          mkdir -p _site
-          cp -r docs/* _site/
-          if [ ! -f _site/index.html ]; then
-            cp docs/README.md _site/index.md || true
-          fi
-        shell: bash
+        uses: actions/configure-pages@v4
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '_site'
+          path: docs
 
       - name: Deploy to GitHub Pages
         id: deployment
