@@ -1,115 +1,181 @@
 import 'package:test/test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:web5/web5.dart';
+import 'package:bitcoindart/bitcoindart.dart';
 import '../../lib/src/core/bitcoin/wallet.dart';
+import '../../lib/src/core/models/wallet.dart' as models;
 import '../../lib/src/core/repositories/wallet_repository.dart';
-import '../../lib/src/core/models/wallet.dart';
 
+class MockWeb5 extends Mock implements Web5 {}
+class MockDWN extends Mock implements DWN {}
+class MockRecords extends Mock implements Records {}
 class MockWalletRepository extends Mock implements WalletRepository {}
+class MockHDWallet extends Mock implements HDWallet {}
 
 void main() {
+  late BitcoinWallet wallet;
+  late MockWeb5 mockWeb5;
+  late MockWalletRepository mockRepository;
+  late MockDWN mockDwn;
+  late MockRecords mockRecords;
+
+  setUp(() {
+    mockWeb5 = MockWeb5();
+    mockRepository = MockWalletRepository();
+    mockDwn = MockDWN();
+    mockRecords = MockRecords();
+
+    when(mockWeb5.dwn).thenReturn(mockDwn);
+    when(mockDwn.records).thenReturn(mockRecords);
+
+    wallet = BitcoinWallet(
+      mockRepository,
+      mockWeb5,
+      NetworkType.testnet,
+    );
+  });
+
   group('BitcoinWallet', () {
-    late MockWalletRepository mockRepository;
-    late BitcoinWallet wallet;
-
-    setUp(() {
-      mockRepository = MockWalletRepository();
-      wallet = BitcoinWallet(repository: mockRepository);
-    });
-
-    test('createWallet stores wallet in repository', () async {
-      final testWallet = Wallet(
-        id: 'test-id',
-        name: 'Test Wallet',
+    test('initialize creates new wallet with correct parameters', () async {
+      const testName = 'Test Wallet';
+      const testOwnerDid = 'did:example:123';
+      const testAddress = 'bc1qtest';
+      
+      final expectedWallet = models.Wallet.create(
+        name: testName,
         type: 'bitcoin',
+        ownerDid: testOwnerDid,
+        address: testAddress,
         metadata: {
-          'network': 'mainnet',
-          'mnemonic': 'test mnemonic',
-          'xpub': 'test xpub',
+          'network': 'testnet',
+          'xpub': 'test_xpub',
+          'addressType': 'p2wpkh',
         },
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
       );
 
-      when(mockRepository.create(
-        any,
-        any,
-        any,
-      )).thenAnswer((_) async => testWallet);
+      when(mockRepository.createWallet(any))
+          .thenAnswer((_) async => 'test_wallet_id');
 
-      final result = await wallet.createWallet(name: 'Test Wallet');
-      
-      verify(mockRepository.create(
-        'Test Wallet',
-        'bitcoin',
-        any,
+      when(mockWeb5.encrypt(
+        data: any,
+        recipients: [testOwnerDid],
+      )).thenAnswer((_) async => 'encrypted_data');
+
+      await wallet.initialize(
+        name: testName,
+        ownerDid: testOwnerDid,
+      );
+
+      verify(mockRepository.createWallet(any)).called(1);
+      verify(mockWeb5.encrypt(
+        data: any,
+        recipients: [testOwnerDid],
       )).called(1);
-
-      expect(result.id, equals(testWallet.id));
-      expect(result.name, equals(testWallet.name));
-      expect(result.type, equals('bitcoin'));
     });
 
-    test('listWallets returns all wallets', () async {
-      final testWallets = [
-        Wallet(
-          id: 'test-id-1',
-          name: 'Test Wallet 1',
-          type: 'bitcoin',
-          metadata: {'network': 'mainnet'},
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-        ),
-        Wallet(
-          id: 'test-id-2',
-          name: 'Test Wallet 2',
-          type: 'bitcoin',
-          metadata: {'network': 'testnet'},
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-        ),
-      ];
-
-      when(mockRepository.list()).thenAnswer((_) async => testWallets);
-
-      final result = await wallet.listWallets();
+    test('createTransaction stores transaction in Web5', () async {
+      const testName = 'Test Wallet';
+      const testOwnerDid = 'did:example:123';
       
-      verify(mockRepository.list()).called(1);
-      expect(result.length, equals(2));
-      expect(result.first.id, equals('test-id-1'));
-      expect(result.last.id, equals('test-id-2'));
-    });
-
-    test('getWallet returns specific wallet', () async {
-      final testWallet = Wallet(
-        id: 'test-id',
-        name: 'Test Wallet',
-        type: 'bitcoin',
-        metadata: {'network': 'mainnet'},
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
+      await wallet.initialize(
+        name: testName,
+        ownerDid: testOwnerDid,
       );
 
-      when(mockRepository.get('test-id')).thenAnswer((_) async => testWallet);
+      when(mockRecords.create(
+        data: any,
+        message: any,
+      )).thenAnswer((_) async => Record());
 
-      final result = await wallet.getWallet('test-id');
-      
-      verify(mockRepository.get('test-id')).called(1);
-      expect(result?.id, equals('test-id'));
-      expect(result?.name, equals('Test Wallet'));
+      await wallet.createTransaction(
+        toAddress: 'bc1qtest',
+        amount: 100000,
+      );
+
+      verify(mockRecords.create(
+        data: any,
+        message: {
+          'schema': 'anya/bitcoin/transaction',
+          'dataFormat': 'application/json',
+        },
+      )).called(1);
     });
 
-    test('updateWallet updates wallet in repository', () async {
-      final updates = {'name': 'Updated Wallet'};
-      
-      await wallet.updateWallet('test-id', updates);
-      
-      verify(mockRepository.update('test-id', updates)).called(1);
+    test('export includes encrypted data when requested', () async {
+      const testName = 'Test Wallet';
+      const testOwnerDid = 'did:example:123';
+      const encryptedData = 'encrypted_test_data';
+      const decryptedData = {
+        'seed': 'test_seed',
+        'privateKey': 'test_private_key',
+        'mnemonic': 'test mnemonic',
+      };
+
+      await wallet.initialize(
+        name: testName,
+        ownerDid: testOwnerDid,
+      );
+
+      when(mockWeb5.decrypt(encryptedData))
+          .thenAnswer((_) async => decryptedData);
+
+      final exportData = await wallet.export(includePrivateData: true);
+
+      expect(exportData['privateData'], equals(decryptedData));
+      verify(mockWeb5.decrypt(any)).called(1);
     });
 
-    test('deleteWallet removes wallet from repository', () async {
-      await wallet.deleteWallet('test-id');
-      
-      verify(mockRepository.delete('test-id')).called(1);
+    test('import validates required fields', () async {
+      expect(
+        () => wallet.import({}),
+        throwsA(isA<InvalidWalletDataException>()),
+      );
+
+      expect(
+        () => wallet.import({'name': 'Test'}),
+        throwsA(isA<InvalidWalletDataException>()),
+      );
+
+      await wallet.import({
+        'name': 'Test',
+        'ownerDid': 'did:example:123',
+      });
+    });
+  });
+
+  group('Error Handling', () {
+    test('handles Web5 encryption errors', () async {
+      const testName = 'Test Wallet';
+      const testOwnerDid = 'did:example:123';
+
+      when(mockWeb5.encrypt(
+        data: any,
+        recipients: any,
+      )).thenThrow(Exception('Encryption failed'));
+
+      expect(
+        () => wallet.initialize(
+          name: testName,
+          ownerDid: testOwnerDid,
+        ),
+        throwsException,
+      );
+    });
+
+    test('handles repository errors', () async {
+      const testName = 'Test Wallet';
+      const testOwnerDid = 'did:example:123';
+
+      when(mockRepository.createWallet(any))
+          .thenThrow(Exception('Repository error'));
+
+      expect(
+        () => wallet.initialize(
+          name: testName,
+          ownerDid: testOwnerDid,
+        ),
+        throwsException,
+      );
     });
   });
 }
