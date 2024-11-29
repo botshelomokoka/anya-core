@@ -1,11 +1,14 @@
 :root {
-    --primary-color: #3498db;
-    --secondary-color: #2c3e50;
-    --background-color: #f8f9fa;
-    --text-color: #333;
-    --border-color: #eee;
-    --code-background: #2c3e50;
-    --code-color: #fff;
+    --primary-color: #2E8B57;  /* Sea Green for flowers */
+    --secondary-color: #DAA520; /* Golden Rod for logo */
+    --accent-color: #1E90FF;   /* Dodger Blue for ocean */
+    --background-color: #F5FFFA; /* Mint Cream */
+    --text-color: #2F4F4F;      /* Dark Slate Gray */
+    --border-color: #98FB98;    /* Pale Green */
+    --code-background: #2F4F4F; /* Dark Slate Gray */
+    --code-color: #F0F8FF;      /* Alice Blue */
+    --header-gradient-start: #2E8B57; /* Sea Green */
+    --header-gradient-end: #1E90FF;   /* Dodger Blue */
 }
 
 body {
@@ -15,16 +18,20 @@ body {
     margin: 0 auto;
     padding: 20px;
     color: var(--text-color);
-    background-color: white;
+    background-color: var(--background-color);
 }
 
 header {
     text-align: center;
     margin-bottom: 40px;
     padding: 20px;
-    background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+    background: linear-gradient(135deg, 
+        var(--header-gradient-start),
+        var(--secondary-color),
+        var(--header-gradient-end));
     color: white;
     border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 nav {
@@ -38,29 +45,44 @@ nav {
 nav a {
     color: white;
     text-decoration: none;
-    padding: 5px 15px;
+    padding: 8px 20px;
     border-radius: 20px;
     border: 1px solid rgba(255,255,255,0.3);
     transition: all 0.3s ease;
+    background: rgba(255,255,255,0.1);
 }
 
 nav a:hover {
-    background: rgba(255,255,255,0.1);
-    text-decoration: none;
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 h1, h2, h3, h4, h5, h6 {
-    color: var(--secondary-color);
+    color: var(--primary-color);
     margin-top: 1.5em;
     margin-bottom: 0.5em;
 }
 
-h1 { font-size: 2.5em; }
-h2 { font-size: 2em; }
-h3 { font-size: 1.5em; }
+h1 { 
+    font-size: 2.5em; 
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+h2 { 
+    font-size: 2em;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.3em;
+}
+
+h3 { 
+    font-size: 1.5em;
+    color: var(--secondary-color);
+}
 
 a {
-    color: var(--primary-color);
+    color: var(--accent-color);
     text-decoration: none;
     transition: all 0.3s ease;
 }
@@ -77,6 +99,7 @@ pre {
     border-radius: 5px;
     overflow-x: auto;
     margin: 1em 0;
+    border-left: 4px solid var(--secondary-color);
 }
 
 code {
@@ -86,37 +109,47 @@ code {
 section {
     margin: 30px 0;
     padding: 30px;
-    background: var(--background-color);
+    background: white;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: 1px solid var(--border-color);
 }
 
-ul, ol {
-    padding-left: 20px;
-}
-
-li {
-    margin: 8px 0;
-}
-
-.architecture-diagram {
-    margin: 2em 0;
-    text-align: center;
-}
-
-.architecture-diagram img {
-    max-width: 100%;
-    height: auto;
+.card {
+    background: white;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
+    padding: 25px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-color: var(--primary-color);
+}
+
+.version-badge {
+    display: inline-block;
+    padding: 5px 15px;
+    background: var(--secondary-color);
+    color: white;
+    border-radius: 15px;
+    font-size: 0.9em;
+    margin: 10px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 footer {
     text-align: center;
     margin-top: 50px;
     padding: 20px;
-    border-top: 1px solid var(--border-color);
-    color: #666;
+    border-top: 2px solid var(--border-color);
+    color: var(--text-color);
+    background: linear-gradient(to right,
+        rgba(46,139,87,0.1),
+        rgba(30,144,255,0.1));
+    border-radius: 0 0 8px 8px;
 }
 
 /* Responsive Design */
@@ -148,11 +181,13 @@ footer {
     body {
         max-width: none;
         padding: 0;
+        background: white;
     }
 
     header {
         background: none;
-        color: var(--text-color);
+        color: var(--primary-color);
+        box-shadow: none;
     }
 
     nav {
@@ -166,9 +201,16 @@ footer {
 
     a {
         text-decoration: underline;
+        color: var(--primary-color);
     }
 
     footer {
-        display: none;
+        background: none;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .card {
+        border: 1px solid var(--border-color);
+        box-shadow: none;
     }
 }
