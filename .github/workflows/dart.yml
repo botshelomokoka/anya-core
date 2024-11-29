@@ -1,0 +1,64 @@
+name: Dart CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        sdk: [stable]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: dart-lang/setup-dart@v1
+      with:
+        sdk: ${{ matrix.sdk }}
+    
+    - name: Install dependencies
+      run: dart pub get
+    
+    - name: Verify formatting
+      run: dart format --output=none --set-exit-if-changed .
+    
+    - name: Analyze project source
+      run: dart analyze --fatal-infos
+    
+    - name: Run tests
+      run: dart test
+    
+    - name: Build executable
+      run: dart compile exe bin/anya.dart -o anya
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: anya-${{ matrix.os }}
+        path: anya*
+
+  release:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          anya-ubuntu-latest/anya
+          anya-windows-latest/anya.exe
+          anya-macos-latest/anya
