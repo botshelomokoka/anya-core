@@ -1,0 +1,105 @@
+title: Anya Documentation
+description: Enterprise-grade Bitcoin Infrastructure Platform
+theme: jekyll-theme-cayman
+
+# GitHub Pages settings
+repository: botshelomokoka/anya-core
+baseurl: "/anya-core"
+url: "https://botshelomokoka.github.io"
+
+# SEO settings
+lang: en
+author: Botshelo Mokoka
+twitter:
+  username: botshelomokoka
+  card: summary_large_image
+social:
+  name: Anya
+  links:
+    - https://github.com/botshelomokoka/anya-core
+
+# Navigation
+nav:
+  - title: Home
+    url: /
+  - title: Getting Started
+    url: /getting-started
+  - title: Architecture
+    url: /architecture
+  - title: Bitcoin Integration
+    url: /anya-bitcoin
+  - title: Enterprise Features
+    url: /anya-enterprise
+  - title: API Reference
+    url: /api
+  - title: Security
+    url: /security
+  - title: Web5 Integration
+    url: /web5
+  - title: Contributing
+    url: /contributing
+  - title: Support
+    url: /support
+
+# Search settings
+search:
+  enabled: true
+  indexing:
+    enabled: true
+    exclude:
+      - 404.html
+      - search.json
+      - robots.txt
+      - sitemap.xml
+
+# Build settings
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    css_class: highlight
+    span:
+      line_numbers: false
+    block:
+      line_numbers: true
+      start_line: 1
+
+# Plugins
+plugins:
+  - jekyll-sitemap
+  - jekyll-seo-tag
+  - jekyll-github-metadata
+  - jekyll-redirect-from
+  - jekyll-feed
+
+# Collections
+collections:
+  docs:
+    output: true
+    permalink: /:collection/:path/
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: docs
+    values:
+      layout: default
+      toc: true
+      sidebar: true
+      nav_order: 1000
+
+# Exclude files from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - .git
+  - .github
+  - README.md
+  - CONTRIBUTING.md
+  - LICENSE
+  - package.json
+  - package-lock.json
