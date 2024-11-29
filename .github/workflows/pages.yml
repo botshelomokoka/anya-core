@@ -1,16 +1,13 @@
 # Simple workflow for deploying static content to GitHub Pages
-name: Deploy Anya Documentation
+name: Deploy Documentation to Pages
 
 on:
   # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
     paths:
-      - 'docs/**'
       - 'dependencies/docs/**'
       - 'anya-bitcoin/docs/**'
-      - 'anya-enterprise/docs/**'
-      - 'anya-extensions/docs/**'
       - '.github/workflows/pages.yml'
   
   # Allows you to run this workflow manually from the Actions tab
@@ -23,17 +20,12 @@ permissions:
   id-token: write
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying
-  build-and-deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -46,54 +38,38 @@ jobs:
         with:
           mdbook-version: 'latest'
 
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
-
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Create combined docs directory
+      - name: Build Documentation
         run: |
-          mkdir -p combined_docs
-          # Copy main docs
-          cp -r docs/* combined_docs/
+          # Create docs directory
+          mkdir -p docs
           
-          # Create subdirectories for each component
-          mkdir -p combined_docs/dependencies
-          mkdir -p combined_docs/bitcoin
-          mkdir -p combined_docs/enterprise
-          mkdir -p combined_docs/extensions
+          # Copy all documentation to docs directory
+          cp -r dependencies/docs/* docs/
+          cp -r anya-bitcoin/docs docs/bitcoin
           
-          # Copy component docs if they exist
-          [ -d "dependencies/docs" ] && cp -r dependencies/docs/* combined_docs/dependencies/
-          [ -d "anya-bitcoin/docs" ] && cp -r anya-bitcoin/docs/* combined_docs/bitcoin/
-          [ -d "anya-enterprise/docs" ] && cp -r anya-enterprise/docs/* combined_docs/enterprise/
-          [ -d "anya-extensions/docs" ] && cp -r anya-extensions/docs/* combined_docs/extensions/
+          # Build with mdBook
+          cd docs
+          mdbook init
+          mdbook build
           
-          # Generate API documentation if needed
-          cargo doc --no-deps --workspace
-          cp -r target/doc combined_docs/api
-
-      - name: Generate Documentation Index
-        run: |
-          echo "# Anya Documentation" > combined_docs/index.md
-          echo "" >> combined_docs/index.md
-          echo "## Components" >> combined_docs/index.md
-          echo "" >> combined_docs/index.md
-          echo "- [Core Documentation](./)" >> combined_docs/index.md
-          echo "- [Dependencies](./dependencies/)" >> combined_docs/index.md
-          echo "- [Bitcoin Integration](./bitcoin/)" >> combined_docs/index.md
-          echo "- [Enterprise Features](./enterprise/)" >> combined_docs/index.md
-          echo "- [Extensions](./extensions/)" >> combined_docs/index.md
-          echo "- [API Documentation](./api/)" >> combined_docs/index.md
+          # Move the built site to the deployment directory
+          mv book public
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './combined_docs'
+          path: 'docs/public'
 
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

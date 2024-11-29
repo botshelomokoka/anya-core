@@ -1,0 +1,28 @@
+[book]
+name = "Anya Documentation"
+authors = ["Anya Core Contributors"]
+description = "Documentation for the Anya Bitcoin and Web5 Integration Platform"
+language = "en"
+multilingual = false
+src = "docs"
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "navy"
+git-repository-url = "https://github.com/botshelomokoka/anya-core"
+git-repository-icon = "fa-github"
+edit-url-template = "https://github.com/botshelomokoka/anya-core/edit/main/{path}"
+site-url = "/anya-core/"
+
+[output.html.playground]
+editable = true
+line-numbers = true
+
+[output.html.search]
+limit-results = 20
+use-boolean-and = true
+boost-title = 2
+boost-hierarchy = 2
+boost-paragraph = 1
+expand = true
+heading-split-level = 2
