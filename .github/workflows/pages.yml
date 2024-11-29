@@ -1,10 +1,13 @@
 # Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+name: Deploy Documentation to Pages
 
 on:
   # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/pages.yml'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -31,13 +34,27 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
+      - name: Build documentation site
+        run: |
+          mkdir -p _site
+          cp -r docs/* _site/
+          if [ ! -f _site/index.html ]; then
+            cp docs/README.md _site/index.md || true
+          fi
+        shell: bash
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
-          path: '.'
+          path: '_site'
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

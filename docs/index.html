@@ -5,31 +5,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anya Documentation</title>
     <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --background-color: #f8f9fa;
+            --text-color: #333;
+            --border-color: #eee;
+        }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             line-height: 1.6;
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-            color: #333;
+            color: var(--text-color);
+            background-color: white;
         }
         header {
             text-align: center;
             margin-bottom: 40px;
             padding: 20px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+            color: white;
+            border-radius: 8px;
         }
-        h1 { color: #2c3e50; }
-        h2 { color: #34495e; margin-top: 30px; }
-        a { color: #3498db; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        .nav { margin: 20px 0; }
-        .nav a { margin: 0 10px; }
+        h1 { margin: 0; padding: 20px 0; }
+        h2 { color: var(--secondary-color); margin-top: 30px; }
+        h3 { color: var(--primary-color); }
+        a { 
+            color: var(--primary-color); 
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        a:hover { 
+            text-decoration: underline;
+            color: var(--secondary-color);
+        }
+        .nav { 
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .nav a { 
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .nav a:hover {
+            background: rgba(255,255,255,0.1);
+            text-decoration: none;
+        }
         .section {
             margin: 30px 0;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 5px;
+            padding: 30px;
+            background: var(--background-color);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .grid {
             display: grid;
@@ -38,21 +73,53 @@
             margin: 20px 0;
         }
         .card {
-            padding: 20px;
+            padding: 25px;
             background: white;
-            border: 1px solid #eee;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        pre {
+            background: #2c3e50;
+            color: #fff;
+            padding: 15px;
             border-radius: 5px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+        .version-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 15px;
+            font-size: 0.9em;
+            margin: 10px 0;
+        }
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            color: #666;
         }
     </style>
 </head>
 <body>
     <header>
         <h1>Anya Documentation</h1>
-        <p>Bitcoin and Web5 Integration Platform</p>
+        <p>Enterprise-grade Bitcoin and Web5 Integration Platform</p>
+        <div class="version-badge">Version 0.2.0</div>
         <div class="nav">
             <a href="#getting-started">Getting Started</a>
             <a href="#architecture">Architecture</a>
-            <a href="#api">API</a>
+            <a href="#api">API Reference</a>
             <a href="#security">Security</a>
             <a href="https://github.com/botshelomokoka/anya-core" target="_blank">GitHub</a>
         </div>
@@ -65,11 +132,18 @@
                 <div class="card">
                     <h3>Installation</h3>
                     <p>Add to your Cargo.toml:</p>
-                    <pre>anya = "0.2.0"</pre>
+                    <pre><code>[dependencies]
+anya = "0.2.0"</code></pre>
                 </div>
                 <div class="card">
                     <h3>Quick Start</h3>
                     <p>Basic setup and configuration guide</p>
+                    <pre><code>use anya::Anya;
+
+async fn main() -> Result<()> {
+    let anya = Anya::new().await?;
+    anya.init().await?;
+}</code></pre>
                     <a href="getting-started/quick-start.html">Learn More →</a>
                 </div>
             </div>
@@ -77,7 +151,7 @@
 
         <section id="architecture" class="section">
             <h2>Architecture</h2>
-            <p>Anya follows a modular, security-first architecture design.</p>
+            <p>Anya follows a modular, security-first architecture design with enterprise-grade features.</p>
             <div class="grid">
                 <div class="card">
                     <h3>Core Components</h3>
@@ -85,6 +159,7 @@
                         <li><a href="architecture/core.html">Core Architecture</a></li>
                         <li><a href="architecture/bitcoin.html">Bitcoin Integration</a></li>
                         <li><a href="architecture/web5.html">Web5 Components</a></li>
+                        <li><a href="architecture/security.html">Security Model</a></li>
                     </ul>
                 </div>
                 <div class="card">
@@ -92,6 +167,7 @@
                     <ul>
                         <li><a href="system/design.html">Design Principles</a></li>
                         <li><a href="system/scalability.html">Scalability</a></li>
+                        <li><a href="system/deployment.html">Deployment Guide</a></li>
                     </ul>
                 </div>
             </div>
@@ -103,16 +179,17 @@
                 <div class="card">
                     <h3>Core API</h3>
                     <ul>
+                        <li><a href="api/core.html">Core Functions</a></li>
                         <li><a href="api/wallet.html">Wallet Management</a></li>
-                        <li><a href="api/transactions.html">Transactions</a></li>
-                        <li><a href="api/identity.html">Identity Management</a></li>
+                        <li><a href="api/transactions.html">Transaction Processing</a></li>
                     </ul>
                 </div>
                 <div class="card">
                     <h3>Integration APIs</h3>
                     <ul>
                         <li><a href="api/bitcoin.html">Bitcoin API</a></li>
-                        <li><a href="api/web5.html">Web5 API</a></li>
+                        <li><a href="api/web5.html">Web5 Integration</a></li>
+                        <li><a href="api/enterprise.html">Enterprise Features</a></li>
                     </ul>
                 </div>
             </div>
@@ -124,23 +201,29 @@
                 <div class="card">
                     <h3>Security Features</h3>
                     <ul>
-                        <li><a href="security/encryption.html">Encryption</a></li>
-                        <li><a href="security/key-management.html">Key Management</a></li>
+                        <li><a href="security/model.html">Security Model</a></li>
+                        <li><a href="security/best-practices.html">Best Practices</a></li>
+                        <li><a href="security/audits.html">Security Audits</a></li>
                     </ul>
                 </div>
                 <div class="card">
-                    <h3>Best Practices</h3>
+                    <h3>Compliance</h3>
                     <ul>
-                        <li><a href="security/guidelines.html">Security Guidelines</a></li>
-                        <li><a href="security/audit.html">Security Audit</a></li>
+                        <li><a href="security/compliance.html">Compliance Guide</a></li>
+                        <li><a href="security/certifications.html">Certifications</a></li>
                     </ul>
                 </div>
             </div>
         </section>
     </main>
 
-    <footer style="text-align: center; margin-top: 50px; padding: 20px; border-top: 1px solid #eee;">
-        <p> 2024 Anya Core Contributors. Licensed under MIT.</p>
+    <footer>
+        <p> 2024 Anya Core Contributors. All rights reserved.</p>
+        <p>
+            <a href="https://github.com/botshelomokoka/anya-core">GitHub</a> |
+            <a href="docs/changelog.html">Changelog</a> |
+            <a href="docs/contributing.html">Contributing</a>
+        </p>
     </footer>
 </body>
 </html>
