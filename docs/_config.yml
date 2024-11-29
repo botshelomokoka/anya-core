@@ -3,7 +3,6 @@ description: Enterprise-grade Bitcoin Infrastructure Platform
 theme: jekyll-theme-minimal
 
 # GitHub Pages settings
-domain: botshelomokoka.github.io
 baseurl: "/anya-core"
 url: "https://botshelomokoka.github.io"
 
@@ -14,8 +13,7 @@ plugins:
   - jekyll-remote-theme
   - jekyll-seo-tag
 
-# Theme settings
-show_downloads: true
+# GitHub metadata
 github:
   is_project_page: true
   repository_url: https://github.com/botshelomokoka/anya-core
@@ -25,18 +23,14 @@ github:
 
 # Navigation
 nav_links:
-  - title: Home
-    url: /
   - title: Getting Started
     url: /getting-started/
-  - title: Architecture
-    url: /architecture/
   - title: API Reference
     url: /api/
+  - title: Architecture
+    url: /architecture/
   - title: Security
     url: /security/
-  - title: Contributing
-    url: /contributing/
 
 # Exclude files from processing
 exclude:
