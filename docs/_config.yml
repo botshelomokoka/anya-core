@@ -25,6 +25,8 @@ github:
 nav_links:
   - title: Getting Started
     url: /getting-started/
+  - title: Installation
+    url: /installation/cross-platform/
   - title: API Reference
     url: /api/
   - title: Architecture

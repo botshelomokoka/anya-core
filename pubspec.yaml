@@ -1,0 +1,34 @@
+name: anya
+description: Enterprise-grade Bitcoin Infrastructure Platform
+version: 0.2.0
+homepage: https://github.com/botshelomokoka/anya-core
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  args: ^2.4.2
+  http: ^1.1.0
+  yaml: ^3.1.2
+  logging: ^1.2.0
+  path: ^1.8.3
+  crypto: ^3.0.3
+  web5: ^0.1.0
+  bitcoindart: ^0.7.0
+  shelf: ^1.4.1
+  shelf_router: ^1.1.4
+
+dev_dependencies:
+  test: ^1.24.0
+  lints: ^3.0.0
+  build_runner: ^2.4.6
+  mockito: ^5.4.2
+
+executables:
+  anya: anya
+
+topics:
+  - bitcoin
+  - web5
+  - cryptocurrency
+  - blockchain
