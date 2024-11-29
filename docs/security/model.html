@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Model - Anya Documentation</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header>
+        <h1>Security Model</h1>
+        <nav>
+            <a href="../index.html">Home</a>
+            <a href="#overview">Overview</a>
+            <a href="#architecture">Security Architecture</a>
+            <a href="#implementation">Implementation</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="overview">
+            <h2>Overview</h2>
+            <p>Anya's security model is built on the principles of zero-trust architecture, defense in depth, and secure by default. The system implements multiple layers of security to protect sensitive data and operations.</p>
+            
+            <h3>Key Security Features</h3>
+            <ul>
+                <li>End-to-end encryption for all sensitive data</li>
+                <li>Secure key generation and storage</li>
+                <li>Multi-factor authentication support</li>
+                <li>Audit logging and monitoring</li>
+                <li>Secure communication channels</li>
+                <li>Regular security updates and patches</li>
+            </ul>
+        </section>
+
+        <section id="architecture">
+            <h2>Security Architecture</h2>
+            
+            <h3>Encryption</h3>
+            <p>All sensitive data is encrypted using industry-standard algorithms:</p>
+            <pre><code>use anya::security::{Encryption, EncryptionType};
+
+impl SecurityManager {
+    /// Initialize encryption with specified algorithm
+    pub fn init_encryption(&self) -> Result<()> {
+        let encryption = Encryption::new(
+            EncryptionType::Aes256Gcm,
+            &self.config.encryption_key
+        )?;
+        
+        // Configure encryption parameters
+        encryption.set_params(
+            iterations: 100_000,
+            memory_size: 64 * 1024,
+            parallelism: 4
+        )?;
+        
+        Ok(())
+    }
+}</code></pre>
+
+            <h3>Key Management</h3>
+            <p>Secure key management includes:</p>
+            <ul>
+                <li>Hardware Security Module (HSM) support</li>
+                <li>Key rotation policies</li>
+                <li>Secure key backup and recovery</li>
+                <li>Access control for key operations</li>
+            </ul>
+
+            <h3>Authentication</h3>
+            <pre><code>use anya::security::{Auth, AuthMethod};
+
+impl SecurityManager {
+    /// Configure authentication methods
+    pub async fn setup_auth(&self) -> Result<()> {
+        let auth = Auth::new()
+            .with_method(AuthMethod::Password)
+            .with_method(AuthMethod::Totp)
+            .with_method(AuthMethod::HardwareKey);
+        
+        auth.enforce_mfa(true);
+        auth.set_session_timeout(Duration::from_secs(3600));
+        
+        Ok(())
+    }
+}</code></pre>
+        </section>
+
+        <section id="implementation">
+            <h2>Implementation Details</h2>
+            
+            <h3>Secure Storage</h3>
+            <pre><code>use anya::security::storage::SecureStorage;
+
+impl SecureStorage {
+    /// Store sensitive data securely
+    pub async fn store(&self, key: &str, data: &[u8]) -> Result<()> {
+        // Encrypt data
+        let encrypted = self.encryption.encrypt(data)?;
+        
+        // Store with access controls
+        self.storage
+            .with_acl(AccessLevel::Confidential)
+            .store(key, &encrypted)
+            .await?;
+        
+        // Log access
+        self.audit_log.record(
+            Action::Store,
+            key,
+            self.current_user()?
+        ).await?;
+        
+        Ok(())
+    }
+}</code></pre>
+
+            <h3>Audit Logging</h3>
+            <pre><code>use anya::security::audit::{AuditLog, LogLevel};
+
+impl AuditLog {
+    /// Record security-relevant events
+    pub async fn record(
+        &self,
+        action: Action,
+        resource: &str,
+        user: &User
+    ) -> Result<()> {
+        let event = AuditEvent::new()
+            .action(action)
+            .resource(resource)
+            .user(user)
+            .timestamp(Utc::now())
+            .metadata(self.get_context()?);
+        
+        self.logger
+            .log(LogLevel::Security, event)
+            .await?;
+        
+        Ok(())
+    }
+}</code></pre>
+        </section>
+
+        <section id="best-practices">
+            <h2>Security Best Practices</h2>
+            
+            <h3>Configuration</h3>
+            <pre><code># Security configuration example
+[security]
+encryption_type = "aes256gcm"
+key_derivation = "argon2id"
+mfa_required = true
+session_timeout = 3600
+audit_level = "high"
+
+[storage]
+encryption_at_rest = true
+secure_delete = true
+backup_encryption = true</code></pre>
+
+            <h3>Recommendations</h3>
+            <ul>
+                <li>Always use the latest version of Anya</li>
+                <li>Enable multi-factor authentication</li>
+                <li>Regularly rotate encryption keys</li>
+                <li>Monitor audit logs</li>
+                <li>Follow the principle of least privilege</li>
+                <li>Implement proper backup procedures</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2024 Anya Core Contributors. All rights reserved.</p>
+        <p>
+            <a href="https://github.com/botshelomokoka/anya-core">GitHub</a> |
+            <a href="../changelog.html">Changelog</a> |
+            <a href="../contributing.html">Contributing</a>
+        </p>
+    </footer>
+</body>
+</html>

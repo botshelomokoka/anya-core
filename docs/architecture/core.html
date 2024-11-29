@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Core Architecture - Anya Documentation</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header>
+        <h1>Core Architecture</h1>
+        <nav>
+            <a href="../index.html">Home</a>
+            <a href="#overview">Overview</a>
+            <a href="#components">Components</a>
+            <a href="#design">Design Principles</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="overview">
+            <h2>Overview</h2>
+            <p>Anya's core architecture is built on a modular, event-driven design that prioritizes security, scalability, and extensibility. The system is composed of several key components that work together to provide a robust Bitcoin and Web5 integration platform.</p>
+            
+            <div class="architecture-diagram">
+                <img src="../images/architecture.svg" alt="Anya Architecture Diagram">
+            </div>
+        </section>
+
+        <section id="components">
+            <h2>Core Components</h2>
+            
+            <h3>Wallet Management</h3>
+            <p>The wallet management system provides:</p>
+            <ul>
+                <li>Hierarchical Deterministic (HD) wallet support</li>
+                <li>Multi-signature capabilities</li>
+                <li>Transaction management</li>
+                <li>Address generation and management</li>
+            </ul>
+
+            <h3>Bitcoin Integration</h3>
+            <p>Bitcoin integration features include:</p>
+            <ul>
+                <li>Full node communication</li>
+                <li>UTXO management</li>
+                <li>Transaction building and signing</li>
+                <li>Fee estimation</li>
+            </ul>
+
+            <h3>Security Layer</h3>
+            <p>The security layer implements:</p>
+            <ul>
+                <li>Key encryption and storage</li>
+                <li>Secure communication channels</li>
+                <li>Access control and authentication</li>
+                <li>Audit logging</li>
+            </ul>
+
+            <h3>Web5 Integration</h3>
+            <p>Web5 features include:</p>
+            <ul>
+                <li>Decentralized identifiers (DIDs)</li>
+                <li>Verifiable credentials</li>
+                <li>Decentralized web nodes</li>
+                <li>Protocol handlers</li>
+            </ul>
+        </section>
+
+        <section id="design">
+            <h2>Design Principles</h2>
+            
+            <h3>Modularity</h3>
+            <p>Each component is designed as a self-contained module with clear interfaces, allowing for:</p>
+            <ul>
+                <li>Easy maintenance and updates</li>
+                <li>Independent scaling of components</li>
+                <li>Flexible deployment options</li>
+                <li>Plugin architecture support</li>
+            </ul>
+
+            <h3>Security-First</h3>
+            <p>Security is built into every layer:</p>
+            <ul>
+                <li>Zero-trust architecture</li>
+                <li>End-to-end encryption</li>
+                <li>Secure key management</li>
+                <li>Regular security audits</li>
+            </ul>
+
+            <h3>Scalability</h3>
+            <p>The architecture is designed to scale:</p>
+            <ul>
+                <li>Horizontal scaling of components</li>
+                <li>Load balancing support</li>
+                <li>Caching mechanisms</li>
+                <li>Asynchronous processing</li>
+            </ul>
+        </section>
+
+        <section id="implementation">
+            <h2>Implementation Details</h2>
+            <pre><code>// Core system initialization
+pub struct Anya {
+    config: Config,
+    wallet_manager: WalletManager,
+    bitcoin_client: BitcoinClient,
+    security_manager: SecurityManager,
+    web5_manager: Web5Manager,
+}
+
+impl Anya {
+    pub async fn new(config: Config) -> Result<Self> {
+        // Initialize components
+        let wallet_manager = WalletManager::new(&config)?;
+        let bitcoin_client = BitcoinClient::new(&config)?;
+        let security_manager = SecurityManager::new(&config)?;
+        let web5_manager = Web5Manager::new(&config)?;
+
+        Ok(Self {
+            config,
+            wallet_manager,
+            bitcoin_client,
+            security_manager,
+            web5_manager,
+        })
+    }
+}</code></pre>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2024 Anya Core Contributors. All rights reserved.</p>
+        <p>
+            <a href="https://github.com/botshelomokoka/anya-core">GitHub</a> |
+            <a href="../changelog.html">Changelog</a> |
+            <a href="../contributing.html">Contributing</a>
+        </p>
+    </footer>
+</body>
+</html>
