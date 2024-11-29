@@ -85,15 +85,15 @@ path = "scripts/run_alignment.rs"
 [workspace]
 members = [
     "scripts",
-    "dependencies/anya",
+    "dependencies/anya-core",
     "dependencies/anya-enterprise",
     "dependencies/anya-bitcoin"
 ]
 
 [workspace.package]
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 authors = ["Anya Core Contributors"]
 license = "MIT"
-repository = "https://github.com/anya-ai/anya"
+repository = "https://github.com/botshelomokoka/anya-core"
 description = "Enterprise-grade Bitcoin wallet and transaction management system"
