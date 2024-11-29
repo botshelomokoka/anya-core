@@ -2,14 +2,19 @@
 	path = enterprise
 	url = https://github.com/botshelomokoka/anya-enterprise.git
 	branch = main
-    update = rebase
+	update = merge
+	fetchRecurseSubmodules = true
+
 [submodule "dash33"]
 	path = dash33
 	url = https://github.com/botshelomokoka/33dash.git
 	branch = main
-    update = rebase
+	update = merge
+	fetchRecurseSubmodules = true
+
 [submodule "dependencies"]
 	path = dependencies
 	url = https://github.com/botshelomokoka/anya-dependencies.git
 	branch = main
-    update = rebase
+	update = merge
+	fetchRecurseSubmodules = true
