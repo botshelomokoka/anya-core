@@ -1,7 +1,7 @@
 [book]
 name = "Anya Documentation"
 authors = ["Anya Core Contributors"]
-description = "Documentation for the Anya Bitcoin and Web5 Integration Platform"
+description = "Comprehensive documentation for the Anya Bitcoin and Web5 Integration Platform"
 language = "en"
 multilingual = false
 src = "docs"
@@ -13,16 +13,34 @@ git-repository-url = "https://github.com/botshelomokoka/anya-core"
 git-repository-icon = "fa-github"
 edit-url-template = "https://github.com/botshelomokoka/anya-core/edit/main/{path}"
 site-url = "/anya-core/"
+additional-css = ["docs/assets/custom.css"]
+additional-js = ["docs/assets/custom.js"]
 
 [output.html.playground]
 editable = true
 line-numbers = true
+copyable = true
 
 [output.html.search]
-limit-results = 20
+limit-results = 30
 use-boolean-and = true
-boost-title = 2
+boost-title = 3
 boost-hierarchy = 2
 boost-paragraph = 1
 expand = true
-heading-split-level = 2
+heading-split-level = 3
+copy-js = true
+
+[output.html.fold]
+enable = true
+level = 1
+
+[preprocessor.index]
+index = true
+
+[preprocessor.links]
+follow-web-links = true
+
+[preprocessor.toc]
+command = "mdbook-toc"
+renderer = ["html"]

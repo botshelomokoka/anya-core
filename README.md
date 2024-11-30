@@ -47,6 +47,14 @@ This core platform is released under the [MIT License](LICENSE.md), allowing for
 - Identity management
 - Custom protocols
 
+### Decentralized Communication
+- Nostr protocol integration (NIPs 01, 02, 04, 05, 13, 15, 20)
+- End-to-end encrypted messaging
+- Multi-relay support with health monitoring
+- Automatic relay selection and load balancing
+- Simple key subscription system
+- Secure key management and backup
+
 ### Monitoring & Metrics
 - Distributed tracing
 - Performance metrics
@@ -185,7 +193,7 @@ Anya uses Web5's Decentralized Web Nodes (DWN) for all data storage, providing:
 - **Decentralized Storage**: Data is stored across the DWN network
 - **Identity-Based Access**: Data access is controlled by DIDs
 - **Protocol-Driven**: Data schemas and interactions defined by protocols
-- **Encrypted by Default**: All data is encrypted at rest
+- **Encrypted by Default**: All data and communications are encrypted
 - **Automatic Replication**: Data is replicated across nodes
 - **Flexible Querying**: Rich query capabilities for data retrieval
 

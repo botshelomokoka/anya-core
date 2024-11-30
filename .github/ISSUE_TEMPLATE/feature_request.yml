@@ -1,0 +1,88 @@
+name: Feature Request
+description: Suggest an idea for Anya
+title: "AIR-XXX: "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to suggest an improvement for Anya!
+        Please fill out this form as completely as possible.
+
+  - type: input
+    id: air-number
+    attributes:
+      label: AIR Number
+      description: The assigned Anya Improvement Request number
+      placeholder: "AIR-XXX"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: ai-category
+    attributes:
+      label: AI Category
+      description: Select the most relevant AI category for this request
+      options:
+        - AIR - Anya Improvement Request
+        - AIS - Anya Implementation Specification
+        - AIT - Anya Issue Tracking
+        - AIM - Anya Integration Module
+        - AIP - Anya Intelligence Pattern
+        - AIE - Anya Intelligence Enhancement
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe the improvement you'd like to see
+      placeholder: |
+        A clear and concise description of what you want to happen.
+        Include any specific requirements or constraints.
+    validations:
+      required: true
+
+  - type: textarea
+    id: ai-benefits
+    attributes:
+      label: AI Benefits
+      description: Describe how this improvement enhances Anya's AI capabilities
+      placeholder: |
+        - Improved pattern recognition
+        - Enhanced decision making
+        - Better user experience
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Proposed Implementation
+      description: If you have ideas about how to implement this feature
+      placeholder: |
+        Technical details, architecture suggestions, or implementation approach
+    validations:
+      required: false
+
+  - type: textarea
+    id: related-items
+    attributes:
+      label: Related Items
+      description: List any related AI-labeled items
+      placeholder: |
+        - AIS-001: Related specification
+        - AIT-002: Related issue
+        - AIP-003: Related pattern
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our Code of Conduct
+      options:
+        - label: I agree to follow Anya's Code of Conduct
+          required: true

@@ -1,0 +1,181 @@
+name: GitHub Actions Review
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Run weekly on Sunday
+  workflow_dispatch:  # Allow manual trigger
+  push:
+    paths:
+      - '.github/workflows/**'
+
+jobs:
+  review-actions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install yamllint
+          pip install PyYAML
+
+      - name: Analyze Workflows
+        id: analyze
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const yaml = require('js-yaml');
+
+            function findWorkflowFiles(dir) {
+              let results = [];
+              const files = fs.readdirSync(dir);
+              
+              for (const file of files) {
+                const filePath = path.join(dir, file);
+                const stat = fs.statSync(filePath);
+                
+                if (stat.isDirectory()) {
+                  if (file === '.github' && fs.existsSync(path.join(filePath, 'workflows'))) {
+                    const workflowDir = path.join(filePath, 'workflows');
+                    const workflowFiles = fs.readdirSync(workflowDir)
+                      .filter(f => f.endsWith('.yml') || f.endsWith('.yaml'))
+                      .map(f => path.join(workflowDir, f));
+                    results = results.concat(workflowFiles);
+                  } else if (file !== 'node_modules' && !file.startsWith('.')) {
+                    results = results.concat(findWorkflowFiles(filePath));
+                  }
+                }
+              }
+              
+              return results;
+            }
+
+            function analyzeWorkflow(filePath) {
+              const content = fs.readFileSync(filePath, 'utf8');
+              const workflow = yaml.load(content);
+              
+              const analysis = {
+                name: workflow.name || path.basename(filePath),
+                path: filePath,
+                triggers: Object.keys(workflow.on || {}),
+                jobs: Object.keys(workflow.jobs || {}),
+                actions: new Set(),
+                permissions: workflow.permissions || {},
+                issues: []
+              };
+              
+              // Extract used actions
+              function findActions(obj) {
+                if (!obj) return;
+                if (typeof obj === 'object') {
+                  if (obj.uses) {
+                    analysis.actions.add(obj.uses);
+                  }
+                  Object.values(obj).forEach(findActions);
+                }
+              }
+              findActions(workflow.jobs);
+              
+              // Check for potential issues
+              if (!workflow.name) {
+                analysis.issues.push('Missing workflow name');
+              }
+              
+              if (!workflow.on) {
+                analysis.issues.push('No triggers defined');
+              }
+              
+              if (Object.keys(workflow.jobs || {}).length === 0) {
+                analysis.issues.push('No jobs defined');
+              }
+              
+              return analysis;
+            }
+
+            // Find and analyze all workflow files
+            const workflowFiles = findWorkflowFiles('.');
+            const analyses = workflowFiles.map(analyzeWorkflow);
+            
+            // Generate report
+            let report = '# GitHub Actions Review Report\n\n';
+            
+            report += '## Summary\n';
+            report += `- Total workflows: ${analyses.length}\n`;
+            report += `- Total unique actions: ${new Set(analyses.flatMap(a => Array.from(a.actions))).size}\n`;
+            report += `- Workflows with issues: ${analyses.filter(a => a.issues.length > 0).length}\n\n`;
+            
+            report += '## Workflow Details\n\n';
+            for (const analysis of analyses) {
+              report += `### ${analysis.name}\n`;
+              report += `- Path: \`${analysis.path}\`\n`;
+              report += `- Triggers: ${analysis.triggers.join(', ') || 'None'}\n`;
+              report += `- Jobs: ${analysis.jobs.join(', ') || 'None'}\n`;
+              report += '- Actions used:\n';
+              Array.from(analysis.actions).forEach(action => {
+                report += `  - ${action}\n`;
+              });
+              if (analysis.issues.length > 0) {
+                report += '- Issues:\n';
+                analysis.issues.forEach(issue => {
+                  report += `  - ⚠️ ${issue}\n`;
+                });
+              }
+              report += '\n';
+            }
+            
+            // Save report
+            const reportPath = 'action-review-report.md';
+            fs.writeFileSync(reportPath, report);
+            
+            // Create/update comment on PR if this is a PR
+            if (context.payload.pull_request) {
+              const { data: comments } = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+              });
+              
+              const botComment = comments.find(comment => 
+                comment.user.type === 'Bot' && 
+                comment.body.includes('GitHub Actions Review Report')
+              );
+              
+              if (botComment) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: botComment.id,
+                  body: report,
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.payload.pull_request.number,
+                  body: report,
+                });
+              }
+            }
+
+      - name: Run yamllint
+        run: |
+          echo "Checking workflow files with yamllint..."
+          yamllint -c .github/yamllint-config.yml .github/workflows/
+
+      - name: Upload report
+        uses: actions/upload-artifact@v3
+        with:
+          name: action-review-report
+          path: action-review-report.md

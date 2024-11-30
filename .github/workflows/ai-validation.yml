@@ -1,0 +1,186 @@
+name: AI Model Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'models/**'
+      - 'ai/**'
+      - 'tests/ai/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'models/**'
+      - 'ai/**'
+      - 'tests/ai/**'
+  workflow_dispatch:
+    inputs:
+      model_version:
+        description: 'Model version to validate'
+        required: false
+        default: 'latest'
+
+jobs:
+  validate-models:
+    name: Validate AI Models
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+          cache: 'pip'
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch torchvision tensorflow scikit-learn pandas numpy
+          pip install pytest pytest-benchmark mlflow wandb
+
+      - name: Cache models
+        uses: actions/cache@v3
+        with:
+          path: |
+            models/
+            ${{ runner.os == 'Windows' && '\AppData\Local\torch\cache' || '~/.cache/torch' }}
+            ${{ runner.os == 'Windows' && '\AppData\Local\huggingface' || '~/.cache/huggingface' }}
+          key: ${{ runner.os }}-models-${{ hashFiles('models/**') }}
+          restore-keys: |
+            ${{ runner.os }}-models-
+
+      # Model Testing
+      - name: Run Model Tests
+        shell: bash
+        run: |
+          pytest tests/ai/test_models.py --junitxml=test-results/model-tests.xml
+        env:
+          WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
+
+      # Performance Validation
+      - name: Validate Model Performance
+        shell: bash
+        run: |
+          python scripts/validate_model_performance.py \
+            --model-version ${{ github.event.inputs.model_version || 'latest' }} \
+            --threshold 0.95  # 95% accuracy threshold
+
+      # Memory Usage Check
+      - name: Check Memory Usage
+        shell: bash
+        run: |
+          python scripts/check_model_memory.py \
+            --max-memory 4G  # 4GB memory limit
+
+      # Inference Speed Test
+      - name: Test Inference Speed
+        shell: bash
+        run: |
+          python scripts/test_inference_speed.py \
+            --batch-sizes 1,8,16,32 \
+            --max-latency 100  # 100ms max latency
+
+      # Model Size Check
+      - name: Check Model Size
+        shell: bash
+        run: |
+          python scripts/check_model_size.py \
+            --max-size 500M  # 500MB size limit
+
+      # Model Bias Testing
+      - name: Test for Model Bias
+        shell: bash
+        run: |
+          python scripts/test_model_bias.py \
+            --fairness-threshold 0.9  # 90% fairness threshold
+
+      # Export Metrics
+      - name: Export Validation Metrics
+        shell: bash
+        run: |
+          python scripts/export_metrics.py \
+            --output validation-metrics.json
+
+      # Generate Report
+      - name: Generate Validation Report
+        if: always()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const metrics = JSON.parse(fs.readFileSync('validation-metrics.json', 'utf8'));
+            
+            const report = `## AI Model Validation Report
+            
+            ### 📊 Performance Metrics
+            - Accuracy: ${metrics.accuracy}
+            - F1 Score: ${metrics.f1_score}
+            - ROC AUC: ${metrics.roc_auc}
+            
+            ### ⚡ Resource Usage
+            - Memory Usage: ${metrics.memory_usage}
+            - Model Size: ${metrics.model_size}
+            - Avg. Inference Time: ${metrics.avg_inference_time}ms
+            
+            ### 🎯 Batch Performance
+            ${Object.entries(metrics.batch_performance).map(([size, time]) => 
+              `- Batch ${size}: ${time}ms`
+            ).join('\n')}
+            
+            ### ⚖️ Fairness Metrics
+            - Bias Score: ${metrics.bias_score}
+            - Fairness Rating: ${metrics.fairness_rating}
+            
+            ### 🚨 Validation Status
+            ${metrics.validation_passed ? '✅ All checks passed' : '❌ Some checks failed'}
+            
+            ${metrics.warnings.length > 0 ? `### ⚠️ Warnings
+            ${metrics.warnings.map(w => `- ${w}`).join('\n')}` : ''}
+            `;
+            
+            if (context.payload.pull_request) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: report
+              });
+            }
+
+      # Upload Artifacts
+      - name: Upload Validation Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: ai-validation-results-${{ matrix.os }}
+          path: |
+            validation-metrics.json
+            test-results/
+            logs/
+          retention-days: 90
+
+      # Notify on Failure
+      - name: Notify on Validation Failure
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const message = `❌ AI Model validation failed on ${{ matrix.os }}!
+            Please review the validation report for details.`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: message
+            });

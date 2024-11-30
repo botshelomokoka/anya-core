@@ -1,0 +1,75 @@
+# Development Environment Configuration
+
+# Override network settings for development
+network:
+  capacity: 100
+  node_connection_limit: 10
+  performance_threshold: 0.4
+  false_positive_threshold: 0.5
+
+# Development-specific database settings
+database:
+  host: "localhost"
+  port: 5432
+  max_connections: 10
+  pool_timeout: 30
+  debug_queries: true
+
+# Development logging
+logging:
+  level: "debug"
+  format: "pretty"
+  output: "console"
+  file_logging:
+    enabled: true
+    path: "logs/development.log"
+    rotation:
+      max_size: "100MB"
+      max_files: 5
+
+# Security settings for development
+security:
+  jwt_expiration: 86400  # 24 hours
+  password_hash_rounds: 10
+  enable_cors: true
+  allowed_origins: ["http://localhost:3000"]
+
+# Cache settings
+cache:
+  enabled: true
+  type: "memory"
+  max_size: "100MB"
+  ttl: 300  # 5 minutes
+
+# Feature flags for development
+features:
+  experimental_ml: true
+  advanced_optimization: true
+  quantum_resistant: false
+  enhanced_security: true
+  debug_mode: true
+  mock_services: true
+
+# Development tools
+dev_tools:
+  hot_reload: true
+  debug_endpoints: true
+  performance_tracking: true
+  query_analyzer: true
+  memory_profiler: true
+
+# API rate limits
+rate_limits:
+  enabled: false
+  requests_per_minute: 1000
+  burst: 50
+
+# Monitoring overrides for development
+monitoring:
+  metrics_collection: true
+  tracing_enabled: true
+  performance_logging: true
+  debug_logging: true
+  error_reporting:
+    enabled: true
+    detailed_traces: true

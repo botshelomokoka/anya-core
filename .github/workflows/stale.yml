@@ -1,0 +1,66 @@
+name: Stale Issue and PR Management
+
+on:
+  schedule:
+    - cron: '0 1 * * *'  # Run daily at 1 AM
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/stale@v8
+        with:
+          # Issue settings
+          days-before-issue-stale: 60
+          days-before-issue-close: 7
+          stale-issue-message: >
+            This issue has been automatically marked as stale because it has not had
+            recent activity. It will be closed if no further activity occurs. Thank you
+            for your contributions.
+          close-issue-message: >
+            This issue has been automatically closed due to inactivity. Please feel free
+            to reopen it if you still need assistance.
+          stale-issue-label: 'stale'
+          exempt-issue-labels: 'security,pinned,bug'
+
+          # PR settings
+          days-before-pr-stale: 30
+          days-before-pr-close: 7
+          stale-pr-message: >
+            This pull request has been automatically marked as stale because it has not had
+            recent activity. It will be closed if no further activity occurs. Thank you
+            for your contributions.
+          close-pr-message: >
+            This pull request has been automatically closed due to inactivity. Please feel free
+            to reopen it if you would like to continue working on it.
+          stale-pr-label: 'stale'
+          exempt-pr-labels: 'dependencies,security'
+
+          # General settings
+          exempt-all-milestones: true
+          operations-per-run: 100
+          enable-statistics: true
+          delete-branch: true
+
+      - name: Stale Report
+        if: always()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const stats = process.env.STALE_STATISTICS;
+            if (stats) {
+              const message = `## Stale Items Report
+              ${stats}
+              
+              Items marked as stale will be closed in 7 days if no activity occurs.`;
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: message
+              });
+            }

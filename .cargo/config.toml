@@ -1,0 +1,35 @@
+[target.'cfg(target_os = "windows")']
+rustflags = ["-C", "target-feature=+crt-static"]
+
+[target.'cfg(target_os = "linux")']
+rustflags = ["-C", "link-arg=-Wl,-z,relro,-z,now"]
+
+[target.'cfg(target_os = "macos")']
+rustflags = ["-C", "link-arg=-undefined", "-C", "link-arg=dynamic_lookup"]
+
+[build]
+rustflags = [
+    "-D", "warnings",
+    "-D", "missing_docs",
+    "-D", "rustdoc::missing_crate_level_docs",
+    "-D", "clippy::unwrap_used",
+    "-D", "clippy::expect_used",
+    "-D", "clippy::unimplemented",
+    "-D", "clippy::todo",
+]
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
+[profile.dev]
+opt-level = 0
+debug = true
+debug-assertions = true
+overflow-checks = true
+
+[registries.crates-io]
+protocol = "sparse"

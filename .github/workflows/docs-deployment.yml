@@ -1,0 +1,153 @@
+name: Documentation Deployment
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - '**.md'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - '**.md'
+  workflow_dispatch:
+
+jobs:
+  build-docs:
+    name: Build Documentation
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'npm'
+
+      - name: Install MkDocs
+        run: |
+          python -m pip install --upgrade pip
+          pip install mkdocs-material mkdocs-minify-plugin mkdocs-git-revision-date-plugin
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'npm'
+
+      - name: Install documentation dependencies
+        run: |
+          npm install -g markdownlint-cli
+          npm install -g markdown-link-check
+
+      - name: Check Markdown links
+        run: |
+          find . -name "*.md" -not -path "./node_modules/*" -exec markdown-link-check {} \;
+
+      - name: Lint Markdown
+        run: |
+          markdownlint '**/*.md' --ignore node_modules
+
+      - name: Generate API Documentation
+        run: |
+          # Generate OpenAPI docs
+          npx @redocly/cli build-docs openapi.yaml -o docs/api/index.html
+          
+          # Generate TypeScript docs
+          npx typedoc --out docs/typescript src/
+
+      - name: Build MkDocs
+        run: mkdocs build
+
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          force_orphan: true
+          commit_message: "docs: update documentation"
+
+      - name: Create Documentation Preview
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v3
+        with:
+          name: documentation-preview
+          path: site/
+          retention-days: 14
+
+      - name: Comment PR with Preview Link
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const artifactUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}/artifacts`;
+            const message = `📚 Documentation preview is ready!\n[View Preview](${artifactUrl})`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: message
+            });
+
+  validate-docs:
+    name: Validate Documentation
+    needs: build-docs
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Download documentation
+        uses: actions/download-artifact@v3
+        with:
+          name: documentation-preview
+          path: site
+
+      - name: Install validation tools
+        run: |
+          npm install -g pa11y-ci
+          npm install -g broken-link-checker
+
+      - name: Check accessibility
+        run: |
+          pa11y-ci ./site/**/*.html
+
+      - name: Check broken links
+        run: |
+          blc http://localhost:8000 -ro --exclude external
+
+      - name: Generate validation report
+        if: always()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const report = `## Documentation Validation Report
+            
+            ### Accessibility Check
+            - Status: ${{ job.status }}
+            - Issues found: ${process.env.PA11Y_ISSUES || 'None'}
+            
+            ### Broken Links Check
+            - Status: ${{ job.status }}
+            - Broken links found: ${process.env.BROKEN_LINKS || 'None'}
+            
+            ### Recommendations
+            1. Review accessibility issues
+            2. Fix any broken internal links
+            3. Verify external links are valid
+            `;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: report
+            });
