@@ -9,21 +9,27 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "UTC"
-    target-branch: "main"
+    target-branch: "development"  # All updates go to development first
     commit-message:
       prefix: "chore(deps)"
       include: "scope"
     labels:
       - "dependencies"
       - "security"
+      - "automated"
+      - "needs-review"
     open-pull-requests-limit: 10
     pull-request-branch-name:
       separator: "-"
+      prefix: "deps/dev-"
+    versioning-strategy: "auto"
+    security-updates-only: false
     reviewers:
       - "botshelomokoka"
-    versioning-strategy: "auto"
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
     ignore:
-      # Ignore patch updates for non-critical dependencies
       - dependency-name: "*"
         update-types: ["version-update:semver-patch"]
 
@@ -50,12 +56,19 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "UTC"
-    labels:
-      - "dependencies"
-      - "github-actions"
+    target-branch: "development"  # All CI updates go to development first
     commit-message:
-      prefix: "chore(actions)"
+      prefix: "chore(ci)"
       include: "scope"
+    labels:
+      - "ci-cd"
+      - "dependencies"
+      - "automated"
+      - "needs-review"
+    pull-request-branch-name:
+      separator: "-"
+      prefix: "ci/dev-"
+    security-updates-only: false
     reviewers:
       - "botshelomokoka"
 
