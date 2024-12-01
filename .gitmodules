@@ -18,3 +18,7 @@
 	branch = main
 	update = merge
 	fetchRecurseSubmodules = true
+[submodule "mobile"]
+	path = mobile
+	url = https://github.com/botshelomokoka/anya-mobile.git
+	branch = master
