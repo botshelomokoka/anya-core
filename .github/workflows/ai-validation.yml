@@ -160,7 +160,7 @@ jobs:
 
       # Upload Artifacts
       - name: Upload Validation Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ai-validation-results-${{ matrix.os }}
           path: |
