@@ -17,6 +17,9 @@ dependencies:
   bitcoindart: ^0.7.0
   shelf: ^1.4.1
   shelf_router: ^1.1.4
+  fl_chart: ^0.64.0
+  flutter_svg: ^2.0.7
+  intl: ^0.18.1
 
 dev_dependencies:
   test: ^1.24.0
