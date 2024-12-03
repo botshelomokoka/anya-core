@@ -5,91 +5,53 @@ on:
     - cron: '0 0 * * 1'  # Run weekly on Monday
   workflow_dispatch:  # Allow manual trigger
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
-  update-dependencies:
+  dependency-update:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 'lts/*'
-          cache: 'npm'
-
-      - name: Check for npm updates
-        id: npm-check
+      # Rust dependencies
+      - name: Update Rust dependencies
         run: |
-          npm install -g npm-check-updates
-          ncu --upgrade
-          if [[ $(git status --porcelain) ]]; then
-            echo "updates_available=true" >> $GITHUB_OUTPUT
+          cargo install cargo-edit
+          cargo upgrade --workspace
+
+      # NPM dependencies
+      - name: Update NPM dependencies
+        run: |
+          if [ -f package.json ]; then
+            npm update
+            npm audit fix
           fi
 
-      - name: Create Pull Request for npm
-        if: steps.npm-check.outputs.updates_available == 'true'
+      # Python dependencies
+      - name: Update Python dependencies
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install pip-tools
+            pip-compile --upgrade requirements.in
+          fi
+
+      # Create Pull Request
+      - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore(deps): Update npm dependencies"
-          title: "chore(deps): Update npm dependencies"
-          body: "Automated dependency updates"
-          branch: "deps/npm-updates"
-          labels: "dependencies,automated pr"
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-          cache: 'pip'
-
-      - name: Check for pip updates
-        id: pip-check
-        run: |
-          pip install pip-review
-          pip-review --auto
-          if [[ $(git status --porcelain) ]]; then
-            echo "updates_available=true" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Create Pull Request for pip
-        if: steps.pip-check.outputs.updates_available == 'true'
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore(deps): Update pip dependencies"
-          title: "chore(deps): Update pip dependencies"
-          body: "Automated dependency updates"
-          branch: "deps/pip-updates"
-          labels: "dependencies,automated pr"
-
-      - name: Setup Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-
-      - name: Check for Cargo updates
-        id: cargo-check
-        run: |
-          cargo update
-          if [[ $(git status --porcelain) ]]; then
-            echo "updates_available=true" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Create Pull Request for Cargo
-        if: steps.cargo-check.outputs.updates_available == 'true'
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore(deps): Update Cargo dependencies"
-          title: "chore(deps): Update Cargo dependencies"
-          body: "Automated dependency updates"
-          branch: "deps/cargo-updates"
-          labels: "dependencies,automated pr"
+          commit-message: "chore(deps): Update dependencies"
+          title: "chore(deps): Update dependencies"
+          body: |
+            Automated dependency updates
+            
+            This PR updates dependencies to their latest versions and includes security fixes.
+            
+            Please review the changes carefully before merging.
+          branch: "deps/update-dependencies"
+          base: "main"
+          labels: "dependencies,security"
+          reviewers: "${{ github.repository_owner }}"
+          delete-branch: true

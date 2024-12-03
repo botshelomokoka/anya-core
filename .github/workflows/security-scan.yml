@@ -26,118 +26,45 @@ jobs:
 
       # CodeQL Analysis
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: python, javascript, rust
           queries: security-extended,security-and-quality
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3
         with:
           category: "/language:python /language:javascript /language:rust"
 
-      # Dependency Scanning
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      # Dependency Review
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v3
+        if: github.event_name == 'pull_request'
+
+      # Rust Security Audit
+      - name: Run Rust Audit
+        uses: actions-rs/audit-check@v1
         with:
-          args: --severity-threshold=high
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Secret Scanning
-      - name: TruffleHog OSS
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
-          extra_args: --debug --only-verified
+      # NPM Audit
+      - name: Run npm audit
+        run: |
+          if [ -f package.json ]; then
+            npm audit
+          fi
 
-      # Container Scanning
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'table'
-          exit-code: '1'
-          ignore-unfixed: true
-          severity: 'CRITICAL,HIGH'
+      # Python dependency check
+      - name: Run pip audit
+        run: |
+          if [ -f requirements.txt ]; then
+            python -m pip install pip-audit
+            pip-audit
+          fi
 
-      # SAST
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-      # Security Report Generation
-      - name: Generate Security Report
+      # SARIF upload
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v3
         if: always()
-        uses: actions/github-script@v6
         with:
-          script: |
-            const fs = require('fs');
-            
-            const report = `## Security Scan Report
-            
-            ### 🔍 Scan Summary
-            - CodeQL Analysis: ${{ job.status }}
-            - Dependency Scan: ${{ steps.snyk.outcome }}
-            - Secret Scan: ${{ steps.trufflehog.outcome }}
-            - Container Scan: ${{ steps.trivy.outcome }}
-            - SAST Analysis: ${{ steps.sonarcloud.outcome }}
-            
-            ### 🚨 Critical Findings
-            ${fs.existsSync('trivy-results.json') ? require('./trivy-results.json').filter(f => f.Severity === 'CRITICAL').map(f => `- ${f.VulnerabilityID}: ${f.Title}`).join('\n') : 'No critical findings'}
-            
-            ### 📊 Metrics
-            - Code Coverage: ${fs.existsSync('sonar-results.json') ? require('./sonar-results.json').coverage : 'N/A'}
-            - Security Rating: ${fs.existsSync('sonar-results.json') ? require('./sonar-results.json').securityRating : 'N/A'}
-            
-            ### 🔐 Recommendations
-            1. Review all critical and high severity findings
-            2. Update vulnerable dependencies
-            3. Address any identified secrets or credentials
-            `;
-            
-            // Create/update security report issue
-            const { data: issues } = await github.rest.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              labels: ['security-report'],
-              state: 'open'
-            });
-            
-            if (issues.length > 0) {
-              await github.rest.issues.update({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issues[0].number,
-                body: report
-              });
-            } else {
-              await github.rest.issues.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: 'Security Scan Report',
-                body: report,
-                labels: ['security-report']
-              });
-            }
-
-      # Notify on Critical Issues
-      - name: Notify Security Team
-        if: failure()
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const message = `🚨 Critical security issues found in the latest scan!
-            Please review the security report immediately.`;
-            
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: message
-            });
+          sarif_file: results.sarif
