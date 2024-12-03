@@ -1,4 +1,5 @@
-flask
-inquirer
-requests
-bitcoinlib
+Flask>=2.3.3
+inquirer>=3.1.3
+requests>=2.31.0
+bitcoinlib>=0.6.11
+Werkzeug>=2.3.7
