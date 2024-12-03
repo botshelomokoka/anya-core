@@ -48,6 +48,93 @@ We use GitHub issues to track public bugs. Report a bug by [opening a new issue]
 - 4 spaces for indentation rather than tabs
 - You can try running `cargo fmt` for style unification
 
+## Bitcoin Ethical Principles and Development Standards
+
+### Core Ethical Commitments
+
+1. **Financial Sovereignty**
+   - Respect individual economic freedom
+   - Prioritize user privacy and financial autonomy
+   - Reject censorship and centralized control
+
+2. **Technical Integrity**
+   - Maintain the highest standards of cryptographic security
+   - Prioritize open-source transparency
+   - Ensure robust, auditable code
+
+3. **Decentralization Principles**
+   - Design systems that minimize single points of failure
+   - Promote network resilience and distributed trust
+   - Resist rent-seeking and extractive economic models
+
+### Development Standards
+
+#### Code of Conduct
+
+- **Transparency**: All code must be open, reviewable, and auditable
+- **Security First**: Prioritize security over convenience
+- **Privacy Protection**: Implement zero-knowledge and minimal data exposure techniques
+- **Consent and Opt-in**: Never implement invasive tracking or monitoring
+
+#### Technical Guidelines
+
+1. **Cryptographic Practices**
+   - Use latest cryptographic standards
+   - Implement constant-time algorithms
+   - Avoid proprietary or closed-source cryptographic methods
+   - Regular security audits and vulnerability assessments
+
+2. **Performance and Efficiency**
+   - Optimize for low resource consumption
+   - Minimize blockchain and network overhead
+   - Support low-bandwidth and resource-constrained environments
+
+3. **Compatibility and Interoperability**
+   - Adhere to Bitcoin Improvement Proposals (BIPs)
+   - Ensure cross-platform and cross-implementation compatibility
+   - Support emerging standards like Lightning Network, RGB, and Taproot
+
+#### Contribution Process
+
+1. **Proposal Submission**
+   - Detailed RFC (Request for Comments) for significant changes
+   - Clear problem statement and proposed solution
+   - Potential economic and technical impact analysis
+
+2. **Code Review Standards**
+   - Minimum two independent code reviews
+   - Comprehensive test coverage (>90%)
+   - Static and dynamic security analysis
+   - Performance benchmarking
+
+3. **Security Vulnerability Handling**
+   - Responsible disclosure process
+   - Bug bounty program
+   - Immediate mitigation and transparent reporting
+
+### Compliance Checklist
+
+- [ ] Adheres to Bitcoin Core coding standards
+- [ ] Passes comprehensive test suite
+- [ ] Security audit completed
+- [ ] Performance benchmarks documented
+- [ ] Ethical impact assessment
+
+### Recommended Tools
+
+- Rust Analyzer
+- Clippy for linting
+- Cargo Audit
+- Valgrind
+- Coverity Scan
+- Formal verification tools
+
+### Recommended Reading
+
+- [Bitcoin Developer Guide](https://bitcoin.org/en/developer-guide)
+- [Mastering Bitcoin by Andreas Antonopoulos](https://github.com/bitcoinbook/bitcoinbook)
+- [Cryptography Papers by Satoshi Nakamoto](https://bitcoin.org/bitcoin.pdf)
+
 ## License
 
 By contributing, you agree that your contributions will be licensed under its MIT License.

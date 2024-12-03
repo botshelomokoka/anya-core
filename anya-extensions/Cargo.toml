@@ -1,11 +1,33 @@
 [package]
 name = "anya-extensions"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Extensions for Anya Core"
+
+[lib]
+name = "anya_extensions"
+path = "src/lib.rs"
 
 [dependencies]
-bitcoin = { version = "0.30", features = ["rand"] }
-tokio = { version = "1.0", features = ["full"] }
-anyhow = "1.0"
-serde = { version = "1.0", features = ["derive"] }
+# Core Dependencies
+tokio = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
 
+# Blockchain Integration
+bitcoin = { workspace = true, features = ["rand"] }
+
+# Web5 Integration
+web5 = { workspace = true }
+
+# Internal Dependencies
+anya-core = { path = "../dependencies/anya-core", version = "0.2.0" }
+
+[features]
+default = ["standard"]
+standard = []
+advanced = ["standard"]
+enterprise = ["advanced"]

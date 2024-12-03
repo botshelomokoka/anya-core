@@ -25,7 +25,7 @@ The integration with Anya Core is seamless and straightforward. To integrate Any
 2. Clone the Anya Enterprise repository:
 
    ```bash
-   git clone https://github.com/your-repo/anya-enterprise.git
+   git clone https://github.com/botshelomokoka/anya-enterprise.git
    cd anya-enterprise
    ```
 

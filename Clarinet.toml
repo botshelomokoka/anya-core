@@ -1,0 +1,70 @@
+[project]
+name = "anya-dao"
+description = "Anya Decentralized Autonomous Organization Governance System"
+version = "3.1.0"
+authors = ["Anya Core Team <core@anya.ai>"]
+homepage = "https://anya.ai"
+license = "MIT"
+
+[contracts]
+governance-token = {path = "src/contracts/governance_token.clar"}
+dao = {path = "src/contracts/dao.clar"}
+
+[dependencies]
+sip-010-trait = {contract_id = "SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard", version = "1.0.0"}
+
+[deployment]
+strategy = "parallel"
+
+[network]
+name = "mainnet"
+stacks_node = "https://stacks-node-api.mainnet.stacks.co"
+bitcoin_node = "https://blockstream.info/api"
+
+[settings]
+token_name = "Anya Governance Token"
+token_symbol = "AGT"
+total_supply = 21000000
+initial_block_reward = 50
+halving_interval = 210000
+
+[governance]
+voting_threshold = 0.6
+proposal_threshold = 100
+quorum_percentage = 0.3
+
+[security]
+audit_frequency = "quarterly"
+vulnerability_bounty = true
+
+[features]
+ml_governance = true
+cross_chain_support = true
+decentralized_identity = true
+
+[environment]
+rust_version = "1.75.0"
+clarinet_version = "2.3.0"
+web5_protocol_version = "1.0.0"
+
+[metadata]
+token_uri = "https://anya.ai/token/agt-metadata.json"
+documentation_url = "https://docs.anya.ai/governance"
+support_email = "support@anya.ai"
+
+[build]
+optimize = true
+lto = true
+codegen-units = 1
+
+[profile.dev]
+debug = true
+opt-level = 0
+
+[profile.release]
+debug = false
+opt-level = 3
+panic = "abort"
+
+[experimental]
+enable_clarity_wasm = true
