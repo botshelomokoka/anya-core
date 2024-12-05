@@ -1,2 +1,4 @@
 pyyaml>=6.0.1
 pathlib>=1.0.1
+
+cryptography==44.0.0
