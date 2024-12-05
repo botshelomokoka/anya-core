@@ -13,6 +13,7 @@ from pathlib import Path
 import secrets
 import string
 from datetime import datetime
+from cryptography.fernet import Fernet
 
 class AnyaSensitiveDataManager:
     def __init__(self):
@@ -20,6 +21,7 @@ class AnyaSensitiveDataManager:
         self.config_file = self.config_dir / 'sensitive_config.yml'
         self.env_file = Path('.env')
         self.secrets_file = self.config_dir / 'secrets.yml'
+        self.encryption_key = self.generate_encryption_key()
         self.setup_config_dir()
 
     def setup_config_dir(self):
@@ -44,6 +46,20 @@ class AnyaSensitiveDataManager:
             value = input(prompt)
         
         return value if value else default
+    
+    def generate_encryption_key(self):
+        """Generate a key for encryption and decryption."""
+        return Fernet.generate_key()
+
+    def encrypt_data(self, data):
+        """Encrypt data using the encryption key."""
+        fernet = Fernet(self.encryption_key)
+        return fernet.encrypt(data.encode()).decode()
+
+    def decrypt_data(self, data):
+        """Decrypt data using the encryption key."""
+        fernet = Fernet(self.encryption_key)
+        return fernet.decrypt(data.encode()).decode()
 
     def setup_new_installation(self):
         """Set up a new Anya Core installation."""
@@ -373,10 +389,10 @@ class AnyaSensitiveDataManager:
 ANYA_ENV={config['installation']['environment']}
 
 # Database Configuration
-ANYA_DB_HOST={config['database']['host']}
-ANYA_DB_PORT={config['database']['port']}
-ANYA_DB_NAME={config['database']['name']}
-ANYA_DB_USER={config['database']['user']}
+ANYA_DB_HOST={self.encrypt_data(config['database']['host'])}
+ANYA_DB_PORT={self.encrypt_data(config['database']['port'])}
+ANYA_DB_NAME={self.encrypt_data(config['database']['name'])}
+ANYA_DB_USER={self.encrypt_data(config['database']['user'])}
 ANYA_DB_PASSWORD={config['database']['password']}
 
 # API Configuration
@@ -419,7 +435,7 @@ ANYA_CLUSTER_MONITORING_LOGGING_LEVEL={config['clustering']['monitoring']['loggi
 ANYA_CLUSTER_NETWORK_ENCRYPTION_ENABLED={str(config['clustering']['network']['encryption']['enabled']).lower()}
 ANYA_CLUSTER_NETWORK_ENCRYPTION_TYPE={config['clustering']['network']['encryption']['type']}
 ANYA_CLUSTER_NETWORK_ENCRYPTION_CERT_PATH={config['clustering']['network']['encryption']['cert_path']}
-ANYA_CLUSTER_NETWORK_ENCRYPTION_KEY_PATH={config['clustering']['network']['encryption']['key_path']}
+ANYA_CLUSTER_NETWORK_ENCRYPTION_KEY_PATH={self.encrypt_data(config['clustering']['network']['encryption']['key_path'])}
 """
         with open(self.env_file, 'w') as f:
             f.write(env_content)
