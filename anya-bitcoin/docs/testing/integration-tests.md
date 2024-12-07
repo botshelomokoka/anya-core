@@ -11,3 +11,5 @@ Integration tests are a way to ensure that the interactions between the differen
 Integration tests should be run before any release to ensure that the system works as expected.
 
 To run the integration tests, use the following command: [run-integration-tests](../../../scripts/run-integration-tests.sh)
+
+*Last updated: 2024-12-07*

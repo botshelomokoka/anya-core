@@ -309,3 +309,5 @@ This governance model is a living document. The DAO reserves the right to modify
 
 **Last Updated**: 2024-02-15
 **Version**: 3.1.0
+
+*Last updated: 2024-12-07*

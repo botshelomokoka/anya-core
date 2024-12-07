@@ -37,3 +37,5 @@ This document details the operations available for transaction handling in Anya.
 - [Transaction Types](transaction-types.md)
 - [Transaction Management](transaction-management.md)
 - [Block Processing](block-processing.md)
+
+*Last updated: 2024-12-07*

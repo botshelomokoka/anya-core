@@ -7,3 +7,4 @@ The network tests are a set of tests that are used to verify that the Anya frame
 ## Running Network Tests
 
 The network tests can be run using the following command: [cargo test --test network_tests](https://github.com/anuraghazra/Anya/blob/master/anyacore/tests/network_tests.rs)
+*Last updated: 2024-12-07*

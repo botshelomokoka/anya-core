@@ -38,3 +38,5 @@ This document outlines the transaction validation processes in Anya.
 - [Transaction Security](transaction-security.md)
 - [Transaction Verification](transaction-verification.md)
 - [Network Security](network-security.md)
+
+*Last updated: 2024-12-07*

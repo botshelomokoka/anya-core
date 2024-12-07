@@ -12,3 +12,5 @@ Documentation for Network
 - [Node Discovery](./p2p-communication.md#node-discovery)
 - [Message Serialization](./p2p-communication.md#message-serialization)
 - [Peer-to-Peer Communication](./p2p-communication.md#peer-to-peer-communication)
+
+*Last updated: 2024-12-07*
