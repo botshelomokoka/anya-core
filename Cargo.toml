@@ -6,7 +6,6 @@ members = [
     "dependencies/anya-core",
     "anya-bitcoin",
     "dash33",
-    "enterprise",
     "mobile"
 ]
 resolver = "2"
@@ -45,7 +44,7 @@ libp2p = { version = "0.53.1", features = ["full"] }
 # Logging and Metrics
 tracing = { version = "0.1.40", features = ["attributes", "async-await"] }
 tracing-subscriber = { version = "0.3.18", features = ["env-filter", "json"] }
-metrics = { version = "0.21.1", features = ["std"] }
+metrics = "0.21.1"
 
 # Cryptography
 curve25519-dalek = { version = "4.1.3", features = ["digest", "rand_core", "serde"] }
@@ -91,8 +90,7 @@ libp2p = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 tracing-futures = "0.2.5"
-metrics = { workspace = true }
-metrics-exporter-prometheus = "0.12.1"
+metrics = { version = "0.21.1" }
 
 # Time and Date
 chrono = { version = "0.4.31", features = ["serde"], default-features = false }
@@ -113,7 +111,7 @@ hmac = "0.12.1"
 pbkdf2 = "0.12.2"
 argon2 = "0.5.3"
 x509-parser = "0.15.1"
-rustls = { version = "0.22.1", features = ["dangerous_configuration"] }
+rustls = "0.22.1"
 data-encoding = "2.5.0"
 jsonwebtoken = "9.2.0"
 totp-rs = "5.4.0"

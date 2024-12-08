@@ -6,6 +6,7 @@ on:
     paths:
       - 'docs/**'
       - '**.md'
+      - '.github/workflows/docs-deployment.yml'
   pull_request:
     branches: [ main ]
     paths:
@@ -14,28 +15,70 @@ on:
   workflow_dispatch:
 
 jobs:
+  validate-structure:
+    name: Validate Documentation Structure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check Directory Structure
+        run: |
+          required_dirs=(
+            "docs/architecture"
+            "docs/development"
+            "docs/deployment"
+            "docs/api"
+            "docs/guides"
+            "docs/reference"
+          )
+          
+          for dir in "${required_dirs[@]}"; do
+            if [ ! -d "$dir" ]; then
+              echo "Error: Required directory $dir is missing"
+              exit 1
+            fi
+          done
+
+      - name: Validate Required Files
+        run: |
+          required_files=(
+            "docs/architecture/OVERVIEW.md"
+            "docs/development/SETUP.md"
+            "docs/deployment/PRODUCTION.md"
+            "docs/api/REFERENCE.md"
+            "docs/guides/GETTING_STARTED.md"
+          )
+          
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "Warning: Recommended file $file is missing"
+            fi
+          done
+
   build-docs:
     name: Build Documentation
+    needs: validate-structure
     runs-on: ubuntu-latest
     permissions:
       contents: write
     
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Setup Python
-        uses: actions/setup-node@v3
+        uses: actions/setup-python@v4
         with:
-          node-version: '16'
-          cache: 'npm'
+          python-version: '3.x'
+          cache: 'pip'
 
-      - name: Install MkDocs
+      - name: Install MkDocs and plugins
         run: |
           python -m pip install --upgrade pip
-          pip install mkdocs-material mkdocs-minify-plugin mkdocs-git-revision-date-plugin
+          pip install mkdocs-material mkdocs-minify-plugin mkdocs-git-revision-date-plugin mkdocs-mermaid2-plugin
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -43,111 +86,61 @@ jobs:
           node-version: '16'
           cache: 'npm'
 
-      - name: Install documentation dependencies
+      - name: Install documentation tools
         run: |
           npm install -g markdownlint-cli
           npm install -g markdown-link-check
+          npm install -g @mermaid-js/mermaid-cli
 
-      - name: Check Markdown links
-        run: |
-          find . -name "*.md" -not -path "./node_modules/*" -exec markdown-link-check {} \;
-
-      - name: Lint Markdown
+      - name: Lint Markdown files
         run: |
           markdownlint '**/*.md' --ignore node_modules
-
-      - name: Generate API Documentation
-        run: |
-          # Generate OpenAPI docs
-          npx @redocly/cli build-docs openapi.yaml -o docs/api/index.html
           
-          # Generate TypeScript docs
-          npx typedoc --out docs/typescript src/
+      - name: Check links
+        run: |
+          find . -name '*.md' -not -path './node_modules/*' -exec markdown-link-check {} \;
 
-      - name: Build MkDocs
+      - name: Generate API documentation
+        run: |
+          cargo doc --no-deps --document-private-items
+          cp -r target/doc docs/api/rust
+
+      - name: Build MkDocs site
         run: mkdocs build
 
       - name: Deploy to GitHub Pages
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
           force_orphan: true
-          commit_message: "docs: update documentation"
+          commit_message: 'docs: update documentation [skip ci]'
 
-      - name: Create Documentation Preview
-        if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v4
-        with:
-          name: documentation-preview
-          path: site/
-          retention-days: 14
-
-      - name: Comment PR with Preview Link
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const artifactUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}/artifacts`;
-            const message = `📚 Documentation preview is ready!\n[View Preview](${artifactUrl})`;
-            
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              body: message
-            });
-
-  validate-docs:
-    name: Validate Documentation
+  update-references:
+    name: Update Cross-References
     needs: build-docs
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     
     steps:
-      - name: Download documentation
-        uses: actions/download-artifact@v3
+      - uses: actions/checkout@v4
         with:
-          name: documentation-preview
-          path: site
+          fetch-depth: 0
 
-      - name: Install validation tools
-        run: |
-          npm install -g pa11y-ci
-          npm install -g broken-link-checker
+      - name: Update documentation references
+        run: python .github/scripts/doc_manager.py --update-references
 
-      - name: Check accessibility
-        run: |
-          pa11y-ci ./site/**/*.html
-
-      - name: Check broken links
-        run: |
-          blc http://localhost:8000 -ro --exclude external
-
-      - name: Generate validation report
-        if: always()
-        uses: actions/github-script@v6
+      - name: Create Pull Request if needed
+        uses: peter-evans/create-pull-request@v5
         with:
-          script: |
-            const report = `## Documentation Validation Report
-            
-            ### Accessibility Check
-            - Status: ${{ job.status }}
-            - Issues found: ${process.env.PA11Y_ISSUES || 'None'}
-            
-            ### Broken Links Check
-            - Status: ${{ job.status }}
-            - Broken links found: ${process.env.BROKEN_LINKS || 'None'}
-            
-            ### Recommendations
-            1. Review accessibility issues
-            2. Fix any broken internal links
-            3. Verify external links are valid
-            `;
-            
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              body: report
-            });
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'docs: update cross-references'
+          title: 'docs: update documentation cross-references'
+          body: |
+            This PR updates documentation cross-references:
+            - Updates internal links
+            - Refreshes API references
+            - Updates table of contents
+          branch: docs/update-references
+          base: main
