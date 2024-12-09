@@ -38,7 +38,7 @@ jobs:
 
       # Dependency Review
       - name: Dependency Review
-        uses: actions/dependency-review-action@v3
+        uses: actions/dependency-review-action@v4
         if: github.event_name == 'pull_request'
 
       # Rust Security Audit
