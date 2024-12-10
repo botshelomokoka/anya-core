@@ -8,3 +8,5 @@ This guide covers integrating Anya's ML-powered blockchain analytics, Web5 data 
 ### 1. Authentication & Security
 
 #### Multi-Factor Authentication
+
+*Last updated: 2024-12-07*

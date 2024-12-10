@@ -37,3 +37,5 @@ The following events are available:
 ## Listening to Events
 
 To listen to events, you need to create an event listener and register it with the system. The event listener is a function that is called whenever an event is fired. The event listener should take the event as an argument.
+
+*Last updated: 2024-12-07*

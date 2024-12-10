@@ -307,3 +307,5 @@ Special thanks to our contributors and the following projects:
 - Web5
 - TBD
 - Block
+
+*Last updated: 2024-12-07*

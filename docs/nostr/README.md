@@ -123,3 +123,5 @@ We welcome contributions! Please see our [Contributing Guide](../../CONTRIBUTING
 
 ## License
 This integration is part of Anya Core and is released under the MIT License. See [LICENSE.md](../../LICENSE.md) for details.
+
+*Last updated: 2024-12-07*

@@ -49,7 +49,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/dependency-review-action@v2
+      - uses: actions/dependency-review-action@v4
       
       # Snyk Security Scan
       - name: Run Snyk to check for vulnerabilities

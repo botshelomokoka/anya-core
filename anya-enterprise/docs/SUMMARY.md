@@ -29,3 +29,5 @@
   * [Common Issues](troubleshooting/common-issues.md)
   * [Error Codes](troubleshooting/error-codes.md)
   * [Support](troubleshooting/support.md)
+
+*Last updated: 2024-12-07*

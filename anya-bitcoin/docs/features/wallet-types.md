@@ -31,3 +31,5 @@ Anya supports multiple wallet types to accommodate different use cases and secur
 ## Implementation Details
 
 See [Wallet Operations](wallet-operations.md) for implementation details.
+
+*Last updated: 2024-12-07*
