@@ -32,3 +32,5 @@ This document describes the different types of transactions supported by the Any
 - [Transaction Operations](transaction-operations.md)
 - [Transaction Security](../security/transaction-security.md)
 - [Script Types](../smart-contracts/script-types.md)
+
+*Last updated: 2024-12-07*

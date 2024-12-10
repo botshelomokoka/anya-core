@@ -37,3 +37,5 @@ This document details the operations available for key handling in Anya.
 - [Key Types](key-types.md)
 - [Security Guidelines](README.md)
 - [Wallet Management](../features/wallet-management.md)
+
+*Last updated: 2024-12-07*

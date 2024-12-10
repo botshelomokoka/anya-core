@@ -150,3 +150,5 @@ match client.connect_relay("wss://relay.example.com").await {
 - [NIP-04: Encrypted Direct Messages](./nip-04.md)
 - [NIP-15: End of Stored Events Notice](./nip-15.md)
 - [NIP-20: Command Results](./nip-20.md)
+
+*Last updated: 2024-12-07*

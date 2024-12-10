@@ -351,3 +351,5 @@ For API support:
 - SDK documentation
 - Support channels
 - Status page
+
+*Last updated: 2024-12-07*

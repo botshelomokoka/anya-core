@@ -31,3 +31,5 @@ P2WPKH is a script type that pays to a hashed witness public key. It is used to 
 ### P2TR (Pay-to-Taproot)
 
 P2TR is a script type that pays to a taproot output. It is used to send bitcoins to a taproot output.
+
+*Last updated: 2024-12-07*

@@ -25,3 +25,5 @@ Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Questions?
 Feel free to reach out to the maintainers.
+
+*Last updated: 2024-12-07*

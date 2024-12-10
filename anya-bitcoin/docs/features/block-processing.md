@@ -28,3 +28,5 @@ The flow of the Block Processing system is as follows:
 
 ## Error Handling
 The Block Processing system handles errors by logging the error and continuing with the next block. If the error is critical, such as a failure to connect to the database, the system will shut down.
+
+*Last updated: 2024-12-07*

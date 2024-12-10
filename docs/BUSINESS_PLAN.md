@@ -267,3 +267,5 @@ impl ServicePricing {
 - Global expansion
 - Advanced features
 - Full DAO transition
+
+*Last updated: 2024-12-07*

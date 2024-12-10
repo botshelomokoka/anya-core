@@ -7,3 +7,5 @@ The Anya API provides secure access to ML-powered blockchain analytics, Web5 dat
 
 ### Multi-Factor Authentication
 
+
+*Last updated: 2024-12-07*

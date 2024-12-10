@@ -203,3 +203,5 @@ cargo test --all-features
 - Set up [Monitoring](MONITORING.md)
 - Deploy [Web5 Nodes](WEB5_SETUP.md)
 - Configure [Revenue Tracking](REVENUE_SETUP.md)
+
+*Last updated: 2024-12-07*

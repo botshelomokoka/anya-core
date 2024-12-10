@@ -83,3 +83,5 @@ async fn main() -> Result<()> {
 ```
 
 [Get Started →](/anya-core/getting-started)
+
+*Last updated: 2024-12-07*
