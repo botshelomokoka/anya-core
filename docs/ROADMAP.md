@@ -112,3 +112,5 @@ We welcome contributions! Please see our CONTRIBUTING.md for guidelines.
 
 ## Updates
 This roadmap is regularly updated to reflect project progress and new priorities.
+
+*Last updated: 2024-12-07*

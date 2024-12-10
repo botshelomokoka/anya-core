@@ -347,3 +347,5 @@ mod tests {
 - [NIP-04 Specification](../nips/nip-04.md)
 - [Security Best Practices](../security/best-practices.md)
 - [API Reference](../api/client.md)
+
+*Last updated: 2024-12-07*

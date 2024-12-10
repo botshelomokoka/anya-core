@@ -27,3 +27,5 @@ the Bitcoin Node module and the Bitcoin Wallet module.
 
 The Anya Smart Contract module is currently in development and is not yet
 available for use. However, it is expected to be released in the near future.
+
+*Last updated: 2024-12-07*

@@ -175,3 +175,5 @@ For wallet-related support:
 - [Security Issues](../../support/security.md)
 - [Feature Requests](../../support/features.md)
 - [Bug Reports](../../support/bugs.md)
+
+*Last updated: 2024-12-07*

@@ -22,3 +22,5 @@ The Anya Bitcoin Core features provide a robust foundation for building scalable
 - [P2P Communication](network/p2p-communication.md)
 
 ### In Progress
+
+*Last updated: 2024-12-07*

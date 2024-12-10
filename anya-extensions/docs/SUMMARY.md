@@ -29,3 +29,5 @@
   * [Version Control](maintenance/version-control.md)
   * [Updates](maintenance/updates.md)
   * [Deprecation](maintenance/deprecation.md)
+
+*Last updated: 2024-12-07*

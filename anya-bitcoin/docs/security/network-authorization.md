@@ -37,3 +37,5 @@ This document outlines the network authorization processes in Anya.
 - [Network Types](../network/network-types.md)
 - [P2P Communication](../network/p2p-communication.md)
 - [Node Configuration](../network/node-configuration.md)
+
+*Last updated: 2024-12-07*

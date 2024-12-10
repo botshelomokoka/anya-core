@@ -63,3 +63,5 @@ The following error codes are supported:
 - `unknown_message_type`: The message type is unknown.
 - `unsupported_message_type`: The message type is not supported.
 - `invalid_network_address`: The network address is invalid.
+
+*Last updated: 2024-12-07*
