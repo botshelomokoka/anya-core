@@ -38,3 +38,5 @@
   - [Real-world Use Cases](examples/use-cases.md)
 - [Troubleshooting](troubleshooting.md)
 - [FAQ](faq.md)
+
+*Last updated: 2024-12-07*

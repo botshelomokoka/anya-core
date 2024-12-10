@@ -32,3 +32,5 @@ This document describes the different types of blocks handled by the Anya Bitcoi
 - [Block Operations](block-operations.md)
 - [Block Management](block-management.md)
 - [Network Types](../network/network-types.md)
+
+*Last updated: 2024-12-07*

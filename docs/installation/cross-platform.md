@@ -132,3 +132,5 @@ dart compile exe bin/anya.dart
 - [Quick Start Guide](../getting-started/quick-start)
 - [API Reference](../api/)
 - [Security Best Practices](../security/)
+
+*Last updated: 2024-12-07*

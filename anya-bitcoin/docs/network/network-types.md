@@ -19,3 +19,5 @@ The type of network that a node can connect to is determined by the `network` fi
 By default, the `network` field is set to `bitcoin`.
 
 The type of network that a node can connect to determines the type of network messages that the node can send and receive. It also determines the type of network peers that the node can connect to.
+
+*Last updated: 2024-12-07*

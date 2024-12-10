@@ -196,3 +196,5 @@ fn verify_key_exchange(&self, pubkey: &str) -> Result<(), CoreError> {
 - [NIP-02: Contact List](./nip-02.md)
 - [NIP-05: DNS Mapping](./nip-05.md)
 - [NIP-13: Proof of Work](./nip-13.md)
+
+*Last updated: 2024-12-07*

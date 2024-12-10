@@ -144,3 +144,4 @@ This document provides a detailed overview of the Anya Core API, including avail
 - [Anya Core API Blog]()
 - [Anya Core API News]()
 - [Anya Core API Updates]()
+*Last updated: 2024-12-07*

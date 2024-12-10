@@ -59,3 +59,5 @@ Profiling performance is critical to achieving optimal performance. By profiling
 ### Use the Right Hardware
 
 Using the right hardware can significantly improve performance. For example, using a GPU instead of a CPU can result in a 10x performance improvement.
+
+*Last updated: 2024-12-07*

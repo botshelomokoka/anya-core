@@ -43,3 +43,5 @@ Anya is an integrated system combining Bitcoin/crypto functionality, ML-based an
 ## Data Flow
 
 1. Authentication Flow:
+
+*Last updated: 2024-12-07*
