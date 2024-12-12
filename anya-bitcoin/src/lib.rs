@@ -38,6 +38,110 @@ pub mod script {
     pub mod standard;    // Standard scripts
 }
 
+pub mod bitcoin_standard {
+    use bitcoin::secp256k1::{Secp256k1, SecretKey, PublicKey};
+    use bitcoin::util::taproot::{TaprootBuilder, TaprootSpendInfo};
+    use bitcoin::util::psbt::PartiallySignedTransaction;
+    use thiserror::Error;
+
+    mod taproot;
+    mod lightning;
+    mod schnorr;
+    mod psbt;
+    mod spv;
+
+    pub use taproot::TaprootModule;
+    pub use lightning::LightningModule;
+    pub use schnorr::SchnorrModule;
+    pub use psbt::PSBTModule;
+    pub use spv::SPVClient;
+
+    #[derive(Error, Debug)]
+    pub enum BitcoinError {
+        #[error("Taproot error: {0}")]
+        TaprootError(String),
+        #[error("Lightning error: {0}")]
+        LightningError(String),
+        #[error("Network error: {0}")]
+        NetworkError(String),
+        #[error("Validation error: {0}")]
+        ValidationError(String),
+    }
+
+    pub struct BitcoinConfig {
+        pub network: bitcoin::Network,
+        pub taproot_enabled: bool,
+        pub schnorr_enabled: bool,
+        pub lightning_enabled: bool,
+    }
+
+    pub struct BitcoinStandard {
+        config: BitcoinConfig,
+        secp: Secp256k1<bitcoin::secp256k1::All>,
+        taproot: TaprootModule,
+        lightning: LightningModule,
+        schnorr: SchnorrModule,
+    }
+
+    impl BitcoinStandard {
+        pub fn new(config: BitcoinConfig) -> Result<Self, BitcoinError> {
+            let secp = Secp256k1::new();
+            let taproot = TaprootModule::new(&secp)?;
+            let lightning = LightningModule::new(config.network)?;
+            let schnorr = SchnorrModule::new(&secp)?;
+
+            Ok(Self {
+                config,
+                secp,
+                taproot,
+                lightning,
+                schnorr,
+            })
+        }
+
+        pub fn validate_taproot(&self, spend_info: &TaprootSpendInfo) -> Result<bool, BitcoinError> {
+            if !self.config.taproot_enabled {
+                return Err(BitcoinError::ValidationError("Taproot not enabled".into()));
+            }
+            self.taproot.validate_spend_info(spend_info)
+        }
+
+        pub fn process_lightning_payment(&self, payment: &[u8]) -> Result<(), BitcoinError> {
+            if !self.config.lightning_enabled {
+                return Err(BitcoinError::ValidationError("Lightning not enabled".into()));
+            }
+            self.lightning.process_payment(payment)
+        }
+
+        pub fn sign_with_schnorr(&self, msg: &[u8], secret_key: &SecretKey) -> Result<Vec<u8>, BitcoinError> {
+            if !self.config.schnorr_enabled {
+                return Err(BitcoinError::ValidationError("Schnorr not enabled".into()));
+            }
+            self.schnorr.sign_message(msg, secret_key)
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        #[test]
+        fn test_bitcoin_standard() {
+            let config = BitcoinConfig {
+                network: bitcoin::Network::Bitcoin,
+                taproot_enabled: true,
+                schnorr_enabled: true,
+                lightning_enabled: true,
+            };
+
+            let bitcoin = BitcoinStandard::new(config).unwrap();
+            assert!(bitcoin.config.taproot_enabled);
+            assert!(bitcoin.config.schnorr_enabled);
+            assert!(bitcoin.config.lightning_enabled);
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Config {
     network: Network,
@@ -62,6 +166,7 @@ pub struct BitcoinNode {
     consensus: consensus::validation::Validator,
     mempool: mempool::pool::Mempool,
     network: net::p2p::P2P,
+    bitcoin_standard: bitcoin_standard::BitcoinStandard,
 }
 
 impl BitcoinNode {
@@ -70,6 +175,12 @@ impl BitcoinNode {
             consensus: consensus::validation::Validator::new(&config)?,
             mempool: mempool::pool::Mempool::new(&config)?,
             network: net::p2p::P2P::new(&config)?,
+            bitcoin_standard: bitcoin_standard::BitcoinStandard::new(bitcoin_standard::BitcoinConfig {
+                network: config.network,
+                taproot_enabled: true,
+                schnorr_enabled: true,
+                lightning_enabled: true,
+            })?,
             config,
         })
     }

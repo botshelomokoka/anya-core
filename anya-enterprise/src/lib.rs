@@ -3,6 +3,7 @@ use std::error::Error;
 pub mod advanced_analytics;
 pub mod high_volume_trading;
 pub mod ml;
+pub mod enterprise;
 
 pub type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
