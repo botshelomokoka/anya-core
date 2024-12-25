@@ -113,7 +113,7 @@ jobs:
           cargo tarpaulin --out Xml --coverage-threshold 80
           
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: true
 
