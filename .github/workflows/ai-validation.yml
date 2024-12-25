@@ -115,7 +115,7 @@ jobs:
       # Generate Report
       - name: Generate Validation Report
         if: always()
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
@@ -172,7 +172,7 @@ jobs:
       # Notify on Failure
       - name: Notify on Validation Failure
         if: failure()
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             const message = `❌ AI Model validation failed on ${{ matrix.os }}!
