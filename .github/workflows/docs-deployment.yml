@@ -132,7 +132,7 @@ jobs:
         run: python .github/scripts/doc_manager.py --update-references
 
       - name: Create Pull Request if needed
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: 'docs: update cross-references'
