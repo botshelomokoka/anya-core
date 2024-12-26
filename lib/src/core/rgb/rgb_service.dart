@@ -164,8 +164,8 @@ class RGBService {
     }
   }
 
-  Future<Map<String, dynamic>> _makeRequest(
-    String method, [Map<String, dynamic>? params]) async {
+  Future<Map<String, dynamic>> _makeRequest(String method,
+      [Map<String, dynamic>? params]) async {
     try {
       // Implementation would use RGB node API
       throw UnimplementedError('RGB node communication not implemented');

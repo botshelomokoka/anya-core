@@ -68,10 +68,10 @@ class StacksService {
       // Generate new wallet
       final mnemonic = await _keyManager.generateMnemonic();
       final privateKey = await _keyManager.derivePrimaryKey(mnemonic);
-      
+
       // Generate Stacks address from private key
       final stacksAddress = await _deriveStacksAddress(privateKey);
-      
+
       // Create wallet instance
       final wallet = StacksWallet.create(
         name: name,
@@ -87,7 +87,7 @@ class StacksService {
 
       // Store wallet
       await _walletRepository.createWallet(wallet);
-      
+
       // Store private key securely
       await _keyManager.storePrivateKey(stacksAddress, privateKey);
 
@@ -115,7 +115,8 @@ class StacksService {
   Future<String> sendTransaction(StacksTransaction transaction) async {
     try {
       // Get the wallet
-      final wallet = await _walletRepository.getWalletByStacksAddress(transaction.from);
+      final wallet =
+          await _walletRepository.getWalletByStacksAddress(transaction.from);
       if (wallet == null) {
         throw ServiceError('Wallet not found for address: ${transaction.from}');
       }
@@ -123,7 +124,8 @@ class StacksService {
       // Get the private key
       final privateKey = await _keyManager.getPrivateKey(transaction.from);
       if (privateKey == null) {
-        throw ServiceError('Private key not found for address: ${transaction.from}');
+        throw ServiceError(
+            'Private key not found for address: ${transaction.from}');
       }
 
       // Add network-specific data
@@ -140,7 +142,7 @@ class StacksService {
 
       if (response.statusCode == 200) {
         final txId = response.data['txid'] as String;
-        
+
         // Update wallet metadata with transaction
         final updatedMetadata = {
           ...wallet.stacksMetadata ?? {},
@@ -149,15 +151,16 @@ class StacksService {
             'timestamp': DateTime.now().toIso8601String(),
           },
         };
-        
+
         await _walletRepository.updateWallet(
           wallet.id,
           wallet.copyWith(stacksMetadata: updatedMetadata),
         );
-        
+
         return txId;
       }
-      throw ServiceError('Failed to send transaction: ${response.statusMessage}');
+      throw ServiceError(
+          'Failed to send transaction: ${response.statusMessage}');
     } on DioException catch (e) {
       throw ServiceError('Network error sending transaction: ${e.message}');
     } catch (e) {
@@ -165,7 +168,8 @@ class StacksService {
     }
   }
 
-  Future<String> _signTransaction(StacksTransaction transaction, String privateKey) async {
+  Future<String> _signTransaction(
+      StacksTransaction transaction, String privateKey) async {
     // TODO: Implement actual transaction signing using the Stacks SDK
     throw UnimplementedError('Transaction signing not yet implemented');
   }

@@ -7,7 +7,8 @@ abstract class ServiceError implements Exception {
   ServiceError(this.message, [this.cause, this.stackTrace]);
 
   @override
-  String toString() => '$runtimeType: $message${cause != null ? ' ($cause)' : ''}';
+  String toString() =>
+      '$runtimeType: $message${cause != null ? ' ($cause)' : ''}';
 }
 
 /// Security-related errors
@@ -84,7 +85,8 @@ class HistoryError extends ServiceError {
 
 /// Insufficient funds error
 class InsufficientFundsError extends TransactionError {
-  InsufficientFundsError(String message, [dynamic cause, StackTrace? stackTrace])
+  InsufficientFundsError(String message,
+      [dynamic cause, StackTrace? stackTrace])
       : super(message, cause, stackTrace);
 }
 
@@ -198,7 +200,8 @@ class BackupCreationError extends BackupError {
 
 /// Backup restoration error
 class BackupRestorationError extends BackupError {
-  BackupRestorationError(String message, [dynamic cause, StackTrace? stackTrace])
+  BackupRestorationError(String message,
+      [dynamic cause, StackTrace? stackTrace])
       : super(message, cause, stackTrace);
 }
 

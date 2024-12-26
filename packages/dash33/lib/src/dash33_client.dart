@@ -3,7 +3,7 @@ import 'services/stacks_service.dart';
 
 class Dash33Client {
   late final StacksService _stacksService;
-  
+
   Dash33Client({String? stacksNodeUrl}) {
     _stacksService = StacksService(nodeUrl: stacksNodeUrl);
   }
@@ -19,7 +19,8 @@ class Dash33Client {
     }
   }
 
-  Future<bool> sendLightningPayment(String invoice, int amount, String? memo) async {
+  Future<bool> sendLightningPayment(
+      String invoice, int amount, String? memo) async {
     try {
       // TODO: Implement actual Lightning payment
       return true;
@@ -111,14 +112,14 @@ class Dash33Client {
       // TODO: Get the sender address and private key from secure storage
       const sender = "SP2J6ZY48GV1EZ5V2V5RB9MP66SW86PYKKNRV9EJ7";
       const privateKey = "your-private-key";
-      
+
       final txid = await _stacksService.sendTransaction(
         sender: sender,
         recipient: address,
         amount: BigInt.from(amount),
         privateKey: privateKey,
       );
-      
+
       return txid != null;
     } catch (e) {
       debugPrint('Error sending Stacks transaction: $e');

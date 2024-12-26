@@ -12,7 +12,7 @@ abstract class ChainService {
 
 class ChainCoordinator {
   final Map<String, ChainService> _chains;
-  
+
   ChainCoordinator(this._chains);
 
   Future<void> syncChains() async {
@@ -23,13 +23,13 @@ class ChainCoordinator {
         throw ServiceError('Chain sync failed: $e');
       }
     });
-    
+
     await Future.wait(futures);
   }
 
   Future<Map<String, int>> getAllBalances(String ownerDid) async {
     final balances = <String, int>{};
-    
+
     for (final entry in _chains.entries) {
       try {
         final chain = entry.value;
@@ -40,7 +40,7 @@ class ChainCoordinator {
         throw ServiceError('Failed to get balance for ${entry.key}: $e');
       }
     }
-    
+
     return balances;
   }
 
@@ -49,21 +49,21 @@ class ChainCoordinator {
     required List<String> chains,
   }) async {
     final walletAddresses = <String, String>{};
-    
+
     for (final chainId in chains) {
       try {
         final chain = _chains[chainId];
         if (chain == null) {
           throw ServiceError('Chain $chainId not supported');
         }
-        
+
         final address = await chain.createWallet(ownerDid);
         walletAddresses[chainId] = address;
       } catch (e) {
         throw ServiceError('Failed to create wallet for $chainId: $e');
       }
     }
-    
+
     return walletAddresses;
   }
 
@@ -74,7 +74,7 @@ class ChainCoordinator {
         if (chain == null) {
           throw ServiceError('Chain ${entry.key} not supported');
         }
-        
+
         final isValid = await chain.validateAddress(entry.value);
         if (!isValid) {
           throw ServiceError('Invalid address for ${entry.key}');
@@ -94,7 +94,7 @@ class ChainCoordinator {
       if (chain == null) {
         throw ServiceError('Chain $chainId not supported');
       }
-      
+
       await chain.sendTransaction(transaction);
     } catch (e) {
       throw ServiceError('Transaction broadcast failed: $e');

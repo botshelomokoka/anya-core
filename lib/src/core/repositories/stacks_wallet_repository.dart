@@ -49,8 +49,9 @@ class StacksWalletRepository extends WalletRepository {
     try {
       final wallets = await _storage.listWallets();
       return wallets
-          .where((w) => w['type'] == 'stacks' && 
-                       (ownerDid == null || w['ownerDid'] == ownerDid))
+          .where((w) =>
+              w['type'] == 'stacks' &&
+              (ownerDid == null || w['ownerDid'] == ownerDid))
           .map((w) => StacksWallet.fromJson(w))
           .toList();
     } catch (e) {
@@ -61,9 +62,11 @@ class StacksWalletRepository extends WalletRepository {
   @override
   Future<void> updateWallet(String id, StacksWallet wallet) async {
     try {
-      final walletData = wallet.copyWith(
-        updatedAt: DateTime.now(),
-      ).toJson();
+      final walletData = wallet
+          .copyWith(
+            updatedAt: DateTime.now(),
+          )
+          .toJson();
       await _storage.updateWallet(id, walletData);
     } catch (e) {
       throw RepositoryError('Failed to update Stacks wallet: $e');

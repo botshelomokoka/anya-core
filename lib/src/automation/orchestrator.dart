@@ -10,11 +10,11 @@ class AutomationOrchestrator {
   final String owner;
   final String repo;
   final Logger _logger = Logger('Orchestrator');
-  
+
   late final RepoMonitor _monitor;
   late final AutoFixer _fixer;
   Timer? _automationTimer;
-  
+
   AutomationOrchestrator({
     required this.githubToken,
     required this.owner,
@@ -45,13 +45,14 @@ class AutomationOrchestrator {
     Duration checkInterval = const Duration(hours: 1),
   }) {
     _logger.info('Starting automation system');
-    
+
     // Start monitoring
     _monitor.startMonitoring();
-    
+
     // Schedule automated fixes
     _automationTimer?.cancel();
-    _automationTimer = Timer.periodic(checkInterval, (_) => _runAutomationCycle());
+    _automationTimer =
+        Timer.periodic(checkInterval, (_) => _runAutomationCycle());
   }
 
   /// Stop automation system
@@ -65,30 +66,30 @@ class AutomationOrchestrator {
   /// Run complete automation cycle
   Future<Map<String, dynamic>> _runAutomationCycle() async {
     final results = <String, dynamic>{};
-    
+
     try {
       // Run health check
       final health = await _monitor.runHealthCheck();
       results['health'] = health;
-      
+
       // Check if fixes are needed
       if (_needsFixes(health)) {
         _logger.info('Issues detected, running auto-fixes');
-        
+
         // Run auto-fixes
         final fixes = await _fixer.runAutoFix();
         results['fixes'] = fixes;
-        
+
         // Create PR if fixes were made
         if (_fixesApplied(fixes)) {
           final prUrl = await _fixer.createFixPR();
           results['pull_request'] = prUrl;
         }
       }
-      
+
       // Generate report
       results['report'] = await _generateAutomationReport(results);
-      
+
       _logger.info('Automation cycle completed successfully');
     } catch (e, stack) {
       _logger.severe('Automation cycle failed', e, stack);
@@ -97,7 +98,7 @@ class AutomationOrchestrator {
         'stack': stack.toString(),
       };
     }
-    
+
     return results;
   }
 
@@ -105,35 +106,35 @@ class AutomationOrchestrator {
   bool _needsFixes(Map<String, dynamic> health) {
     // Check workflows
     if (health['workflows']?['failed'] > 0) return true;
-    
+
     // Check dependencies
     if (health['dependencies']?['vulnerable'] > 0) return true;
     if (health['dependencies']?['outdated'] > 0) return true;
-    
+
     // Check issues
     if (health['issues']?['stale_issues'] > 0) return true;
     if (health['issues']?['stale_prs'] > 0) return true;
-    
+
     return false;
   }
 
   /// Check if fixes were applied
   bool _fixesApplied(Map<String, dynamic> fixes) {
     return fixes['dependencies']?['status'] == 'success' ||
-           fixes['code_style']?['status'] == 'success' ||
-           fixes['documentation']?['status'] == 'success' ||
-           fixes['tests']?['status'] == 'success';
+        fixes['code_style']?['status'] == 'success' ||
+        fixes['documentation']?['status'] == 'success' ||
+        fixes['tests']?['status'] == 'success';
   }
 
   /// Generate automation report
   Future<String> _generateAutomationReport(Map<String, dynamic> results) async {
     final buffer = StringBuffer();
-    
+
     buffer.writeln('Automation Report');
     buffer.writeln('=================');
     buffer.writeln('Generated: ${DateTime.now()}');
     buffer.writeln();
-    
+
     // Health Status
     if (results.containsKey('health')) {
       buffer.writeln('Health Status:');
@@ -141,7 +142,7 @@ class AutomationOrchestrator {
       _formatHealthStatus(buffer, results['health']);
       buffer.writeln();
     }
-    
+
     // Fixes Applied
     if (results.containsKey('fixes')) {
       buffer.writeln('Fixes Applied:');
@@ -149,7 +150,7 @@ class AutomationOrchestrator {
       _formatFixes(buffer, results['fixes']);
       buffer.writeln();
     }
-    
+
     // Pull Request
     if (results.containsKey('pull_request')) {
       buffer.writeln('Pull Request:');
@@ -157,7 +158,7 @@ class AutomationOrchestrator {
       buffer.writeln(results['pull_request'] ?? 'No PR created');
       buffer.writeln();
     }
-    
+
     // Errors
     if (results.containsKey('error')) {
       buffer.writeln('Errors:');
@@ -165,7 +166,7 @@ class AutomationOrchestrator {
       buffer.writeln(results['error']['message']);
       buffer.writeln();
     }
-    
+
     return buffer.toString();
   }
 
@@ -176,12 +177,12 @@ class AutomationOrchestrator {
     buffer.writeln('- Total: ${health['workflows']['total']}');
     buffer.writeln('- Successful: ${health['workflows']['successful']}');
     buffer.writeln('- Failed: ${health['workflows']['failed']}');
-    
+
     // Dependencies
     buffer.writeln('\nDependencies:');
     buffer.writeln('- Vulnerable: ${health['dependencies']['vulnerable']}');
     buffer.writeln('- Outdated: ${health['dependencies']['outdated']}');
-    
+
     // Issues
     buffer.writeln('\nIssues:');
     buffer.writeln('- Open Issues: ${health['issues']['open_issues']}');
@@ -195,7 +196,7 @@ class AutomationOrchestrator {
     fixes.forEach((category, data) {
       buffer.writeln('$category:');
       buffer.writeln('- Status: ${data['status']}');
-      
+
       if (data['status'] == 'error') {
         buffer.writeln('- Error: ${data['error']}');
       } else {

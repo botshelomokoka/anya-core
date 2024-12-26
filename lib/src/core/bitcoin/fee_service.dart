@@ -6,7 +6,7 @@ import '../errors/service_errors.dart';
 enum FeeEstimateMode {
   /// Conservative estimation (more likely to be confirmed within target)
   conservative,
-  
+
   /// Economical estimation (may take longer to confirm)
   economical,
 }
@@ -15,13 +15,13 @@ enum FeeEstimateMode {
 class FeeRecommendation {
   /// Fee rate in satoshis per vbyte
   final int feeRate;
-  
+
   /// Estimated blocks until confirmation
   final int blocks;
-  
+
   /// Estimated minutes until confirmation
   final int minutes;
-  
+
   /// Confidence level (0-1)
   final double confidence;
 
@@ -55,10 +55,10 @@ class FeeRecommendation {
 class FeeService {
   final Web5 _web5;
   final String _nodeUrl;
-  
+
   /// Cache duration for fee estimates
   static const Duration _cacheDuration = Duration(minutes: 10);
-  
+
   /// Cached fee recommendations
   Map<String, _CachedFeeRecommendation> _cache = {};
 
@@ -78,7 +78,7 @@ class FeeService {
 
       // Get fresh estimates from node
       final estimates = await _getFeeEstimates(mode);
-      
+
       // Process estimates into recommendations
       final recommendations = <String, FeeRecommendation>{
         'high': FeeRecommendation(
@@ -131,7 +131,8 @@ class FeeService {
       ]);
 
       return FeeRecommendation(
-        feeRate: (response['feerate'] * 100000000).round(), // Convert BTC/kB to sat/vB
+        feeRate: (response['feerate'] * 100000000)
+            .round(), // Convert BTC/kB to sat/vB
         blocks: response['blocks'],
         minutes: response['blocks'] * 10, // Assuming 10 min block time
         confidence: 0.90,
@@ -150,7 +151,8 @@ class FeeService {
   Future<int> getMinimumRelayFee() async {
     try {
       final response = await _makeRequest('getnetworkinfo');
-      return (response['relayfee'] * 100000000).round(); // Convert BTC/kB to sat/vB
+      return (response['relayfee'] * 100000000)
+          .round(); // Convert BTC/kB to sat/vB
     } catch (e) {
       throw FeeServiceError('Failed to get minimum relay fee: $e');
     }
@@ -187,7 +189,8 @@ class FeeService {
   Future<dynamic> _makeRequest(String method, [List<dynamic>? params]) async {
     try {
       // Implementation would use Bitcoin Core RPC
-      throw UnimplementedError('Bitcoin Core RPC communication not implemented');
+      throw UnimplementedError(
+          'Bitcoin Core RPC communication not implemented');
     } catch (e) {
       throw FeeServiceError('Request failed: $e');
     }

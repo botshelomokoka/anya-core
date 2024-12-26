@@ -4,7 +4,7 @@ import 'dart:io';
 class CommitCycle {
   final String rootDir;
   final List<String> submodules = ['dash33', 'dependencies', 'enterprise'];
-  
+
   CommitCycle(this.rootDir);
 
   /// Execute the full commit cycle
@@ -12,7 +12,8 @@ class CommitCycle {
     try {
       // 1. Verify clean working state
       if (!await _verifyCleanState()) {
-        print('❌ Working directory not clean. Please stash or commit changes first.');
+        print(
+            '❌ Working directory not clean. Please stash or commit changes first.');
         return false;
       }
 
@@ -66,8 +67,8 @@ class CommitCycle {
 
   /// Check if a repository is in a clean state
   Future<bool> _isClean(String path) async {
-    final result = await Process.run('git', ['status', '--porcelain'], 
-      workingDirectory: path);
+    final result = await Process.run('git', ['status', '--porcelain'],
+        workingDirectory: path);
     return result.stdout.toString().trim().isEmpty;
   }
 
@@ -78,7 +79,7 @@ class CommitCycle {
 
     // Pull latest changes
     final pullResult = await Process.run('git', ['pull', 'origin', 'main'],
-      workingDirectory: submodulePath);
+        workingDirectory: submodulePath);
     if (pullResult.exitCode != 0) {
       print('Failed to pull latest changes in $submodule');
       print(pullResult.stderr);
@@ -86,8 +87,8 @@ class CommitCycle {
     }
 
     // Stage changes
-    final addResult = await Process.run('git', ['add', '.'],
-      workingDirectory: submodulePath);
+    final addResult =
+        await Process.run('git', ['add', '.'], workingDirectory: submodulePath);
     if (addResult.exitCode != 0) {
       print('Failed to stage changes in $submodule');
       print(addResult.stderr);
@@ -96,17 +97,17 @@ class CommitCycle {
 
     // Check if there are changes to commit
     final statusResult = await Process.run('git', ['status', '--porcelain'],
-      workingDirectory: submodulePath);
+        workingDirectory: submodulePath);
     if (statusResult.stdout.toString().trim().isEmpty) {
       print('No changes to commit in $submodule');
       return true;
     }
 
     // Commit changes
-    final commitResult = await Process.run('git', 
-      ['commit', '-m', 'feat: Updated $submodule with latest changes'],
-      workingDirectory: submodulePath);
-    if (commitResult.exitCode != 0 && 
+    final commitResult = await Process.run(
+        'git', ['commit', '-m', 'feat: Updated $submodule with latest changes'],
+        workingDirectory: submodulePath);
+    if (commitResult.exitCode != 0 &&
         !commitResult.stderr.toString().contains('nothing to commit')) {
       print('Failed to commit changes in $submodule');
       print(commitResult.stderr);
@@ -115,7 +116,7 @@ class CommitCycle {
 
     // Push changes
     final pushResult = await Process.run('git', ['push', 'origin', 'main'],
-      workingDirectory: submodulePath);
+        workingDirectory: submodulePath);
     if (pushResult.exitCode != 0) {
       print('Failed to push changes in $submodule');
       print(pushResult.stderr);
@@ -132,7 +133,7 @@ class CommitCycle {
 
     // Add submodule references
     final addResult = await Process.run('git', ['add'] + submodules,
-      workingDirectory: rootDir);
+        workingDirectory: rootDir);
     if (addResult.exitCode != 0) {
       print('Failed to add submodule references');
       print(addResult.stderr);
@@ -140,10 +141,10 @@ class CommitCycle {
     }
 
     // Commit submodule updates
-    final commitResult = await Process.run('git',
-      ['commit', '-m', 'chore: Updated submodule references'],
-      workingDirectory: rootDir);
-    if (commitResult.exitCode != 0 && 
+    final commitResult = await Process.run(
+        'git', ['commit', '-m', 'chore: Updated submodule references'],
+        workingDirectory: rootDir);
+    if (commitResult.exitCode != 0 &&
         !commitResult.stderr.toString().contains('nothing to commit')) {
       print('Failed to commit submodule references');
       print(commitResult.stderr);
@@ -159,7 +160,7 @@ class CommitCycle {
 
     // Pull latest changes
     final pullResult = await Process.run('git', ['pull', 'origin', 'main'],
-      workingDirectory: rootDir);
+        workingDirectory: rootDir);
     if (pullResult.exitCode != 0) {
       print('Failed to pull latest changes in main repository');
       print(pullResult.stderr);
@@ -167,8 +168,8 @@ class CommitCycle {
     }
 
     // Stage changes
-    final addResult = await Process.run('git', ['add', '.'],
-      workingDirectory: rootDir);
+    final addResult =
+        await Process.run('git', ['add', '.'], workingDirectory: rootDir);
     if (addResult.exitCode != 0) {
       print('Failed to stage changes in main repository');
       print(addResult.stderr);
@@ -177,7 +178,7 @@ class CommitCycle {
 
     // Check if there are changes to commit
     final statusResult = await Process.run('git', ['status', '--porcelain'],
-      workingDirectory: rootDir);
+        workingDirectory: rootDir);
     if (statusResult.stdout.toString().trim().isEmpty) {
       print('No changes to commit in main repository');
       return true;
@@ -185,9 +186,9 @@ class CommitCycle {
 
     // Commit changes
     final commitResult = await Process.run('git',
-      ['commit', '-m', 'feat: Updated main repository with latest changes'],
-      workingDirectory: rootDir);
-    if (commitResult.exitCode != 0 && 
+        ['commit', '-m', 'feat: Updated main repository with latest changes'],
+        workingDirectory: rootDir);
+    if (commitResult.exitCode != 0 &&
         !commitResult.stderr.toString().contains('nothing to commit')) {
       print('Failed to commit changes in main repository');
       print(commitResult.stderr);
@@ -196,7 +197,7 @@ class CommitCycle {
 
     // Push changes
     final pushResult = await Process.run('git', ['push', 'origin', 'main'],
-      workingDirectory: rootDir);
+        workingDirectory: rootDir);
     if (pushResult.exitCode != 0) {
       print('Failed to push changes in main repository');
       print(pushResult.stderr);
@@ -216,7 +217,7 @@ void main(List<String> args) async {
 
   final rootDir = args[0];
   final commitCycle = CommitCycle(rootDir);
-  
+
   final success = await commitCycle.execute();
   exit(success ? 0 : 1);
 }

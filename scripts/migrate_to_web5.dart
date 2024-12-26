@@ -31,11 +31,11 @@ class Web5Migrator {
   /// Start the migration process
   Future<void> migrate() async {
     _logger.info('Starting Web5 migration from $_dataDir');
-    
+
     try {
       await _setupLogging();
       await _validateEnvironment();
-      
+
       final collections = await _getCollections();
       _logger.info('Found ${collections.length} collections to migrate');
 
@@ -55,8 +55,9 @@ class Web5Migrator {
     final logsDir = path.join(_dataDir, 'logs');
     await Directory(logsDir).create(recursive: true);
 
-    final logFile = File(path.join(logsDir, 'migration_${DateTime.now().toIso8601String()}.log'));
-    
+    final logFile = File(path.join(
+        logsDir, 'migration_${DateTime.now().toIso8601String()}.log'));
+
     Logger.root.level = Level.ALL;
     Logger.root.onRecord.listen((record) {
       final message = '${record.time}: ${record.level.name}: ${record.message}';
@@ -101,7 +102,7 @@ class Web5Migrator {
   /// Migrate a single collection
   Future<void> _migrateCollection(String collection) async {
     _logger.info('Migrating collection: $collection');
-    
+
     final collectionDir = Directory(path.join(_dataDir, collection));
     final files = await collectionDir
         .list()
@@ -114,7 +115,7 @@ class Web5Migrator {
     for (var i = 0; i < files.length; i += _batchSize) {
       final batch = files.skip(i).take(_batchSize);
       await _processBatch(collection, batch);
-      
+
       if (i + _batchSize < files.length) {
         await Future.delayed(_batchDelay);
       }
@@ -122,7 +123,8 @@ class Web5Migrator {
   }
 
   /// Process a batch of files
-  Future<void> _processBatch(String collection, Iterable<FileSystemEntity> batch) async {
+  Future<void> _processBatch(
+      String collection, Iterable<FileSystemEntity> batch) async {
     final futures = batch.map((file) => _migrateFile(collection, file as File));
     await Future.wait(futures);
   }
@@ -132,18 +134,18 @@ class Web5Migrator {
     try {
       final content = await file.readAsString();
       final data = jsonDecode(content);
-      
+
       // Transform data based on collection type
       final transformed = await _transformData(collection, data);
-      
+
       // Store in Web5 DWN
       final recordId = await _store.store(collection, transformed);
-      
+
       _logger.info('Migrated ${file.path} to record: $recordId');
-      
+
       // Verify migration
       await _verifyMigration(collection, recordId, transformed);
-      
+
       // Create backup
       await _backupFile(file);
     } catch (e, stack) {
@@ -229,14 +231,14 @@ class Web5Migrator {
       path.dirname(file.path),
       'backups',
     ));
-    
+
     await backupDir.create(recursive: true);
-    
+
     final backupPath = path.join(
       backupDir.path,
       '${path.basenameWithoutExtension(file.path)}_${DateTime.now().millisecondsSinceEpoch}.json',
     );
-    
+
     await file.copy(backupPath);
   }
 
@@ -246,14 +248,14 @@ class Web5Migrator {
       path.dirname(file.path),
       'errors',
     ));
-    
+
     await errorDir.create(recursive: true);
-    
+
     final errorFile = File(path.join(
       errorDir.path,
       '${path.basenameWithoutExtension(file.path)}_error.txt',
     ));
-    
+
     await errorFile.writeAsString('''
 Timestamp: ${DateTime.now().toIso8601String()}
 File: ${file.path}

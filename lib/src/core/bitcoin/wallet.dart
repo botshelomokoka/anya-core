@@ -12,7 +12,7 @@ class BitcoinWallet {
   final WalletRepository _repository;
   final Web5 _web5;
   final NetworkType _network;
-  
+
   late final HDWallet _hdWallet;
   Wallet? _walletData;
 
@@ -42,7 +42,8 @@ class BitcoinWallet {
   }
 
   /// Create wallet record in Web5 storage
-  Future<Wallet> _createWalletRecord(String name, String ownerDid, String addressType) async {
+  Future<Wallet> _createWalletRecord(
+      String name, String ownerDid, String addressType) async {
     final derivationPath = _getDerivationPath(addressType);
     final address = await _deriveAddress(addressType);
 
@@ -169,19 +170,21 @@ class BitcoinWallet {
     }
 
     // Check if this is a Lightning payment
-    if (toAddress.startsWith('lightning:') && _walletData!.metadata['isLightningEnabled'] == true) {
+    if (toAddress.startsWith('lightning:') &&
+        _walletData!.metadata['isLightningEnabled'] == true) {
       return await _createLightningPayment(toAddress, amount);
     }
 
     // Check if this is an RGB transfer
-    if (metadata?['rgbAssetId'] != null && _walletData!.metadata['isRgbEnabled'] == true) {
+    if (metadata?['rgbAssetId'] != null &&
+        _walletData!.metadata['isRgbEnabled'] == true) {
       return await _createRgbTransfer(toAddress, amount, metadata!);
     }
 
     // Regular on-chain transaction
     final feeRate = _getFeeRate(priority);
     final utxos = await _getUtxos();
-    
+
     // Create and sign transaction
     final tx = Transaction(network: _network)
       ..from(utxos)
@@ -210,12 +213,14 @@ class BitcoinWallet {
     }
   }
 
-  Future<Transaction> _createLightningPayment(String invoice, int amount) async {
+  Future<Transaction> _createLightningPayment(
+      String invoice, int amount) async {
     // Implement Lightning payment logic
     throw UnimplementedError('Lightning payments not implemented yet');
   }
 
-  Future<Transaction> _createRgbTransfer(String toAddress, int amount, Map<String, dynamic> metadata) async {
+  Future<Transaction> _createRgbTransfer(
+      String toAddress, int amount, Map<String, dynamic> metadata) async {
     // Implement RGB transfer logic
     throw UnimplementedError('RGB transfers not implemented yet');
   }

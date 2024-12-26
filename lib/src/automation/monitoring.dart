@@ -10,7 +10,7 @@ class RepoMonitor {
   final String repo;
   final Logger _logger = Logger('RepoMonitor');
   Timer? _healthCheckTimer;
-  
+
   RepoMonitor({
     required this.githubToken,
     required this.owner,
@@ -43,41 +43,40 @@ class RepoMonitor {
   /// Run comprehensive health check
   Future<Map<String, dynamic>> runHealthCheck() async {
     final results = <String, dynamic>{};
-    
+
     try {
       // Check workflow status
       results['workflows'] = await _checkWorkflows();
-      
+
       // Check repository status
       results['repository'] = await _checkRepository();
-      
+
       // Check dependencies
       results['dependencies'] = await _checkDependencies();
-      
+
       // Check submodules
       results['submodules'] = await _checkSubmodules();
-      
+
       // Check issues and PRs
       results['issues'] = await _checkIssues();
-      
+
       _logger.info('Health check completed: ${jsonEncode(results)}');
     } catch (e, stack) {
       _logger.severe('Health check failed', e, stack);
       results['error'] = e.toString();
     }
-    
+
     return results;
   }
 
   /// Check workflow status
   Future<Map<String, dynamic>> _checkWorkflows() async {
-    final url = Uri.parse(
-      'https://api.github.com/repos/$owner/$repo/actions/runs'
-    );
-    
+    final url =
+        Uri.parse('https://api.github.com/repos/$owner/$repo/actions/runs');
+
     final response = await _githubGet(url);
     final runs = jsonDecode(response.body)['workflow_runs'] as List;
-    
+
     return {
       'total': runs.length,
       'successful': runs.where((r) => r['conclusion'] == 'success').length,
@@ -88,13 +87,11 @@ class RepoMonitor {
 
   /// Check repository status
   Future<Map<String, dynamic>> _checkRepository() async {
-    final url = Uri.parse(
-      'https://api.github.com/repos/$owner/$repo'
-    );
-    
+    final url = Uri.parse('https://api.github.com/repos/$owner/$repo');
+
     final response = await _githubGet(url);
     final data = jsonDecode(response.body);
-    
+
     return {
       'size': data['size'],
       'open_issues': data['open_issues_count'],
@@ -106,13 +103,12 @@ class RepoMonitor {
   /// Check dependencies
   Future<Map<String, dynamic>> _checkDependencies() async {
     final url = Uri.parse(
-      'https://api.github.com/repos/$owner/$repo/dependency-graph/snapshots'
-    );
-    
+        'https://api.github.com/repos/$owner/$repo/dependency-graph/snapshots');
+
     try {
       final response = await _githubGet(url);
       final data = jsonDecode(response.body);
-      
+
       return {
         'total': data['total_count'],
         'vulnerable': data['vulnerable_count'],
@@ -128,16 +124,14 @@ class RepoMonitor {
   Future<Map<String, dynamic>> _checkSubmodules() async {
     final submodules = ['dash33', 'dependencies', 'enterprise'];
     final results = <String, dynamic>{};
-    
+
     for (final submodule in submodules) {
       try {
-        final url = Uri.parse(
-          'https://api.github.com/repos/$owner/$submodule'
-        );
-        
+        final url = Uri.parse('https://api.github.com/repos/$owner/$submodule');
+
         final response = await _githubGet(url);
         final data = jsonDecode(response.body);
-        
+
         results[submodule] = {
           'status': 'healthy',
           'last_update': data['updated_at'],
@@ -147,26 +141,24 @@ class RepoMonitor {
         results[submodule] = {'status': 'error', 'error': e.toString()};
       }
     }
-    
+
     return results;
   }
 
   /// Check issues and PRs
   Future<Map<String, dynamic>> _checkIssues() async {
     final issuesUrl = Uri.parse(
-      'https://api.github.com/repos/$owner/$repo/issues?state=open'
-    );
-    
-    final prsUrl = Uri.parse(
-      'https://api.github.com/repos/$owner/$repo/pulls?state=open'
-    );
-    
+        'https://api.github.com/repos/$owner/$repo/issues?state=open');
+
+    final prsUrl =
+        Uri.parse('https://api.github.com/repos/$owner/$repo/pulls?state=open');
+
     final issuesResponse = await _githubGet(issuesUrl);
     final prsResponse = await _githubGet(prsUrl);
-    
+
     final issues = jsonDecode(issuesResponse.body) as List;
     final prs = jsonDecode(prsResponse.body) as List;
-    
+
     return {
       'open_issues': issues.length,
       'open_prs': prs.length,
@@ -191,11 +183,12 @@ class RepoMonitor {
         'Authorization': 'token $githubToken',
       },
     );
-    
+
     if (response.statusCode != 200) {
-      throw Exception('GitHub API error: ${response.statusCode} ${response.body}');
+      throw Exception(
+          'GitHub API error: ${response.statusCode} ${response.body}');
     }
-    
+
     return response;
   }
 
@@ -203,33 +196,33 @@ class RepoMonitor {
   Future<String> generateReport() async {
     final health = await runHealthCheck();
     final buffer = StringBuffer();
-    
+
     buffer.writeln('Repository Health Report');
     buffer.writeln('======================');
     buffer.writeln('Generated: ${DateTime.now()}');
     buffer.writeln();
-    
+
     // Workflows
     buffer.writeln('Workflows:');
     buffer.writeln('- Total: ${health['workflows']['total']}');
     buffer.writeln('- Successful: ${health['workflows']['successful']}');
     buffer.writeln('- Failed: ${health['workflows']['failed']}');
     buffer.writeln();
-    
+
     // Repository
     buffer.writeln('Repository:');
     buffer.writeln('- Open Issues: ${health['repository']['open_issues']}');
     buffer.writeln('- Watchers: ${health['repository']['watchers']}');
     buffer.writeln('- Last Push: ${health['repository']['last_push']}');
     buffer.writeln();
-    
+
     // Dependencies
     buffer.writeln('Dependencies:');
     buffer.writeln('- Total: ${health['dependencies']['total']}');
     buffer.writeln('- Vulnerable: ${health['dependencies']['vulnerable']}');
     buffer.writeln('- Outdated: ${health['dependencies']['outdated']}');
     buffer.writeln();
-    
+
     // Submodules
     buffer.writeln('Submodules:');
     health['submodules'].forEach((name, data) {
@@ -239,7 +232,7 @@ class RepoMonitor {
         buffer.writeln('  Open Issues: ${data['open_issues']}');
       }
     });
-    
+
     return buffer.toString();
   }
 }

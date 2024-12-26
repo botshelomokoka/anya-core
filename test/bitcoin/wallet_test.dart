@@ -7,9 +7,13 @@ import '../../lib/src/core/models/wallet.dart' as models;
 import '../../lib/src/core/repositories/wallet_repository.dart';
 
 class MockWeb5 extends Mock implements Web5 {}
+
 class MockDWN extends Mock implements DWN {}
+
 class MockRecords extends Mock implements Records {}
+
 class MockWalletRepository extends Mock implements WalletRepository {}
+
 class MockHDWallet extends Mock implements HDWallet {}
 
 void main() {
@@ -40,7 +44,7 @@ void main() {
       const testName = 'Test Wallet';
       const testOwnerDid = 'did:example:123';
       const testAddress = 'bc1qtest';
-      
+
       final expectedWallet = models.Wallet.create(
         name: testName,
         type: 'bitcoin',
@@ -76,7 +80,7 @@ void main() {
     test('createTransaction stores transaction in Web5', () async {
       const testName = 'Test Wallet';
       const testOwnerDid = 'did:example:123';
-      
+
       await wallet.initialize(
         name: testName,
         ownerDid: testOwnerDid,

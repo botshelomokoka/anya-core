@@ -64,7 +64,7 @@ class BackupService {
       final walletData = await Future.wait(
         wallets.map((wallet) async {
           final data = wallet.toJson();
-          
+
           // Include additional wallet-specific data
           if (wallet.type == 'bitcoin') {
             data['utxos'] = await _getWalletUTXOs(wallet);
@@ -72,7 +72,7 @@ class BackupService {
           } else if (wallet.type == 'lightning') {
             data['channels'] = await _getChannelBackups(wallet);
           }
-          
+
           return data;
         }),
       );
@@ -109,7 +109,8 @@ class BackupService {
   }) async {
     try {
       // Decrypt backup data
-      final decrypted = await _encryption.decryptData(encryptedBackup, password);
+      final decrypted =
+          await _encryption.decryptData(encryptedBackup, password);
       final backup = WalletBackup.fromJson(jsonDecode(decrypted));
 
       // Verify backup version and ownership
@@ -124,7 +125,7 @@ class BackupService {
       final restoredWallets = await Future.wait(
         backup.wallets.map((data) async {
           final wallet = Wallet.fromJson(data);
-          
+
           // Restore additional wallet-specific data
           if (wallet.type == 'bitcoin') {
             await _restoreWalletUTXOs(wallet, data['utxos']);
@@ -132,7 +133,7 @@ class BackupService {
           } else if (wallet.type == 'lightning') {
             await _restoreChannelBackups(wallet, data['channels']);
           }
-          
+
           return wallet;
         }),
       );
@@ -155,11 +156,13 @@ class BackupService {
         },
       });
 
-      return records.map((record) => {
-        'id': record.id,
-        'timestamp': record.dateCreated,
-        'size': record.data.length,
-      }).toList();
+      return records
+          .map((record) => {
+                'id': record.id,
+                'timestamp': record.dateCreated,
+                'size': record.data.length,
+              })
+          .toList();
     } catch (e) {
       throw BackupServiceError('Failed to list backups: $e');
     }
@@ -204,7 +207,8 @@ class BackupService {
   }
 
   /// Get transaction history for backup
-  Future<List<Map<String, dynamic>>> _getWalletTransactions(Wallet wallet) async {
+  Future<List<Map<String, dynamic>>> _getWalletTransactions(
+      Wallet wallet) async {
     // Implementation would get transaction history
     return [];
   }

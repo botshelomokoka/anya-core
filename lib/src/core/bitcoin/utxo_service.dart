@@ -74,13 +74,13 @@ class UTXO {
 enum UTXOSelectionStrategy {
   /// Select UTXOs to minimize the number of inputs
   minimizeInputs,
-  
+
   /// Select UTXOs to maximize privacy by using different addresses
   maximizePrivacy,
-  
+
   /// Select oldest UTXOs first to minimize dust
   oldestFirst,
-  
+
   /// Select UTXOs closest to target amount to minimize change
   closestAmount,
 }
@@ -120,22 +120,23 @@ class UTXOService {
     try {
       // Sort UTXOs based on strategy
       final sortedUTXOs = _sortUTXOs(availableUTXOs, strategy);
-      
+
       int selectedAmount = 0;
       final selectedUTXOs = <UTXO>[];
-      
+
       // Calculate approximate fee for a basic transaction
       final baseFee = _estimateBaseFee(feeRate);
-      
+
       for (final utxo in sortedUTXOs) {
         if (!utxo.isSpendable || !utxo.isSolvable) continue;
-        
+
         selectedUTXOs.add(utxo);
         selectedAmount += utxo.value;
-        
+
         // Recalculate fee with current inputs
-        final currentFee = _calculateFee(selectedUTXOs.length, 2, feeRate); // Assume 2 outputs (recipient + change)
-        
+        final currentFee = _calculateFee(selectedUTXOs.length, 2,
+            feeRate); // Assume 2 outputs (recipient + change)
+
         // Check if we have enough including fees
         if (selectedAmount >= targetAmount + currentFee) {
           // Check if change output would be dust
@@ -145,11 +146,13 @@ class UTXOService {
           }
         }
       }
-      
-      if (selectedAmount < targetAmount + _calculateFee(selectedUTXOs.length, 2, feeRate)) {
-        throw InsufficientFundsError('Not enough funds to cover amount and fees');
+
+      if (selectedAmount <
+          targetAmount + _calculateFee(selectedUTXOs.length, 2, feeRate)) {
+        throw InsufficientFundsError(
+            'Not enough funds to cover amount and fees');
       }
-      
+
       return selectedUTXOs;
     } catch (e) {
       throw UTXOServiceError('Failed to select UTXOs: $e');
@@ -159,10 +162,12 @@ class UTXOService {
   /// Lock UTXOs to prevent double-spending
   Future<void> lockUTXOs(List<UTXO> utxos) async {
     try {
-      final utxoRefs = utxos.map((utxo) => {
-        'txid': utxo.txid,
-        'vout': utxo.vout,
-      }).toList();
+      final utxoRefs = utxos
+          .map((utxo) => {
+                'txid': utxo.txid,
+                'vout': utxo.vout,
+              })
+          .toList();
 
       await _makeRequest('lockunspent', [false, utxoRefs]);
     } catch (e) {
@@ -173,10 +178,12 @@ class UTXOService {
   /// Unlock previously locked UTXOs
   Future<void> unlockUTXOs(List<UTXO> utxos) async {
     try {
-      final utxoRefs = utxos.map((utxo) => {
-        'txid': utxo.txid,
-        'vout': utxo.vout,
-      }).toList();
+      final utxoRefs = utxos
+          .map((utxo) => {
+                'txid': utxo.txid,
+                'vout': utxo.vout,
+              })
+          .toList();
 
       await _makeRequest('lockunspent', [true, utxoRefs]);
     } catch (e) {
@@ -202,15 +209,16 @@ class UTXOService {
       case UTXOSelectionStrategy.minimizeInputs:
         // Sort by value descending to use fewer inputs
         return List.from(utxos)..sort((a, b) => b.value.compareTo(a.value));
-      
+
       case UTXOSelectionStrategy.maximizePrivacy:
         // Shuffle UTXOs to use random inputs
         return List.from(utxos)..shuffle();
-      
+
       case UTXOSelectionStrategy.oldestFirst:
         // Sort by confirmations descending
-        return List.from(utxos)..sort((a, b) => b.confirmations.compareTo(a.confirmations));
-      
+        return List.from(utxos)
+          ..sort((a, b) => b.confirmations.compareTo(a.confirmations));
+
       case UTXOSelectionStrategy.closestAmount:
         // Implementation depends on target amount, handled in selectUTXOs
         return utxos;
@@ -227,7 +235,8 @@ class UTXOService {
     const int outputSize = 34;
     const int otherSize = 10;
 
-    final int totalSize = (inputSize * numInputs) + (outputSize * numOutputs) + otherSize;
+    final int totalSize =
+        (inputSize * numInputs) + (outputSize * numOutputs) + otherSize;
     return totalSize * feeRate;
   }
 
@@ -240,7 +249,8 @@ class UTXOService {
   Future<dynamic> _makeRequest(String method, [List<dynamic>? params]) async {
     try {
       // Implementation would use Bitcoin Core RPC
-      throw UnimplementedError('Bitcoin Core RPC communication not implemented');
+      throw UnimplementedError(
+          'Bitcoin Core RPC communication not implemented');
     } catch (e) {
       throw UTXOServiceError('Request failed: $e');
     }

@@ -29,7 +29,7 @@ class DAORepository {
     try {
       final data = await _store.get(_collection, id);
       if (data == null) return null;
-      
+
       return DAO.fromJson(data);
     } catch (e) {
       throw RepositoryError('Failed to get DAO: $e');
@@ -40,7 +40,7 @@ class DAORepository {
     try {
       final filter = memberDid != null ? {'memberDids': memberDid} : null;
       final records = await _store.query(_collection, filter: filter);
-      
+
       return records.map((data) => DAO.fromJson(data)).toList();
     } catch (e) {
       throw RepositoryError('Failed to list DAOs: $e');
@@ -99,7 +99,8 @@ class DAORepository {
     }
   }
 
-  Future<void> removeMember(String id, String memberDid, String ownerDid) async {
+  Future<void> removeMember(
+      String id, String memberDid, String ownerDid) async {
     try {
       final dao = await getDAO(id);
       if (dao == null) {
