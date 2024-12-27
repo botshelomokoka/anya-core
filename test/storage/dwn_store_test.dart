@@ -7,10 +7,15 @@ import '../../lib/src/core/config/web5_config.dart';
 import '../../lib/src/core/errors/storage_errors.dart';
 
 class MockWeb5 extends Mock implements Web5 {}
+
 class MockDWN extends Mock implements DWN {}
+
 class MockRecords extends Mock implements Records {}
+
 class MockPermissions extends Mock implements Permissions {}
+
 class MockDID extends Mock implements DID {}
+
 class MockRecord extends Mock implements Record {}
 
 void main() {
@@ -77,7 +82,7 @@ void main() {
     test('get retrieves and decompresses data correctly', () async {
       final mockRecord = MockRecord();
       final testData = utf8.encode(jsonEncode({'test': 'data'}));
-      
+
       when(mockRecord.data).thenReturn(testData);
       when(mockRecords.read(any)).thenAnswer((_) async => mockRecord);
 
@@ -98,14 +103,14 @@ void main() {
     test('get uses cache when available', () async {
       final mockRecord = MockRecord();
       final testData = utf8.encode(jsonEncode({'test': 'data'}));
-      
+
       when(mockRecord.data).thenReturn(testData);
       when(mockRecord.id).thenReturn('test_id');
       when(mockRecords.read(any)).thenAnswer((_) async => mockRecord);
 
       // First call - should hit the DWN
       await store.get('test_collection', 'test_id');
-      
+
       // Second call - should use cache
       final result = await store.get('test_collection', 'test_id');
 
@@ -141,14 +146,14 @@ void main() {
     test('query uses cache for unfiltered queries', () async {
       final mockRecord = MockRecord();
       final testData = utf8.encode(jsonEncode({'test': 'data'}));
-      
+
       when(mockRecord.data).thenReturn(testData);
       when(mockRecords.query(message: any))
           .thenAnswer((_) async => [mockRecord]);
 
       // First call - should hit the DWN
       await store.query('test_collection');
-      
+
       // Second call - should use cache
       final results = await store.query('test_collection');
 
@@ -176,17 +181,17 @@ void main() {
     test('update invalidates cache', () async {
       final mockRecord = MockRecord();
       final testData = utf8.encode(jsonEncode({'test': 'data'}));
-      
+
       when(mockRecord.data).thenReturn(testData);
       when(mockRecord.id).thenReturn('test_id');
       when(mockRecords.read(any)).thenAnswer((_) async => mockRecord);
 
       // Prime the cache
       await store.get('test_collection', 'test_id');
-      
+
       // Update should invalidate cache
       await store.update('test_collection', 'test_id', {'test': 'updated'});
-      
+
       // Next get should hit the DWN
       await store.get('test_collection', 'test_id');
 
@@ -199,7 +204,7 @@ void main() {
       final mockRecord = MockRecord();
       when(mockRecord.owner).thenReturn('did:example:456');
       when(mockRecords.read(any)).thenAnswer((_) async => mockRecord);
-      
+
       when(mockPermissions.check(
         recordId: any,
         did: any,
@@ -233,7 +238,7 @@ void main() {
     test('cache respects size limit', () async {
       final mockRecord = MockRecord();
       final testData = utf8.encode(jsonEncode({'test': 'data'}));
-      
+
       when(mockRecord.data).thenReturn(testData);
       when(mockRecord.id).thenReturn('test_id');
       when(mockRecords.read(any)).thenAnswer((_) async => mockRecord);

@@ -3,13 +3,12 @@ import '../errors/security_errors.dart';
 
 class BiometricService {
   final LocalAuthentication _auth;
-  
+
   BiometricService() : _auth = LocalAuthentication();
 
   Future<bool> isAvailable() async {
     try {
-      return await _auth.canCheckBiometrics &&
-             await _auth.isDeviceSupported();
+      return await _auth.canCheckBiometrics && await _auth.isDeviceSupported();
     } catch (e) {
       throw SecurityError('Failed to check biometric availability: $e');
     }

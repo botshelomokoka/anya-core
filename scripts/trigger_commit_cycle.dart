@@ -7,7 +7,7 @@ class CommitCycleTrigger {
   final String githubToken;
   final String owner;
   final String repo;
-  
+
   CommitCycleTrigger({
     required this.githubToken,
     required this.owner,
@@ -17,8 +17,7 @@ class CommitCycleTrigger {
   /// Trigger the commit cycle workflow
   Future<bool> trigger({String? commitMessage}) async {
     final url = Uri.parse(
-      'https://api.github.com/repos/$owner/$repo/actions/workflows/commit_cycle.yml/dispatches'
-    );
+        'https://api.github.com/repos/$owner/$repo/actions/workflows/commit_cycle.yml/dispatches');
 
     try {
       final response = await http.post(
@@ -53,8 +52,7 @@ class CommitCycleTrigger {
   /// Check workflow status
   Future<Map<String, dynamic>?> checkStatus() async {
     final url = Uri.parse(
-      'https://api.github.com/repos/$owner/$repo/actions/runs?event=workflow_dispatch'
-    );
+        'https://api.github.com/repos/$owner/$repo/actions/runs?event=workflow_dispatch');
 
     try {
       final response = await http.get(
@@ -98,7 +96,9 @@ class CommitCycleTrigger {
       final conclusion = status['conclusion'];
       if (conclusion != null) {
         final success = conclusion == 'success';
-        print(success ? '✅ Workflow completed successfully' : '❌ Workflow failed');
+        print(success
+            ? '✅ Workflow completed successfully'
+            : '❌ Workflow failed');
         return success;
       }
 
@@ -117,12 +117,12 @@ void main(List<String> args) async {
 
   final trigger = CommitCycleTrigger(
     githubToken: token,
-    owner: 'botshelomokoka',  // Replace with your GitHub username
-    repo: 'anya-core',        // Replace with your repository name
+    owner: 'botshelomokoka', // Replace with your GitHub username
+    repo: 'anya-core', // Replace with your repository name
   );
 
   final message = args.isNotEmpty ? args.join(' ') : null;
-  
+
   if (await trigger.trigger(commitMessage: message)) {
     print('Waiting for workflow completion...');
     final success = await trigger.waitForCompletion();

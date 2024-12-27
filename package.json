@@ -7,6 +7,30 @@
     "update-roadmap": "node scripts/update-roadmap.js"
   },
   "dependencies": {
-    "node-fetch": "^2.6.1"
-  }
-} 
+    "node-fetch": "^2.7.0"
+  },
+  "directories": {
+    "doc": "docs",
+    "example": "examples",
+    "lib": "lib",
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/botshelomokoka/anya-core.git"
+  },
+  "keywords": [
+    "bitcoin",
+    "stacks",
+    "DAO",
+    "ML",
+    "analytics",
+    "web5"
+  ],
+  "author": "bo_thebig",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/botshelomokoka/anya-core/issues"
+  },
+  "homepage": "https://github.com/botshelomokoka/anya-core#readme"
+}

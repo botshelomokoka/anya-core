@@ -82,7 +82,8 @@ class DAOService {
     }
   }
 
-  Future<void> removeMember(String id, String memberDid, String ownerDid) async {
+  Future<void> removeMember(
+      String id, String memberDid, String ownerDid) async {
     try {
       await _daoRepository.removeMember(id, memberDid, ownerDid);
     } catch (e) {

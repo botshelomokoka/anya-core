@@ -12,7 +12,7 @@ class DWNStore {
   final Map<String, List<Record>> _cache = {};
   final Duration _cacheDuration = const Duration(minutes: 5);
   final int _maxCacheSize = 1000;
-  
+
   DWNStore(this._web5, this._did);
 
   /// Platform-optimized store operation
@@ -20,7 +20,7 @@ class DWNStore {
     try {
       // Platform-specific compression
       final compressedData = await _compressData(jsonEncode(data));
-      
+
       final record = await _web5.dwn.records.create(
         data: compressedData,
         message: {
@@ -31,7 +31,7 @@ class DWNStore {
 
       // Update cache
       _updateCache(collection, record);
-      
+
       return record.id;
     } catch (e) {
       throw StorageError('Failed to store data: $e');
@@ -52,7 +52,7 @@ class DWNStore {
 
       // Update cache
       _updateCache(collection, record);
-      
+
       return _decompressAndDecode(record.data);
     } catch (e) {
       throw StorageError('Failed to retrieve data: $e');
@@ -98,7 +98,7 @@ class DWNStore {
   ) async {
     try {
       final compressedData = await _compressData(jsonEncode(newData));
-      
+
       await _web5.dwn.records.update(
         recordId,
         data: compressedData,
@@ -179,8 +179,7 @@ class DWNStore {
   }
 
   bool _hasValidCache(String collection) {
-    return _cache.containsKey(collection) && 
-           _cache[collection]!.isNotEmpty;
+    return _cache.containsKey(collection) && _cache[collection]!.isNotEmpty;
   }
 
   void _invalidateCacheRecord(String collection, String recordId) {
@@ -195,9 +194,7 @@ class DWNStore {
   }
 
   int _getTotalCacheSize() {
-    return _cache.values
-        .expand((records) => records)
-        .length;
+    return _cache.values.expand((records) => records).length;
   }
 
   /// Get DID for the current store
@@ -208,9 +205,9 @@ class DWNStore {
     try {
       final record = await _web5.dwn.records.read(recordId);
       if (record == null) return false;
-      
-      return record.owner == requesterDid || 
-             await _hasPermission(record, requesterDid);
+
+      return record.owner == requesterDid ||
+          await _hasPermission(record, requesterDid);
     } catch (e) {
       return false;
     }

@@ -60,7 +60,7 @@ class UnifiedWalletService {
   Future<void> backupWallets(String ownerDid, String password) async {
     try {
       final wallets = await _repository.listWallets(ownerDid: ownerDid);
-      
+
       // Encrypt wallet data
       final encryptedData = await _encryption.encryptWallets(
         wallets,

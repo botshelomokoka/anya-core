@@ -25,7 +25,7 @@ class WalletRepository {
     try {
       final data = await _store.get(_collection, id);
       if (data == null) return null;
-      
+
       return Wallet.fromJson(data);
     } catch (e) {
       throw RepositoryError('Failed to get wallet: $e');
@@ -37,7 +37,7 @@ class WalletRepository {
     try {
       final filter = ownerDid != null ? {'owner': ownerDid} : null;
       final records = await _store.query(_collection, filter: filter);
-      
+
       return records.map((data) => Wallet.fromJson(data)).toList();
     } catch (e) {
       throw RepositoryError('Failed to list wallets: $e');
@@ -79,7 +79,7 @@ class WalletRepository {
         _collection,
         filter: {'address': address},
       );
-      
+
       if (records.isEmpty) return null;
       return Wallet.fromJson(records.first);
     } catch (e) {
@@ -97,7 +97,7 @@ class WalletRepository {
         'type': type,
         if (ownerDid != null) 'owner': ownerDid,
       };
-      
+
       final records = await _store.query(_collection, filter: filter);
       return records.map((data) => Wallet.fromJson(data)).toList();
     } catch (e) {

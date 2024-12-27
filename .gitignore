@@ -52,3 +52,7 @@ yarn-error.log*
 # System Files
 .DS_Store
 Thumbs.db
+
+# Allow core Bitcoin files
+!lib/src/core/bitcoin/
+!test/core/bitcoin/

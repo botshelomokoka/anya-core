@@ -20,7 +20,7 @@ class EncryptionService {
     try {
       final encrypter = _getEncrypter(password);
       final data = jsonEncode(wallets.map((w) => w.toJson()).toList());
-      
+
       final encrypted = encrypter.encrypt(data, iv: _iv);
       return encrypted.base64;
     } catch (e) {
@@ -35,10 +35,10 @@ class EncryptionService {
     try {
       final encrypter = _getEncrypter(password);
       final encrypted = Encrypted.fromBase64(encryptedData);
-      
+
       final decrypted = encrypter.decrypt(encrypted, iv: _iv);
       final data = jsonDecode(decrypted) as List;
-      
+
       return data.map((json) => Wallet.fromJson(json)).toList();
     } catch (e) {
       throw SecurityError('Failed to decrypt wallets: $e');
@@ -49,7 +49,7 @@ class EncryptionService {
     try {
       final encrypter = _getEncrypter(_masterKey.base64);
       final data = jsonEncode(wallet.metadata);
-      
+
       final encrypted = encrypter.encrypt(data, iv: _iv);
       wallet.copyWith(encryptedData: encrypted.base64);
     } catch (e) {
@@ -65,7 +65,7 @@ class EncryptionService {
 
       final encrypter = _getEncrypter(_masterKey.base64);
       final encrypted = Encrypted.fromBase64(wallet.encryptedData!);
-      
+
       final decrypted = encrypter.decrypt(encrypted, iv: _iv);
       return jsonDecode(decrypted) as Map<String, dynamic>;
     } catch (e) {

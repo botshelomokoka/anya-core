@@ -34,7 +34,9 @@ class TransactionHistoryService {
             if (types != null)
               'type': {'\$in': types.map((t) => t.toString().split('.').last)},
             if (statuses != null)
-              'status': {'\$in': statuses.map((s) => s.toString().split('.').last)},
+              'status': {
+                '\$in': statuses.map((s) => s.toString().split('.').last)
+              },
           },
           'limit': limit,
           'skip': offset,
@@ -96,9 +98,15 @@ class TransactionHistoryService {
             'walletId': walletId,
             if (searchTerm != null)
               '\$or': [
-                {'txid': {'\$regex': searchTerm}},
-                {'address': {'\$regex': searchTerm}},
-                {'memo': {'\$regex': searchTerm}},
+                {
+                  'txid': {'\$regex': searchTerm}
+                },
+                {
+                  'address': {'\$regex': searchTerm}
+                },
+                {
+                  'memo': {'\$regex': searchTerm}
+                },
               ],
             ...?filters,
           },
@@ -193,7 +201,8 @@ class TransactionHistoryService {
         status: _getBitcoinTransactionStatus(response),
         confirmations: response['confirmations'],
         blockHeight: response['blockheight'],
-        blockTime: DateTime.fromMillisecondsSinceEpoch(response['blocktime'] * 1000),
+        blockTime:
+            DateTime.fromMillisecondsSinceEpoch(response['blocktime'] * 1000),
         fee: response['fee'].abs() * 100000000, // Convert to sats
         size: response['size'],
         vsize: response['vsize'],
@@ -202,12 +211,14 @@ class TransactionHistoryService {
         outputs: _parseBitcoinOutputs(response['vout']),
       );
     } catch (e) {
-      throw HistoryServiceError('Failed to get Bitcoin transaction details: $e');
+      throw HistoryServiceError(
+          'Failed to get Bitcoin transaction details: $e');
     }
   }
 
   /// Get Lightning transaction details
-  Future<TransactionDetails> _getLightningTransactionDetails(String txId) async {
+  Future<TransactionDetails> _getLightningTransactionDetails(
+      String txId) async {
     // Implementation would get Lightning payment details
     throw UnimplementedError();
   }
@@ -254,10 +265,10 @@ class TransactionHistoryService {
   /// Export transactions to CSV format
   String _exportToCSV(List<Transaction> transactions) {
     final buffer = StringBuffer();
-    
+
     // Add header
     buffer.writeln('Date,Type,Amount,Fee,Status,ID,From,To');
-    
+
     // Add transactions
     for (final tx in transactions) {
       buffer.writeln(
@@ -271,7 +282,7 @@ class TransactionHistoryService {
         '${tx.toAddress}',
       );
     }
-    
+
     return buffer.toString();
   }
 
@@ -351,8 +362,7 @@ class TransactionStats {
     required this.totalCount,
   });
 
-  double get successRate =>
-      totalCount > 0 ? successfulCount / totalCount : 0;
+  double get successRate => totalCount > 0 ? successfulCount / totalCount : 0;
 }
 
 class HistoryServiceError implements Exception {

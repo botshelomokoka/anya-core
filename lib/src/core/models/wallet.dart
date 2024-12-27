@@ -85,17 +85,17 @@ class Wallet extends Equatable {
 
   @override
   List<Object?> get props => [
-    id,
-    name,
-    type,
-    ownerDid,
-    address,
-    metadata,
-    createdAt,
-    updatedAt,
-    encryptedData,
-    permissions,
-  ];
+        id,
+        name,
+        type,
+        ownerDid,
+        address,
+        metadata,
+        createdAt,
+        updatedAt,
+        encryptedData,
+        permissions,
+      ];
 
   @override
   String toString() => 'Wallet(id: $id, name: $name, type: $type)';

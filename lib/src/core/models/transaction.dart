@@ -4,26 +4,26 @@ enum TransactionType {
   send,
   receive,
   swap,
-  lightning,     // Lightning Network payment
-  rgbTransfer,   // RGB asset transfer
-  rskContract,   // RSK smart contract interaction
-  stacksCall,    // Stacks contract call
-  bankTransfer,  // Open Banking transfer
+  lightning, // Lightning Network payment
+  rgbTransfer, // RGB asset transfer
+  rskContract, // RSK smart contract interaction
+  stacksCall, // Stacks contract call
+  bankTransfer, // Open Banking transfer
 }
 
 enum TransactionStatus {
   pending,
   completed,
   failed,
-  confirming,    // Waiting for Bitcoin confirmations
-  routing,       // Lightning Network routing
-  settling,      // Cross-chain settlement
+  confirming, // Waiting for Bitcoin confirmations
+  routing, // Lightning Network routing
+  settling, // Cross-chain settlement
 }
 
 enum TransactionPriority {
-  low,      // Lower fee, slower confirmation
-  medium,   // Standard fee
-  high,     // Higher fee, faster confirmation
+  low, // Lower fee, slower confirmation
+  medium, // Standard fee
+  high, // Higher fee, faster confirmation
 }
 
 class Transaction {
@@ -41,10 +41,10 @@ class Transaction {
   final String? feeSymbol;
   final int? confirmations;
   final TransactionPriority? priority;
-  final String? lightningInvoice;    // Lightning payment invoice
-  final String? contractAddress;      // For RSK/Stacks contract interactions
-  final String? rgbAssetId;          // RGB asset identifier
-  final String? bankReference;        // Banking transfer reference
+  final String? lightningInvoice; // Lightning payment invoice
+  final String? contractAddress; // For RSK/Stacks contract interactions
+  final String? rgbAssetId; // RGB asset identifier
+  final String? bankReference; // Banking transfer reference
 
   Transaction({
     required this.id,
@@ -105,9 +105,10 @@ class Transaction {
 
   bool get isLightning => type == TransactionType.lightning;
 
-  bool get isDeFi => type == TransactionType.rgbTransfer || 
-                     type == TransactionType.rskContract || 
-                     type == TransactionType.stacksCall;
+  bool get isDeFi =>
+      type == TransactionType.rgbTransfer ||
+      type == TransactionType.rskContract ||
+      type == TransactionType.stacksCall;
 
   bool get isBanking => type == TransactionType.bankTransfer;
 
@@ -138,11 +139,11 @@ class Transaction {
       feeAmount: json['feeAmount'] as double?,
       feeSymbol: json['feeSymbol'] as String?,
       confirmations: json['confirmations'] as int?,
-      priority: json['priority'] != null 
-        ? TransactionPriority.values.firstWhere(
-            (e) => e.toString().split('.').last == json['priority'],
-          )
-        : null,
+      priority: json['priority'] != null
+          ? TransactionPriority.values.firstWhere(
+              (e) => e.toString().split('.').last == json['priority'],
+            )
+          : null,
       lightningInvoice: json['lightningInvoice'] as String?,
       contractAddress: json['contractAddress'] as String?,
       rgbAssetId: json['rgbAssetId'] as String?,

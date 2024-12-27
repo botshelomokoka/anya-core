@@ -4,6 +4,7 @@ members = [
     "anya-enterprise",
     "anya-extensions", 
     "dependencies/anya-core",
+    "dependencies/anya-web5",
     "anya-bitcoin",
     "dash33",
     "mobile"
@@ -27,6 +28,7 @@ serde_yaml = "0.9.25"
 anyhow = "1.0.75"
 thiserror = "1.0.69"
 async-trait = "0.1.77"
+pyo3 = { version = "0.19.2", features = ["extension-module"] }
 
 # Web5 Integration
 web5 = { git = "https://github.com/TBD54566975/web5-rs", package = "web5", tag = "v4.0.0" }

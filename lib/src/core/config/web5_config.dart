@@ -57,10 +57,10 @@ class Web5Config {
   /// Initialize Web5 with default configuration
   static Future<Web5> initialize() async {
     final web5 = await Web5.connect();
-    
+
     // Configure DWN protocol
     await web5.dwn.protocols.configure(dwnProtocol);
-    
+
     return web5;
   }
 

@@ -40,7 +40,7 @@ class LightningService {
     try {
       // Decode invoice first to get amount and destination
       final decoded = await decodeInvoice(invoice);
-      
+
       final response = await _makeRequest('payinvoice', {
         'payment_request': invoice,
         'max_fee': maxFee,
@@ -144,7 +144,8 @@ class LightningService {
         amount: payment['value_sat'].toDouble(),
         chain: 'Lightning',
         symbol: '⚡BTC',
-        timestamp: DateTime.fromMillisecondsSinceEpoch(payment['creation_time_ns'] ~/ 1000000),
+        timestamp: DateTime.fromMillisecondsSinceEpoch(
+            payment['creation_time_ns'] ~/ 1000000),
         status: _getPaymentStatus(payment['status']),
         feeAmount: payment['fee_sat']?.toDouble(),
         feeSymbol: 'BTC',
@@ -169,8 +170,8 @@ class LightningService {
     }
   }
 
-  Future<Map<String, dynamic>> _makeRequest(
-    String method, [Map<String, dynamic>? params]) async {
+  Future<Map<String, dynamic>> _makeRequest(String method,
+      [Map<String, dynamic>? params]) async {
     try {
       // Implementation would use gRPC or REST to communicate with LND
       throw UnimplementedError('LND communication not implemented');

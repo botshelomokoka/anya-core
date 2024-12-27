@@ -54,7 +54,7 @@ class ErrorContext {
 class WalletErrorHandler {
   final Web5 _web5;
   final void Function(String)? _logger;
-  
+
   WalletErrorHandler(this._web5, [this._logger]);
 
   /// Handle error with context
@@ -301,23 +301,21 @@ class ErrorMonitoringService {
             'schema': 'anya/errors',
             if (startDate != null || endDate != null)
               'timestamp': {
-                if (startDate != null)
-                  '\$gte': startDate.toIso8601String(),
-                if (endDate != null)
-                  '\$lte': endDate.toIso8601String(),
+                if (startDate != null) '\$gte': startDate.toIso8601String(),
+                if (endDate != null) '\$lte': endDate.toIso8601String(),
               },
           },
         },
       };
 
       final records = await _web5.dwn.records.query(query);
-      
+
       final stats = <String, int>{};
       for (final record in records) {
         final category = record.data['category'] as String;
         stats[category] = (stats[category] ?? 0) + 1;
       }
-      
+
       return stats;
     } catch (e) {
       _logger?.call('Failed to get error stats: $e');

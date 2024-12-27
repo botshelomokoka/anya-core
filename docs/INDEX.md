@@ -23,6 +23,84 @@ Anya Core is an AI-powered Bitcoin protocol that enables advanced blockchain cap
 - [Contributing](/anya-core/contributing) - How to contribute
 - [Testing](/anya-core/testing) - Testing procedures
 
+## Component Documentation
+
+### Core Components
+- [ML Component](/anya-core/ml)
+  - [Model Management](/anya-core/ml/models)
+  - [Inference Engine](/anya-core/ml/inference)
+  - [Performance Monitoring](/anya-core/ml/monitoring)
+  
+- [Security Component](/anya-core/security)
+  - [Authentication](/anya-core/security/auth)
+  - [Cryptography](/anya-core/security/crypto)
+  - [Audit System](/anya-core/security/audit)
+  
+- [Protocol Component](/anya-core/protocol)
+  - [Transaction Management](/anya-core/protocol/transactions)
+  - [Script Types](/anya-core/protocol/scripts)
+  - [Network Operations](/anya-core/protocol/network)
+  
+- [Enterprise Component](/anya-core/enterprise)
+  - [Business Operations](/anya-core/enterprise/operations)
+  - [Risk Management](/anya-core/enterprise/risk)
+  - [Compliance](/anya-core/enterprise/compliance)
+
+### System Documentation
+- [Architecture](/anya-core/architecture)
+  - [Component Design](/anya-core/architecture/components)
+  - [Data Flow](/anya-core/architecture/data-flow)
+  - [Security Model](/anya-core/architecture/security)
+  
+- [Development](/anya-core/development)
+  - [Setup Guide](/anya-core/development/setup)
+  - [Coding Standards](/anya-core/development/standards)
+  - [Testing Guide](/anya-core/development/testing)
+  
+- [Operations](/anya-core/operations)
+  - [Deployment](/anya-core/operations/deployment)
+  - [Monitoring](/anya-core/operations/monitoring)
+  - [Maintenance](/anya-core/operations/maintenance)
+
+### API Documentation
+- [API Reference](/anya-core/api)
+  - [ML APIs](/anya-core/api/ml)
+  - [Security APIs](/anya-core/api/security)
+  - [Protocol APIs](/anya-core/api/protocol)
+  - [Enterprise APIs](/anya-core/api/enterprise)
+
+### Integration Guides
+- [Bitcoin Integration](/anya-core/integration/bitcoin)
+- [Web5 Integration](/anya-core/integration/web5)
+- [Lightning Integration](/anya-core/integration/lightning)
+- [DLC Integration](/anya-core/integration/dlc)
+
+## Latest Features (2024-12-27)
+
+### ML Component
+- Advanced model management with versioning
+- Real-time inference engine
+- Performance monitoring and optimization
+- Model A/B testing support
+
+### Security Component
+- Enhanced authentication and authorization
+- Advanced cryptographic operations
+- Comprehensive audit system
+- Threat detection and prevention
+
+### Protocol Component
+- Advanced transaction handling
+- Multiple script type support
+- Fee estimation and management
+- PSBT implementation
+
+### Enterprise Component
+- Advanced business operations
+- Risk management system
+- Compliance tracking
+- Workflow automation
+
 ## Latest Updates
 
 ### Version {{ site.version }} ({{ site.release_date }})
@@ -84,4 +162,4 @@ async fn main() -> Result<()> {
 
 [Get Started →](/anya-core/getting-started)
 
-*Last updated: 2024-12-07*
+*Last updated: 2024-12-27*

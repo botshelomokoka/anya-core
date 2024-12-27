@@ -135,6 +135,175 @@ TRACING_ENDPOINT=http://localhost:4317
 - [Configuration Guide](docs/CONFIGURATION.md)
 - [Monitoring Setup](docs/MONITORING.md)
 
+## Core Components
+
+### ML Component
+- Advanced model management and execution
+- Real-time inference with metrics tracking
+- Model versioning and selection
+- Validation and error handling
+- Performance monitoring and optimization
+- Support for distributed training
+- Model A/B testing capabilities
+
+### Security Component
+- Comprehensive security operations
+  - Authentication and authorization
+  - Encryption and decryption
+  - Digital signatures and verification
+- Strong audit trail implementation
+- Security event monitoring
+- Rate limiting and threat detection
+- Policy management and enforcement
+- Compliance tracking and reporting
+
+### Protocol Component
+- Advanced transaction handling
+  - Multiple operation types (Create, Sign, Broadcast)
+  - Input/output validation
+  - Fee estimation and management
+- Support for various script types
+  - P2PKH, P2SH, P2WPKH, P2WSH, P2TR
+- Transaction monitoring and tracking
+- Mempool management
+- PSBT support
+- Multi-signature operations
+
+### Enterprise Component
+- Comprehensive business operations
+  - Atomic swaps
+  - Liquid transfers
+  - DLC contracts
+  - State chain transfers
+  - Multi-party computation
+  - Portfolio rebalancing
+- Risk management and compliance
+- Audit trail and reporting
+- SLA monitoring and enforcement
+- Batch operation support
+- Workflow management
+
+## System Architecture
+
+### Core Design Principles
+1. **Memory Safety**
+   - Rust's ownership system
+   - Thread-safe primitives
+   - Resource management
+   
+2. **Error Handling**
+   - Comprehensive error types
+   - Validation at multiple layers
+   - Error aggregation and analysis
+   - Retry strategies
+
+3. **Metrics & Monitoring**
+   - Unified metrics collection
+   - Health checks
+   - Performance tracking
+   - Alerting system
+
+4. **Security**
+   - Context validation
+   - Audit logging
+   - Threat detection
+   - Security event correlation
+
+### Implementation Details
+
+#### Repository Layer
+- CRUD operations
+- Data validation
+- Caching support
+- Transaction management
+- Audit logging
+
+#### Service Layer
+- Business logic
+- Operation processing
+- Security checks
+- Metrics collection
+- Health monitoring
+
+#### Handler Layer
+- Request/response mapping
+- Input validation
+- Error handling
+- Metrics tracking
+- Security enforcement
+
+## Testing Strategy
+
+### Unit Testing
+- Component-level tests
+- Mock implementations
+- Error case coverage
+- Performance benchmarks
+
+### Integration Testing
+- Cross-component testing
+- End-to-end scenarios
+- Performance testing
+- Security testing
+
+### Property Testing
+- Invariant verification
+- Fuzz testing
+- Boundary testing
+- Concurrency testing
+
+## Performance Optimization
+
+### Caching
+- In-memory caching
+- Distributed caching
+- Cache invalidation
+- Cache metrics
+
+### Concurrency
+- Async operations
+- Thread pooling
+- Resource management
+- Deadlock prevention
+
+### Monitoring
+- Performance metrics
+- Resource utilization
+- Bottleneck detection
+- Trend analysis
+
+## Deployment
+
+### Requirements
+- Rust 1.70+
+- Bitcoin Core 24.0+
+- Web5 DWN Node
+- PostgreSQL 14+
+- Redis 7+
+
+### Configuration
+```env
+# Core Settings
+RUST_LOG=info
+RUST_BACKTRACE=1
+
+# Database
+DATABASE_URL=postgresql://user:pass@localhost/anya
+REDIS_URL=redis://localhost:6379
+
+# Bitcoin Core
+BTC_RPC_URL=http://localhost:8332
+BTC_RPC_USER=user
+BTC_RPC_PASS=pass
+
+# Web5
+WEB5_DWN_URL=http://localhost:3000
+
+# Security
+ENCRYPTION_KEY=<secure-key>
+JWT_SECRET=<jwt-secret>
+```
+
 ## Configuration
 
 The Anya platform uses a flexible configuration system that supports multiple configuration sources:
