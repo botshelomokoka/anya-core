@@ -6,6 +6,117 @@ import '../models/wallet.dart';
 import '../models/transaction.dart';
 import '../repositories/wallet_repository.dart';
 import '../storage/dwn_store.dart';
+import 'dart:typed_data';
+import 'package:crypto/crypto.dart';
+import 'package:pointycastle/export.dart';
+import 'package:cryptography/cryptography.dart';
+import 'package:hex/hex.dart';
+import '../web5/service.dart';
+import 'models.dart';
+
+class BitcoinWallet {
+  final Web5Service _web5;
+  final SecureRandom _random;
+  final Logger _logger;
+  
+  BitcoinWallet(this._web5) : 
+    _random = FortunaRandom()..seed(KeyParameter(Platform.instance.generateSeed(32))),
+    _logger = Logger('BitcoinWallet');
+
+  /// Creates a new wallet with HD key derivation (BIP39, BIP32, BIP44)
+  Future<WalletCredentials> createWallet() async {
+    try {
+      // Generate mnemonic (BIP39)
+      final entropy = _generateSecureEntropy();
+      final mnemonic = _generateMnemonic(entropy);
+      
+      // Derive master key (BIP32)
+      final seed = await _mnemonicToSeed(mnemonic);
+      final masterKey = _deriveMasterKey(seed);
+      
+      // Derive Bitcoin account keys (BIP44)
+      final keyPair = await _deriveKeyPair(masterKey, "m/44'/0'/0'/0/0");
+      final publicKey = await keyPair.extractPublicKey();
+      final privateKey = await keyPair.extractPrivateKeyBytes();
+      
+      final address = _generateAddress(publicKey.bytes);
+      
+      _logger.info('Created new wallet with address: $address');
+      
+      return WalletCredentials(
+        publicKey: publicKey.bytes,
+        privateKey: privateKey,
+        address: address,
+        mnemonic: mnemonic
+      );
+    } catch (e, stack) {
+      _logger.severe('Failed to create wallet', e, stack);
+      throw WalletException('Failed to create wallet: $e');
+    }
+  }
+
+  /// Signs a transaction with the wallet's private key
+  Future<Uint8List> signTransaction(
+    Uint8List message,
+    Uint8List privateKey
+  ) async {
+    try {
+      final algorithm = Ed25519();
+      final keyPair = await algorithm.newKeyPairFromSeed(privateKey);
+      final signature = await algorithm.sign(
+        message,
+        keyPair: keyPair
+      );
+      return signature.bytes;
+    } catch (e, stack) {
+      _logger.severe('Failed to sign transaction', e, stack);
+      throw WalletException('Failed to sign transaction: $e');
+    }
+  }
+
+  /// Verifies a transaction signature
+  Future<bool> verifySignature(
+    Uint8List message,
+    Uint8List signature,
+    Uint8List publicKey
+  ) async {
+    try {
+      final algorithm = Ed25519();
+      return await algorithm.verify(
+        message,
+        signature: Signature(
+          signature,
+          publicKey: SimplePublicKey(
+            publicKey,
+            type: KeyPairType.ed25519
+          )
+        )
+      );
+    } catch (e, stack) {
+      _logger.severe('Failed to verify signature', e, stack);
+      throw WalletException('Failed to verify signature: $e');
+    }
+  }
+
+  /// Generates a Bitcoin address from a public key
+  String _generateAddress(Uint8List publicKey) {
+    final sha256Hash = sha256.convert(publicKey).bytes;
+    final ripemd160Hash = RIPEMD160Digest().process(Uint8List.fromList(sha256Hash));
+    final versionByte = [0x00]; // Mainnet
+    final payload = Uint8List.fromList(versionByte + ripemd160Hash);
+    final checksum = sha256.convert(sha256.convert(payload).bytes).bytes.sublist(0, 4);
+    final binaryAddr = Uint8List.fromList(payload + checksum);
+    return Base58Codec.bitcoin().encode(binaryAddr);
+  }
+}
+
+class WalletException implements Exception {
+  final String message;
+  WalletException(this.message);
+  
+  @override
+  String toString() => 'WalletException: $message';
+}
 
 /// Bitcoin wallet implementation with Web5 integration
 class BitcoinWallet {
