@@ -19,10 +19,17 @@
 	update = merge
 	fetchRecurseSubmodules = true
 
+[submodule "dependencies/web5-rs"]
+	path = dependencies/web5-rs
+	url = https://github.com/botshelomokoka/web5-rs.git
+	branch = main
+	update = merge
+	fetchRecurseSubmodules = true
+
 [submodule "mobile"]
 	path = mobile
 	url = https://github.com/botshelomokoka/anya-mobile.git
-	branch = main
+	branch = master
 	update = merge
 	fetchRecurseSubmodules = true
 
