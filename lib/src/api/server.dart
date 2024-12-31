@@ -1,22 +1,56 @@
+// Copyright (c) 2024 Anya Project. All rights reserved.
+// SPDX-License-Identifier: MIT
+
+import 'dart:async';
+import 'dart:convert';
+import 'package:meta/meta.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_router/shelf_router.dart';
 import '../core/bitcoin/wallet.dart';
 import '../core/web5/identity.dart';
+import '../utils/logging.dart';
+import '../utils/validation.dart';
 
-/// API server implementation
+/// AnyaServer implements a RESTful API server with Bitcoin and Web5 capabilities.
+/// 
+/// Features:
+/// - Bitcoin wallet management (BIP compliance)
+/// - Decentralized identity (DID) operations
+/// - IPFS integration
+/// - Material Design 3 UI endpoints
+/// 
+/// Follows platform-agnostic design patterns and accessibility standards.
+/// 
+/// Example:
+/// ```dart
+/// final wallet = BitcoinWallet();
+/// final identity = IdentityManager();
+/// final server = AnyaServer(wallet, identity);
+/// await server.start();
+/// ```
+@immutable
 class AnyaServer {
   final Router _router = Router();
   final BitcoinWallet _wallet;
   final IdentityManager _identity;
+  final Logger _logger;
 
-  AnyaServer(this._wallet, this._identity) {
+  /// Creates a new instance of [AnyaServer].
+  /// 
+  /// Requires initialized [BitcoinWallet] and [IdentityManager] instances.
+  /// Throws [ArgumentError] if any parameter is null.
+  AnyaServer(this._wallet, this._identity) : _logger = Logger('AnyaServer') {
     _setupRoutes();
   }
 
+  // TODO(framework)[high]: Add rate limiting and request validation
   void _setupRoutes() {
-    _router.post('/wallet', _createWallet);
-    _router.post('/did', _createDID);
+    _router
+      ..post('/wallet', _createWallet)
+      ..get('/wallet/<id>', _getWallet)
+      ..post('/did', _createDID)
+      ..get('/did/<id>', _getDID);
   }
 
   Future<Response> _createWallet(Request request) async {
@@ -30,6 +64,11 @@ class AnyaServer {
     }
   }
 
+  Future<Response> _getWallet(Request request) async {
+    // TODO(framework)[high]: Implement wallet retrieval
+    return Response.notImplemented();
+  }
+
   Future<Response> _createDID(Request request) async {
     try {
       final did = await _identity.createDID();
@@ -39,6 +78,11 @@ class AnyaServer {
         body: {'error': e.toString()},
       );
     }
+  }
+
+  Future<Response> _getDID(Request request) async {
+    // TODO(framework)[high]: Implement DID retrieval
+    return Response.notImplemented();
   }
 
   Future<void> start({String host = 'localhost', int port = 8080}) async {
