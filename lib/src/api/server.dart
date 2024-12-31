@@ -13,15 +13,15 @@ import '../utils/logging.dart';
 import '../utils/validation.dart';
 
 /// AnyaServer implements a RESTful API server with Bitcoin and Web5 capabilities.
-/// 
+///
 /// Features:
 /// - Bitcoin wallet management (BIP compliance)
 /// - Decentralized identity (DID) operations
 /// - IPFS integration
 /// - Material Design 3 UI endpoints
-/// 
+///
 /// Follows platform-agnostic design patterns and accessibility standards.
-/// 
+///
 /// Example:
 /// ```dart
 /// final wallet = BitcoinWallet();
@@ -37,7 +37,7 @@ class AnyaServer {
   final Logger _logger;
 
   /// Creates a new instance of [AnyaServer].
-  /// 
+  ///
   /// Requires initialized [BitcoinWallet] and [IdentityManager] instances.
   /// Throws [ArgumentError] if any parameter is null.
   AnyaServer(this._wallet, this._identity) : _logger = Logger('AnyaServer') {
@@ -86,7 +86,7 @@ class AnyaServer {
   }
 
   Future<void> start({String host = 'localhost', int port = 8080}) async {
-    final handler = Pipeline()
+    final handler = const Pipeline()
         .addMiddleware(logRequests())
         .addMiddleware(_handleCors())
         .addHandler(_router);
