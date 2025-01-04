@@ -1,7 +1,5 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:bip39/bip39.dart' as bip39;
-import 'package:hex/hex.dart';
-import 'dart:convert';
 
 class KeyManagementService {
   static const _storage = FlutterSecureStorage();
