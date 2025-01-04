@@ -41,7 +41,7 @@ class DAORepository {
       final filter = memberDid != null ? {'memberDids': memberDid} : null;
       final records = await _store.query(_collection, filter: filter);
 
-      return records.map((data) => DAO.fromJson(data)).toList();
+      return records.map(DAO.fromJson).toList();
     } catch (e) {
       throw RepositoryError('Failed to list DAOs: $e');
     }

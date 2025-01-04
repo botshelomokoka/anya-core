@@ -1,9 +1,10 @@
-import 'package:web5/web5.dart';
+import 'package:web5_dart/web5_dart.dart' as web5;
+import '../web5/web5_service.dart';
 
 /// Web5 configuration for cross-platform compatibility
 class Web5Config {
   /// Default DWN protocol configuration
-  static const dwnProtocol = {
+  static final dwnProtocol = {
     'protocol': 'anya',
     'published': true,
     'types': {
@@ -22,7 +23,7 @@ class Web5Config {
     },
     'structure': {
       'wallet': {
-        '$schema': 'http://json-schema.org/draft-07/schema#',
+        r'$schema': 'http://json-schema.org/draft-07/schema#',
         'type': 'object',
         'required': ['id', 'name', 'type', 'ownerDid', 'address'],
         'properties': {
@@ -40,7 +41,7 @@ class Web5Config {
         },
       },
       'transaction': {
-        '$schema': 'http://json-schema.org/draft-07/schema#',
+        r'$schema': 'http://json-schema.org/draft-07/schema#',
         'type': 'object',
         'required': ['txid', 'walletId', 'timestamp', 'hex'],
         'properties': {
@@ -55,17 +56,21 @@ class Web5Config {
   };
 
   /// Initialize Web5 with default configuration
-  static Future<Web5> initialize() async {
-    final web5 = await Web5.connect();
+  static Future<Web5Service> initialize() async {
+    final service = await Web5Service.connect();
 
     // Configure DWN protocol
-    await web5.dwn.protocols.configure(dwnProtocol);
+    await service.createRecord(
+      collection: 'protocols',
+      data: dwnProtocol,
+      schema: 'https://anya.io/schemas/protocol/v1',
+    );
 
-    return web5;
+    return service;
   }
 
   /// Default Web5 options
-  static const defaultOptions = {
+  static final defaultOptions = {
     'enableEncryption': true,
     'enableCompression': true,
     'maxRecordSize': 1024 * 1024 * 10, // 10MB

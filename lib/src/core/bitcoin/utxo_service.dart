@@ -103,7 +103,7 @@ class UTXOService {
       ]);
 
       return List<Map<String, dynamic>>.from(response)
-          .map((utxo) => UTXO.fromJson(utxo))
+          .map(UTXO.fromJson)
           .toList();
     } catch (e) {
       throw UTXOServiceError('Failed to get UTXOs: $e');
@@ -196,7 +196,7 @@ class UTXOService {
     try {
       final response = await _makeRequest('listlockunspent');
       return List<Map<String, dynamic>>.from(response)
-          .map((utxo) => UTXO.fromJson(utxo))
+          .map(UTXO.fromJson)
           .toList();
     } catch (e) {
       throw UTXOServiceError('Failed to get locked UTXOs: $e');
