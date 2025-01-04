@@ -1,7 +1,9 @@
 import 'dart:async';
-import '../models/wallet.dart';
-import '../errors/service_errors.dart';
+
 import 'package:dash33/dash33.dart';
+
+import '../errors/service_errors.dart';
+import '../models/wallet.dart';
 
 abstract class ChainService {
   Future<String> createWallet(String ownerDid);
