@@ -1,70 +1,32 @@
 import 'dart:async';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:web5/web5.dart';
-import 'package:bitcoindart/bitcoindart.dart';
+import 'package:bitcoin_base/bitcoin_base.dart';
 import '../errors/service_errors.dart';
 
-class UTXO {
-  final String txid;
-  final int vout;
-  final String address;
-  final String scriptPubKey;
-  final int value;
-  final int confirmations;
-  final bool isSpendable;
-  final bool isSolvable;
-  final String? redeemScript;
-  final String? witnessScript;
-  final bool isChange;
-  final Map<String, dynamic>? metadata;
+part 'utxo_service.g.dart';
+part 'utxo_service.freezed.dart';
 
-  UTXO({
-    required this.txid,
-    required this.vout,
-    required this.address,
-    required this.scriptPubKey,
-    required this.value,
-    required this.confirmations,
-    required this.isSpendable,
-    required this.isSolvable,
-    this.redeemScript,
-    this.witnessScript,
-    this.isChange = false,
-    this.metadata,
-  });
+/// Unspent Transaction Output (UTXO) model
+@freezed
+class UTXO with _$UTXO {
+  const factory UTXO({
+    required String txid,
+    required int vout,
+    required String address,
+    required String scriptPubKey,
+    required int value,
+    required int confirmations,
+    required bool isSpendable,
+    required bool isSolvable,
+    String? redeemScript,
+    String? witnessScript,
+    @Default(false) bool isChange,
+    Map<String, dynamic>? metadata,
+  }) = _UTXO;
 
-  factory UTXO.fromJson(Map<String, dynamic> json) {
-    return UTXO(
-      txid: json['txid'],
-      vout: json['vout'],
-      address: json['address'],
-      scriptPubKey: json['scriptPubKey'],
-      value: json['value'],
-      confirmations: json['confirmations'],
-      isSpendable: json['spendable'],
-      isSolvable: json['solvable'],
-      redeemScript: json['redeemScript'],
-      witnessScript: json['witnessScript'],
-      isChange: json['isChange'] ?? false,
-      metadata: json['metadata'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'txid': txid,
-      'vout': vout,
-      'address': address,
-      'scriptPubKey': scriptPubKey,
-      'value': value,
-      'confirmations': confirmations,
-      'spendable': isSpendable,
-      'solvable': isSolvable,
-      'redeemScript': redeemScript,
-      'witnessScript': witnessScript,
-      'isChange': isChange,
-      'metadata': metadata,
-    };
-  }
+  factory UTXO.fromJson(Map<String, dynamic> json) => _$UTXOFromJson(json);
 
   /// Get outpoint string (txid:vout)
   String get outpoint => '$txid:$vout';
@@ -90,21 +52,37 @@ class UTXOService {
   final Web5 _web5;
   final String _nodeUrl;
   final NetworkType _network;
+  final int _dustThreshold;
 
-  UTXOService(this._web5, this._nodeUrl, this._network);
+  UTXOService(
+    this._web5,
+    this._nodeUrl,
+    this._network, {
+    int? dustThreshold,
+  }) : _dustThreshold = dustThreshold ?? 546; // Default Bitcoin dust threshold
 
   /// Get all UTXOs for an address
   Future<List<UTXO>> getUTXOs(String address) async {
     try {
+      _validateAddress(address);
+
       final response = await _makeRequest('listunspent', [
         0, // minconf
         9999999, // maxconf
         [address],
       ]);
 
+      if (response is! List) {
+        throw UTXOServiceError('Invalid response format from node');
+      }
+
       return List<Map<String, dynamic>>.from(response)
-          .map(UTXO.fromJson)
+          .map((json) => UTXO.fromJson(json))
           .toList();
+    } on Web5Exception catch (e) {
+      throw UTXOServiceError('Web5 error: ${e.message}');
+    } on FormatException catch (e) {
+      throw UTXOServiceError('Invalid data format: ${e.message}');
     } catch (e) {
       throw UTXOServiceError('Failed to get UTXOs: $e');
     }
@@ -118,6 +96,16 @@ class UTXOService {
     UTXOSelectionStrategy strategy = UTXOSelectionStrategy.minimizeInputs,
   }) async {
     try {
+      if (targetAmount <= 0) {
+        throw UTXOServiceError('Target amount must be positive');
+      }
+      if (feeRate <= 0) {
+        throw UTXOServiceError('Fee rate must be positive');
+      }
+      if (availableUTXOs.isEmpty) {
+        throw InsufficientFundsError('No UTXOs available');
+      }
+
       // Sort UTXOs based on strategy
       final sortedUTXOs = _sortUTXOs(availableUTXOs, strategy);
 
@@ -134,139 +122,121 @@ class UTXOService {
         selectedAmount += utxo.value;
 
         // Recalculate fee with current inputs
-        final currentFee = _calculateFee(selectedUTXOs.length, 2,
-            feeRate); // Assume 2 outputs (recipient + change)
+        final currentFee = _calculateFee(
+          selectedUTXOs.length,
+          2, // Assume 2 outputs (recipient + change)
+          feeRate,
+        );
 
         // Check if we have enough including fees
         if (selectedAmount >= targetAmount + currentFee) {
           // Check if change output would be dust
           final change = selectedAmount - targetAmount - currentFee;
-          if (change >= baseFee) {
+          if (change >= _dustThreshold) {
             break;
           }
         }
       }
 
-      if (selectedAmount <
-          targetAmount + _calculateFee(selectedUTXOs.length, 2, feeRate)) {
+      final totalFee = _calculateFee(selectedUTXOs.length, 2, feeRate);
+      if (selectedAmount < targetAmount + totalFee) {
         throw InsufficientFundsError(
-            'Not enough funds to cover amount and fees');
+          'Insufficient funds: need ${targetAmount + totalFee}, '
+          'have $selectedAmount',
+        );
       }
 
       return selectedUTXOs;
     } catch (e) {
-      throw UTXOServiceError('Failed to select UTXOs: $e');
+      if (e is InsufficientFundsError) rethrow;
+      throw UTXOServiceError('UTXO selection failed: $e');
     }
   }
 
-  /// Lock UTXOs to prevent double-spending
-  Future<void> lockUTXOs(List<UTXO> utxos) async {
+  /// Get UTXO details by outpoint
+  Future<UTXO?> getUTXOByOutpoint(String txid, int vout) async {
     try {
-      final utxoRefs = utxos
-          .map((utxo) => {
-                'txid': utxo.txid,
-                'vout': utxo.vout,
-              })
-          .toList();
+      _validateTxid(txid);
+      if (vout < 0) {
+        throw UTXOServiceError('Invalid vout');
+      }
 
-      await _makeRequest('lockunspent', [false, utxoRefs]);
+      final response = await _makeRequest('gettxout', [txid, vout]);
+      if (response == null) return null;
+
+      return UTXO.fromJson(response as Map<String, dynamic>);
     } catch (e) {
-      throw UTXOServiceError('Failed to lock UTXOs: $e');
+      throw UTXOServiceError('Failed to get UTXO details: $e');
     }
   }
 
-  /// Unlock previously locked UTXOs
-  Future<void> unlockUTXOs(List<UTXO> utxos) async {
-    try {
-      final utxoRefs = utxos
-          .map((utxo) => {
-                'txid': utxo.txid,
-                'vout': utxo.vout,
-              })
-          .toList();
-
-      await _makeRequest('lockunspent', [true, utxoRefs]);
-    } catch (e) {
-      throw UTXOServiceError('Failed to unlock UTXOs: $e');
-    }
-  }
-
-  /// Get all locked UTXOs
-  Future<List<UTXO>> getLockedUTXOs() async {
-    try {
-      final response = await _makeRequest('listlockunspent');
-      return List<Map<String, dynamic>>.from(response)
-          .map(UTXO.fromJson)
-          .toList();
-    } catch (e) {
-      throw UTXOServiceError('Failed to get locked UTXOs: $e');
-    }
-  }
-
-  /// Sort UTXOs based on selection strategy
+  // Private helper methods
   List<UTXO> _sortUTXOs(List<UTXO> utxos, UTXOSelectionStrategy strategy) {
     switch (strategy) {
       case UTXOSelectionStrategy.minimizeInputs:
-        // Sort by value descending to use fewer inputs
-        return List.from(utxos)..sort((a, b) => b.value.compareTo(a.value));
-
+        return List.from(utxos)
+          ..sort((a, b) => b.value.compareTo(a.value));
       case UTXOSelectionStrategy.maximizePrivacy:
-        // Shuffle UTXOs to use random inputs
-        return List.from(utxos)..shuffle();
-
+        return List.from(utxos)
+          ..sort((a, b) => a.address.compareTo(b.address));
       case UTXOSelectionStrategy.oldestFirst:
-        // Sort by confirmations descending
         return List.from(utxos)
           ..sort((a, b) => b.confirmations.compareTo(a.confirmations));
-
       case UTXOSelectionStrategy.closestAmount:
-        // Implementation depends on target amount, handled in selectUTXOs
-        return utxos;
+        return utxos; // Implement closest amount logic
     }
   }
 
-  /// Calculate transaction fee based on size
   int _calculateFee(int numInputs, int numOutputs, int feeRate) {
-    // Approximate size calculation:
-    // Input: ~148 bytes for legacy, ~68 bytes for SegWit
-    // Output: ~34 bytes
-    // Other: ~10 bytes
-    const int inputSize = 68; // Assuming SegWit
-    const int outputSize = 34;
-    const int otherSize = 10;
-
-    final int totalSize =
-        (inputSize * numInputs) + (outputSize * numOutputs) + otherSize;
-    return totalSize * feeRate;
+    // P2WPKH input: 68 vbytes, P2WPKH output: 31 vbytes, Other: 11 vbytes
+    final int vsize = (numInputs * 68) + (numOutputs * 31) + 11;
+    return vsize * feeRate;
   }
 
-  /// Estimate base fee for dust calculation
   int _estimateBaseFee(int feeRate) {
-    // Minimum size for a typical output
-    return 34 * feeRate;
+    // Estimate fee for a basic P2WPKH output
+    return 31 * feeRate;
   }
 
-  Future<dynamic> _makeRequest(String method, [List<dynamic>? params]) async {
-    try {
-      // Implementation would use Bitcoin Core RPC
-      throw UnimplementedError(
-          'Bitcoin Core RPC communication not implemented');
-    } catch (e) {
-      throw UTXOServiceError('Request failed: $e');
+  void _validateAddress(String address) {
+    if (address.isEmpty) {
+      throw UTXOServiceError('Empty address');
     }
+    try {
+      Address.fromAddress(address, _network);
+    } catch (e) {
+      throw UTXOServiceError('Invalid address format: $e');
+    }
+  }
+
+  void _validateTxid(String txid) {
+    if (!RegExp(r'^[a-fA-F0-9]{64}$').hasMatch(txid)) {
+      throw UTXOServiceError('Invalid transaction ID format');
+    }
+  }
+
+  Future<dynamic> _makeRequest(String method, List<dynamic> params) async {
+    final response = await _web5.rpc.call(_nodeUrl, method, params);
+    return response;
   }
 }
 
+/// Error thrown by UTXOService
 class UTXOServiceError implements Exception {
   final String message;
-  UTXOServiceError(this.message);
+  
+  const UTXOServiceError(this.message);
+  
   @override
-  String toString() => message;
+  String toString() => 'UTXOServiceError: $message';
 }
 
+/// Error thrown when insufficient funds are available
 class InsufficientFundsError implements Exception {
   final String message;
-  InsufficientFundsError(this.message);
+  
+  const InsufficientFundsError(this.message);
+  
   @override
-  String toString() => message;
+  String toString() => 'InsufficientFundsError: $message';
 }
