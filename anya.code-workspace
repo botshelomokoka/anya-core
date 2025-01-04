@@ -1,0 +1,29 @@
+{
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        "gitlens.codeLens.enabled": true,
+        "gitlens.currentLine.enabled": true,
+        "gitlens.hovers.currentLine.over": "line",
+        "gitlens.statusBar.enabled": true,
+        "gitlens.views.branches.branches.layout": "list",
+        "gitlens.views.repositories.branches.layout": "list",
+        "gitlens.views.repositories.files.layout": "tree",
+        "gitlens.views.repositories.enabled": true,
+        "gitlens.views.branches.enabled": true,
+        "gitlens.advanced.messages": {
+            "suppressCommitHasNoPreviousCommitWarning": false,
+            "suppressCommitNotFoundWarning": false,
+            "suppressFileNotUnderSourceControlWarning": false,
+            "suppressGitVersionWarning": false,
+            "suppressLineUncommittedWarning": false,
+            "suppressNoRepositoryWarning": false
+        },
+        "gitlens.defaultDateFormat": "YYYY-MM-DD HH:mm",
+        "gitlens.defaultDateShortFormat": "YYYY-MM-DD",
+        "gitlens.views.searchAndCompare.enabled": true
+    }
+}
