@@ -22,7 +22,7 @@ class RepoMonitor {
   void _setupLogging() {
     Logger.root.level = Level.ALL;
     Logger.root.onRecord.listen((record) {
-      print('${record.level.name}: ${record.time}: ${record.message}');
+      _logger.info('${record.level.name}: ${record.time}: ${record.message}');
     });
   }
 
@@ -75,13 +75,14 @@ class RepoMonitor {
         Uri.parse('https://api.github.com/repos/$owner/$repo/actions/runs');
 
     final response = await _githubGet(url);
-    final runs = jsonDecode(response.body)['workflow_runs'] as List;
+    final data = jsonDecode(response.body);
+    final runs = data['workflow_runs'] as List<dynamic>;
 
     return {
       'total': runs.length,
-      'successful': runs.where((r) => r['conclusion'] == 'success').length,
-      'failed': runs.where((r) => r['conclusion'] == 'failure').length,
-      'latest': runs.isNotEmpty ? runs.first : null,
+      'successful': runs.where((r) => (r as Map<String, dynamic>)['conclusion'] == 'success').length,
+      'failed': runs.where((r) => (r as Map<String, dynamic>)['conclusion'] == 'failure').length,
+      'latest': runs.isNotEmpty ? runs.first as Map<String, dynamic> : null,
     };
   }
 
@@ -90,13 +91,13 @@ class RepoMonitor {
     final url = Uri.parse('https://api.github.com/repos/$owner/$repo');
 
     final response = await _githubGet(url);
-    final data = jsonDecode(response.body);
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
 
     return {
-      'size': data['size'],
-      'open_issues': data['open_issues_count'],
-      'watchers': data['watchers_count'],
-      'last_push': data['pushed_at'],
+      'size': data['size'] as int,
+      'open_issues': data['open_issues_count'] as int,
+      'watchers': data['watchers_count'] as int,
+      'last_push': data['pushed_at'] as String,
     };
   }
 
@@ -156,14 +157,14 @@ class RepoMonitor {
     final issuesResponse = await _githubGet(issuesUrl);
     final prsResponse = await _githubGet(prsUrl);
 
-    final issues = jsonDecode(issuesResponse.body) as List;
-    final prs = jsonDecode(prsResponse.body) as List;
+    final issues = jsonDecode(issuesResponse.body) as List<dynamic>;
+    final prs = jsonDecode(prsResponse.body) as List<dynamic>;
 
     return {
       'open_issues': issues.length,
       'open_prs': prs.length,
-      'stale_issues': issues.where((i) => _isStale(i['updated_at'])).length,
-      'stale_prs': prs.where((p) => _isStale(p['updated_at'])).length,
+      'stale_issues': issues.where((i) => _isStale((i as Map<String, dynamic>)['updated_at'] as String)).length,
+      'stale_prs': prs.where((p) => _isStale((p as Map<String, dynamic>)['updated_at'] as String)).length,
     };
   }
 
