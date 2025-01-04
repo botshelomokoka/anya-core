@@ -1,0 +1,27 @@
+core:
+  - src/core/**/*
+
+web5:
+  - src/web5/**/*
+  - dependencies/web5-rs/**/*
+
+mobile:
+  - mobile/**/*
+  - src/ui/**/*
+
+enterprise:
+  - enterprise/**/*
+
+documentation:
+  - '**/*.md'
+  - docs/**/*
+
+dependencies:
+  - '**/Cargo.toml'
+  - '**/Cargo.lock'
+  - '**/pubspec.yaml'
+  - '**/pubspec.lock'
+
+ci:
+  - .github/**/*
+  - scripts/**/*

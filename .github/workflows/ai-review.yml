@@ -1,0 +1,77 @@
+name: AI Code Review
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+jobs:
+  ai-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: AI Code Review
+        uses: coderabbitai/ai-pr-reviewer@latest
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          review-comment-prefix: "🤖 AI Review:"
+          path-filters: |
+            !dist/**
+            !build/**
+            !**/*.lock
+          exclude-patterns: |
+            **/*.json
+            **/*.md
+          review-practices: |
+            - "Check for compliance with project guidelines"
+            - "Verify proper error handling"
+            - "Look for potential security issues"
+            - "Assess code performance"
+            - "Validate test coverage"
+
+  ai-label:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: AI PR Labeler
+        uses: github/issue-labeler@v3.2
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          configuration-path: .github/labeler-ai-config.yml
+          enable-ml-model: true
+          model-name: "gpt-4"
+
+  ai-security-scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      security-events: write
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: AI Security Review
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          config-path: .github/gitleaks.toml
+          format: sarif
+          report-path: gitleaks-report.sarif
+
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: gitleaks-report.sarif

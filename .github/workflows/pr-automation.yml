@@ -1,0 +1,66 @@
+name: Pull Request Automation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  anya-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          
+      - name: Anya Code Analysis
+        uses: anya-ai/code-analyzer@v1
+        with:
+          analysis-type: "comprehensive"
+          include-patterns: |
+            src/**/*.rs
+            src/**/*.py
+            src/**/*.dart
+          context-depth: "repository"
+          
+      - name: Performance Impact Analysis
+        uses: anya-ai/performance-analyzer@v1
+        with:
+          benchmark-suite: "core"
+          comparison-base: "main"
+          
+      - name: Security Scan
+        uses: anya-ai/security-scanner@v1
+        with:
+          scan-depth: "deep"
+          include-checks: |
+            - bitcoin-specific
+            - web5-vulnerabilities
+            
+  smart-labeling:
+    needs: anya-analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply Smart Labels
+        uses: anya-ai/smart-labeler@v1
+        with:
+          config-file: .github/anya-label-rules.yml
+          analysis-results: ${{ needs.anya-analysis.outputs.results }}
+          
+  auto-merge:
+    needs: [anya-analysis, smart-labeling]
+    runs-on: ubuntu-latest
+    if: |
+      github.event.review.state == 'approved' &&
+      !github.event.pull_request.draft &&
+      contains(github.event.pull_request.labels.*.name, 'ai-approved')
+    steps:
+      - name: Auto-merge Pull Request
+        uses: anya-ai/merge-guardian@v1
+        with:
+          merge-method: "squash"
+          required-labels: |
+            - ai-approved
+            - security-cleared
+          update-strategy: "rebase"
