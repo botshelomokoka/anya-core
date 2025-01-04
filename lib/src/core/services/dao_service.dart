@@ -1,8 +1,8 @@
+import '../errors/service_errors.dart';
 import '../models/dao.dart';
 import '../models/wallet.dart';
 import '../repositories/dao_repository.dart';
 import '../repositories/wallet_repository.dart';
-import '../errors/service_errors.dart';
 
 class DAOService {
   final DAORepository _daoRepository;
