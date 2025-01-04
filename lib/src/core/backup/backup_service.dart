@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:web5/web5.dart';
+
+import '../errors/service_errors.dart';
 import '../models/wallet.dart';
 import '../security/encryption_service.dart';
-import '../errors/service_errors.dart';
 
 /// Backup format version
 const int BACKUP_VERSION = 1;

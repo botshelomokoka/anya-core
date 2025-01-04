@@ -60,7 +60,7 @@ class FeeService {
   static const Duration _cacheDuration = Duration(minutes: 10);
 
   /// Cached fee recommendations
-  Map<String, _CachedFeeRecommendation> _cache = {};
+  final Map<String, _CachedFeeRecommendation> _cache = {};
 
   FeeService(this._web5, this._nodeUrl);
 
