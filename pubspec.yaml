@@ -13,17 +13,22 @@ dependencies:
   logging: ^1.2.0
   path: ^1.8.3
   crypto: ^3.0.3
-  web5: ^0.1.0
-  bitcoindart: ^0.7.0
+  web5: ^0.4.0
+  bitcoin_base: ^5.0.0
   shelf: ^1.4.1
   shelf_router: ^1.1.4
-  fl_chart: ^0.64.0
+  fl_chart: ^0.70.0
   flutter_svg: ^2.0.7
-  intl: ^0.18.1
+  intl: ^0.20.1
+  hex: ^0.2.0
+  pointycastle: ^3.7.3
+  cryptography: ^2.7.0
+  bip39: ^1.0.6
+  bip32: ^2.0.0
 
 dev_dependencies:
   test: ^1.24.0
-  lints: ^3.0.0
+  lints: ^5.1.1
   build_runner: ^2.4.6
   mockito: ^5.4.2
 
