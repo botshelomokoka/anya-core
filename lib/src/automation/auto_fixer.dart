@@ -217,3 +217,6 @@ Please review the changes and merge if satisfactory.
 ''';
   }
 }
+
+_checkDependencyConflicts() async {
+}
