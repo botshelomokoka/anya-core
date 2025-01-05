@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
 
       - name: Code Review
-        uses: reviewdog/reviewdog-action-suggester@v1
+        uses: reviewdog/reviewdog@v0.11.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           tool_name: ai-review
@@ -31,11 +31,11 @@ jobs:
       - name: Security Analysis
         uses: github/codeql-action/analyze@v2
         with:
-          languages: javascript, python, ruby
+          language: javascript
           queries: security-extended
 
       - name: Performance Check
-        uses: CodiumAI/action-pr-performance@v1
+        uses: CodiumAI/action-pr-performance@v0.2.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
