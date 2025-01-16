@@ -1,0 +1,66 @@
+[licenses]
+unlicensed = "deny"
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "BSD-3-Clause",
+    "BSD-2-Clause",
+    "ISC",
+    "Zlib",
+    "CC0-1.0",
+    "MPL-2.0",
+]
+confidence-threshold = 0.8
+copyleft = "warn"
+default = "deny"
+private = { ignore = true }
+
+[bans]
+multiple-versions = "warn"
+highlight = "all"
+skip = [
+    # Allow multiple versions for these during transition
+    { name = "tokio", version = "1" },
+    { name = "serde", version = "1" },
+]
+skip-tree = [
+    # Dependencies with known multiple versions
+    { name = "bitcoin", version = "0.32" },
+]
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = [
+    "https://github.com/botshelomokoka/anya-core",
+]
+
+[advisories]
+vulnerability = "deny"
+unmaintained = "warn"
+yanked = "warn"
+notice = "warn"
+ignore = [
+    # List any advisory IDs to ignore
+]
+
+[sources.allow-org]
+github = ["botshelomokoka"]
+
+[licenses.private]
+ignore = true
+
+[licenses.clarify]
+# Explicitly clarify licenses for specific packages
+[[licenses.clarify.MIT]]
+expression = "MIT"
+license-files = [
+    { path = "LICENSE-MIT", hash = 0 }
+]
+
+[[licenses.clarify.Apache-2.0]]
+expression = "Apache-2.0"
+license-files = [
+    { path = "LICENSE-APACHE", hash = 0 }
+]
