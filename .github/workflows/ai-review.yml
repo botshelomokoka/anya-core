@@ -1,0 +1,51 @@
+name: AI Code Review
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Code Review
+        uses: reviewdog/reviewdog@v0.11.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tool_name: ai-review
+          reporter: github-pr-review
+          filter_mode: nofilter
+          fail_on_error: false
+          level: warning
+
+      - name: Security Analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          language: javascript
+          queries: security-extended
+
+      - name: Performance Check
+        uses: CodiumAI/action-pr-performance@v0.2.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  label:
+    needs: review
+    runs-on: ubuntu-latest
+    steps:
+      - name: Label PR
+        uses: actions/labeler@v4
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          configuration-path: .github/labeler.yml
+          sync-labels: true

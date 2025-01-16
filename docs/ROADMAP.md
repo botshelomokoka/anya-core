@@ -114,6 +114,23 @@ Enhanced monitoring
 - AI-driven optimization
 - Custom protocols
 
+## Integration with Filemap and Graph
+
+### Current Directory Structure
+The Anya project is organized into several key directories:
+- **anya-bitcoin**: Contains documentation and source code related to Bitcoin functionalities.
+- **anya-enterprise**: Includes enterprise-specific features, documentation, and source code.
+- **anya-extensions**: Holds extension-related documentation and source code.
+- **dash33**: Contains Python scripts, configurations, and documentation for specific functionalities.
+- **dependencies**: Includes various dependencies and their configurations.
+- **core**: Core functionalities and services, with associated documentation.
+
+### Graph Relationships
+The project structure supports modular development, allowing for:
+- Seamless integration between different components.
+- Efficient management of dependencies.
+- Clear separation of concerns across different functionalities.
+
 ## Contributing
 We welcome contributions! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 

@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:path/path.dart' as path;
+
 import 'package:logging/logging.dart';
+import 'package:path/path.dart' as path;
 import 'package:web5/web5.dart';
-import '../lib/src/core/storage/dwn_store.dart';
+
 import '../lib/src/core/config/web5_config.dart';
 import '../lib/src/core/models/wallet.dart';
+import '../lib/src/core/storage/dwn_store.dart';
 
 final _logger = Logger('MigrationScript');
 

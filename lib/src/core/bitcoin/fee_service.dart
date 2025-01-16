@@ -1,6 +1,11 @@
 import 'dart:async';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:web5/web5.dart';
 import '../errors/service_errors.dart';
+
+part 'fee_service.g.dart';
+part 'fee_service.freezed.dart';
 
 /// Fee estimation modes
 enum FeeEstimateMode {
@@ -12,57 +17,43 @@ enum FeeEstimateMode {
 }
 
 /// Fee rate recommendation
-class FeeRecommendation {
-  /// Fee rate in satoshis per vbyte
-  final int feeRate;
+@freezed
+class FeeRecommendation with _$FeeRecommendation {
+  const factory FeeRecommendation({
+    /// Fee rate in satoshis per vbyte
+    required int feeRate,
 
-  /// Estimated blocks until confirmation
-  final int blocks;
+    /// Estimated blocks until confirmation
+    required int blocks,
 
-  /// Estimated minutes until confirmation
-  final int minutes;
+    /// Estimated minutes until confirmation
+    required int minutes,
 
-  /// Confidence level (0-1)
-  final double confidence;
+    /// Confidence level (0-1)
+    required double confidence,
+  }) = _FeeRecommendation;
 
-  FeeRecommendation({
-    required this.feeRate,
-    required this.blocks,
-    required this.minutes,
-    required this.confidence,
-  });
-
-  factory FeeRecommendation.fromJson(Map<String, dynamic> json) {
-    return FeeRecommendation(
-      feeRate: json['feeRate'],
-      blocks: json['blocks'],
-      minutes: json['minutes'],
-      confidence: json['confidence'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'feeRate': feeRate,
-      'blocks': blocks,
-      'minutes': minutes,
-      'confidence': confidence,
-    };
-  }
+  factory FeeRecommendation.fromJson(Map<String, dynamic> json) =>
+      _$FeeRecommendationFromJson(json);
 }
 
 /// Fee estimation service
 class FeeService {
   final Web5 _web5;
   final String _nodeUrl;
+  final Duration _cacheDuration;
 
   /// Cache duration for fee estimates
-  static const Duration _cacheDuration = Duration(minutes: 10);
+  static const defaultCacheDuration = Duration(minutes: 10);
 
   /// Cached fee recommendations
-  Map<String, _CachedFeeRecommendation> _cache = {};
+  final Map<String, _CachedFeeRecommendation> _cache = {};
 
-  FeeService(this._web5, this._nodeUrl);
+  FeeService(
+    this._web5,
+    this._nodeUrl, {
+    Duration? cacheDuration,
+  }) : _cacheDuration = cacheDuration ?? defaultCacheDuration;
 
   /// Get fee recommendation for different priorities
   Future<Map<String, FeeRecommendation>> getFeeRecommendations({
@@ -72,35 +63,35 @@ class FeeService {
       // Check cache first
       final cacheKey = mode.toString();
       final cached = _cache[cacheKey];
-      if (cached != null && !cached.isExpired) {
+      if (cached != null && !cached.isExpired(_cacheDuration)) {
         return cached.recommendations;
       }
 
       // Get fresh estimates from node
-      final estimates = await _getFeeEstimates(mode);
+      final Map<String, dynamic> estimates = await _getFeeEstimates(mode);
 
       // Process estimates into recommendations
       final recommendations = <String, FeeRecommendation>{
         'high': FeeRecommendation(
-          feeRate: estimates['high_fee_rate'],
+          feeRate: _validateFeeRate(estimates['high_fee_rate']),
           blocks: 1,
           minutes: 10,
           confidence: 0.95,
         ),
         'medium': FeeRecommendation(
-          feeRate: estimates['medium_fee_rate'],
+          feeRate: _validateFeeRate(estimates['medium_fee_rate']),
           blocks: 3,
           minutes: 30,
           confidence: 0.90,
         ),
         'low': FeeRecommendation(
-          feeRate: estimates['low_fee_rate'],
+          feeRate: _validateFeeRate(estimates['low_fee_rate']),
           blocks: 6,
           minutes: 60,
           confidence: 0.80,
         ),
         'minimum': FeeRecommendation(
-          feeRate: estimates['minimum_fee_rate'],
+          feeRate: _validateFeeRate(estimates['minimum_fee_rate']),
           blocks: 100,
           minutes: 1000,
           confidence: 0.50,
@@ -114,6 +105,10 @@ class FeeService {
       );
 
       return recommendations;
+    } on Web5Exception catch (e) {
+      throw FeeServiceError('Web5 error: ${e.message}');
+    } on FormatException catch (e) {
+      throw FeeServiceError('Invalid fee rate format: ${e.message}');
     } catch (e) {
       throw FeeServiceError('Failed to get fee recommendations: $e');
     }
@@ -125,18 +120,26 @@ class FeeService {
     FeeEstimateMode mode = FeeEstimateMode.conservative,
   }) async {
     try {
-      final response = await _makeRequest('estimatesmartfee', [
-        targetBlocks,
-        mode.toString().split('.').last,
-      ]);
+      final Map<String, dynamic> response = await _makeRequest(
+        'estimatesmartfee',
+        [targetBlocks, mode.toString().split('.').last],
+      );
+
+      if (!response.containsKey('feerate')) {
+        throw FeeServiceError('Invalid response from node');
+      }
+
+      final double feeRate = response['feerate'] as double;
+      final int blocks = response['blocks'] as int;
 
       return FeeRecommendation(
-        feeRate: (response['feerate'] * 100000000)
-            .round(), // Convert BTC/kB to sat/vB
-        blocks: response['blocks'],
-        minutes: response['blocks'] * 10, // Assuming 10 min block time
+        feeRate: _convertBtcKbToSatVb(feeRate),
+        blocks: blocks,
+        minutes: blocks * 10, // Assuming 10 min block time
         confidence: 0.90,
       );
+    } on Web5Exception catch (e) {
+      throw FeeServiceError('Web5 error: ${e.message}');
     } catch (e) {
       throw FeeServiceError('Failed to estimate fee: $e');
     }
@@ -144,76 +147,72 @@ class FeeService {
 
   /// Calculate fee for transaction size
   int calculateFee(int vsize, FeeRecommendation recommendation) {
+    if (vsize <= 0) {
+      throw FeeServiceError('Invalid transaction size');
+    }
     return vsize * recommendation.feeRate;
   }
 
   /// Get minimum relay fee
   Future<int> getMinimumRelayFee() async {
     try {
-      final response = await _makeRequest('getnetworkinfo');
-      return (response['relayfee'] * 100000000)
-          .round(); // Convert BTC/kB to sat/vB
+      final Map<String, dynamic> response = await _makeRequest('getnetworkinfo', []);
+      final double relayFee = response['relayfee'] as double;
+      return _convertBtcKbToSatVb(relayFee);
     } catch (e) {
       throw FeeServiceError('Failed to get minimum relay fee: $e');
     }
   }
 
-  /// Get mempool info for fee estimation
-  Future<Map<String, dynamic>> getMempoolInfo() async {
-    try {
-      return await _makeRequest('getmempoolinfo');
-    } catch (e) {
-      throw FeeServiceError('Failed to get mempool info: $e');
-    }
-  }
-
-  /// Get fee estimates from node
+  // Private helper methods
   Future<Map<String, dynamic>> _getFeeEstimates(FeeEstimateMode mode) async {
-    try {
-      final highPriority = await estimateFee(1, mode: mode);
-      final mediumPriority = await estimateFee(3, mode: mode);
-      final lowPriority = await estimateFee(6, mode: mode);
-      final minimumFee = await getMinimumRelayFee();
-
-      return {
-        'high_fee_rate': highPriority.feeRate,
-        'medium_fee_rate': mediumPriority.feeRate,
-        'low_fee_rate': lowPriority.feeRate,
-        'minimum_fee_rate': minimumFee,
-      };
-    } catch (e) {
-      throw FeeServiceError('Failed to get fee estimates: $e');
-    }
+    final response = await _makeRequest('estimatefeerates', [mode.toString().split('.').last]);
+    return Map<String, dynamic>.from(response);
   }
 
-  Future<dynamic> _makeRequest(String method, [List<dynamic>? params]) async {
-    try {
-      // Implementation would use Bitcoin Core RPC
-      throw UnimplementedError(
-          'Bitcoin Core RPC communication not implemented');
-    } catch (e) {
-      throw FeeServiceError('Request failed: $e');
+  Future<Map<String, dynamic>> _makeRequest(String method, List<dynamic> params) async {
+    final response = await _web5.rpc.call(_nodeUrl, method, params);
+    return Map<String, dynamic>.from(response);
+  }
+
+  int _validateFeeRate(dynamic rate) {
+    if (rate == null) {
+      throw FeeServiceError('Fee rate cannot be null');
     }
+    final feeRate = rate is int ? rate : (rate as num).toInt();
+    if (feeRate < 0) {
+      throw FeeServiceError('Fee rate cannot be negative');
+    }
+    return feeRate;
+  }
+
+  int _convertBtcKbToSatVb(double btcPerKb) {
+    return (btcPerKb * 100000000 / 1000).round(); // Convert BTC/kB to sat/vB
   }
 }
 
 /// Cached fee recommendation with timestamp
+@immutable
 class _CachedFeeRecommendation {
   final Map<String, FeeRecommendation> recommendations;
   final DateTime timestamp;
 
-  _CachedFeeRecommendation({
+  const _CachedFeeRecommendation({
     required this.recommendations,
     required this.timestamp,
   });
 
-  bool get isExpired =>
-      DateTime.now().difference(timestamp) > FeeService._cacheDuration;
+  bool isExpired(Duration cacheDuration) {
+    return DateTime.now().difference(timestamp) > cacheDuration;
+  }
 }
 
+/// Error thrown by FeeService
 class FeeServiceError implements Exception {
   final String message;
-  FeeServiceError(this.message);
+  
+  const FeeServiceError(this.message);
+  
   @override
-  String toString() => message;
+  String toString() => 'FeeServiceError: $message';
 }

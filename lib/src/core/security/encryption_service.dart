@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:typed_data';
+
 import 'package:crypto/crypto.dart';
 import 'package:encrypt/encrypt.dart';
-import '../models/wallet.dart';
+
 import '../errors/security_errors.dart';
+import '../models/wallet.dart';
 
 class EncryptionService {
   final Key _masterKey;

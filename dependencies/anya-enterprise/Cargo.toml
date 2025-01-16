@@ -1,0 +1,25 @@
+[package]
+name = "anya-enterprise"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[dependencies]
+zen-engine = "0"
+anya-core = { path = "../anya-core" }
+tokio = { version = "1.32.0", features = ["full"] }
+slog = "2.7"
+slog-term = "2.9"
+config = "0.13"
+thiserror = "1.0"
+libc = "0.2"  # Add libc for FFI
+log = "0.4"
+
+[features]
+default = ["advanced_analytics", "high_volume_trading"]
+advanced_analytics = []
+high_volume_trading = []

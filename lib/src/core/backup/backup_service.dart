@@ -1,48 +1,33 @@
 import 'dart:async';
 import 'dart:convert';
+
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:web5/web5.dart';
+
+import '../errors/service_errors.dart';
 import '../models/wallet.dart';
 import '../security/encryption_service.dart';
-import '../errors/service_errors.dart';
+
+part 'backup_service.g.dart';
+part 'backup_service.freezed.dart';
 
 /// Backup format version
-const int BACKUP_VERSION = 1;
+const int backupVersion = 1;
 
 /// Backup data structure
-class WalletBackup {
-  final int version;
-  final String timestamp;
-  final String ownerDid;
-  final List<Map<String, dynamic>> wallets;
-  final Map<String, dynamic> metadata;
+@freezed
+class WalletBackup with _$WalletBackup {
+  const factory WalletBackup({
+    required int version,
+    required String timestamp,
+    required String ownerDid,
+    required List<Map<String, dynamic>> wallets,
+    required Map<String, dynamic> metadata,
+  }) = _WalletBackup;
 
-  WalletBackup({
-    required this.version,
-    required this.timestamp,
-    required this.ownerDid,
-    required this.wallets,
-    required this.metadata,
-  });
-
-  factory WalletBackup.fromJson(Map<String, dynamic> json) {
-    return WalletBackup(
-      version: json['version'],
-      timestamp: json['timestamp'],
-      ownerDid: json['ownerDid'],
-      wallets: List<Map<String, dynamic>>.from(json['wallets']),
-      metadata: Map<String, dynamic>.from(json['metadata']),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'version': version,
-      'timestamp': timestamp,
-      'ownerDid': ownerDid,
-      'wallets': wallets,
-      'metadata': metadata,
-    };
-  }
+  factory WalletBackup.fromJson(Map<String, dynamic> json) =>
+      _$WalletBackupFromJson(json);
 }
 
 /// Backup service for wallet data
@@ -63,14 +48,20 @@ class BackupService {
       // Prepare wallet data for backup
       final walletData = await Future.wait(
         wallets.map((wallet) async {
-          final data = wallet.toJson();
+          final Map<String, dynamic> data = wallet.toJson();
 
           // Include additional wallet-specific data
-          if (wallet.type == 'bitcoin') {
-            data['utxos'] = await _getWalletUTXOs(wallet);
-            data['transactions'] = await _getWalletTransactions(wallet);
-          } else if (wallet.type == 'lightning') {
-            data['channels'] = await _getChannelBackups(wallet);
+          switch (wallet.type) {
+            case WalletType.bitcoin:
+              data['utxos'] = await _getWalletUTXOs(wallet);
+              data['transactions'] = await _getWalletTransactions(wallet);
+              break;
+            case WalletType.lightning:
+              data['channels'] = await _getChannelBackups(wallet);
+              break;
+            default:
+              // No additional data needed for other wallet types
+              break;
           }
 
           return data;
@@ -79,7 +70,7 @@ class BackupService {
 
       // Create backup structure
       final backup = WalletBackup(
-        version: BACKUP_VERSION,
+        version: backupVersion,
         timestamp: DateTime.now().toIso8601String(),
         ownerDid: ownerDid,
         wallets: walletData,
@@ -87,7 +78,7 @@ class BackupService {
       );
 
       // Encrypt backup data
-      final encrypted = await _encryption.encryptData(
+      final encrypted = await _encryption.encrypt(
         jsonEncode(backup.toJson()),
         password,
       );
@@ -96,6 +87,10 @@ class BackupService {
       await _storeBackup(encrypted, ownerDid);
 
       return encrypted;
+    } on EncryptionException catch (e) {
+      throw BackupServiceError('Encryption failed: ${e.message}');
+    } on Web5Exception catch (e) {
+      throw BackupServiceError('Web5 storage failed: ${e.message}');
     } catch (e) {
       throw BackupServiceError('Failed to create backup: $e');
     }
@@ -109,12 +104,12 @@ class BackupService {
   }) async {
     try {
       // Decrypt backup data
-      final decrypted =
-          await _encryption.decryptData(encryptedBackup, password);
-      final backup = WalletBackup.fromJson(jsonDecode(decrypted));
+      final decrypted = await _encryption.decrypt(encryptedBackup, password);
+      final Map<String, dynamic> jsonData = jsonDecode(decrypted) as Map<String, dynamic>;
+      final backup = WalletBackup.fromJson(jsonData);
 
       // Verify backup version and ownership
-      if (backup.version > BACKUP_VERSION) {
+      if (backup.version > backupVersion) {
         throw BackupServiceError('Unsupported backup version');
       }
       if (backup.ownerDid != ownerDid) {
@@ -122,131 +117,108 @@ class BackupService {
       }
 
       // Restore wallets
-      final restoredWallets = await Future.wait(
+      return Future.wait(
         backup.wallets.map((data) async {
           final wallet = Wallet.fromJson(data);
 
           // Restore additional wallet-specific data
-          if (wallet.type == 'bitcoin') {
-            await _restoreWalletUTXOs(wallet, data['utxos']);
-            await _restoreWalletTransactions(wallet, data['transactions']);
-          } else if (wallet.type == 'lightning') {
-            await _restoreChannelBackups(wallet, data['channels']);
+          switch (wallet.type) {
+            case WalletType.bitcoin:
+              await _restoreWalletUTXOs(wallet, data['utxos'] as List<Map<String, dynamic>>);
+              await _restoreWalletTransactions(wallet, data['transactions'] as List<Map<String, dynamic>>);
+              break;
+            case WalletType.lightning:
+              await _restoreChannelBackups(wallet, data['channels'] as List<Map<String, dynamic>>);
+              break;
+            default:
+              // No additional data to restore for other wallet types
+              break;
           }
 
           return wallet;
         }),
       );
-
-      return restoredWallets;
+    } on EncryptionException catch (e) {
+      throw BackupServiceError('Decryption failed: ${e.message}');
+    } on FormatException catch (e) {
+      throw BackupServiceError('Invalid backup format: ${e.message}');
     } catch (e) {
       throw BackupServiceError('Failed to restore backup: $e');
     }
   }
 
   /// List available backups for a user
-  Future<List<Map<String, dynamic>>> listBackups(String ownerDid) async {
+  Future<List<BackupMetadata>> listBackups(String ownerDid) async {
     try {
-      final records = await _web5.dwn.records.query({
-        'message': {
-          'filter': {
-            'schema': 'anya/wallet/backup',
-            'recipient': ownerDid,
-          },
-        },
+      final records = await _web5.records.query({
+        'message.type': 'wallet-backup',
+        'message.owner': ownerDid,
       });
 
-      return records
-          .map((record) => {
-                'id': record.id,
-                'timestamp': record.dateCreated,
-                'size': record.data.length,
-              })
-          .toList();
-    } catch (e) {
-      throw BackupServiceError('Failed to list backups: $e');
+      return records.map((record) => BackupMetadata.fromJson(record)).toList();
+    } on Web5Exception catch (e) {
+      throw BackupServiceError('Failed to list backups: ${e.message}');
     }
   }
 
-  /// Delete a backup
-  Future<void> deleteBackup(String backupId, String ownerDid) async {
-    try {
-      await _web5.dwn.records.delete({
-        'message': {
-          'recordId': backupId,
-          'authorization': {
-            'did': ownerDid,
-          },
-        },
-      });
-    } catch (e) {
-      throw BackupServiceError('Failed to delete backup: $e');
-    }
-  }
-
-  /// Store encrypted backup in Web5
-  Future<void> _storeBackup(String encryptedData, String ownerDid) async {
-    try {
-      await _web5.dwn.records.create({
-        'data': encryptedData,
-        'message': {
-          'schema': 'anya/wallet/backup',
-          'dataFormat': 'application/json',
-          'recipient': ownerDid,
-        },
-      });
-    } catch (e) {
-      throw BackupServiceError('Failed to store backup: $e');
-    }
-  }
-
-  /// Get UTXO data for backup
+  // Private helper methods
   Future<List<Map<String, dynamic>>> _getWalletUTXOs(Wallet wallet) async {
-    // Implementation would get UTXO data from UTXOService
-    return [];
+    // Implementation
+    throw UnimplementedError();
   }
 
-  /// Get transaction history for backup
-  Future<List<Map<String, dynamic>>> _getWalletTransactions(
-      Wallet wallet) async {
-    // Implementation would get transaction history
-    return [];
+  Future<List<Map<String, dynamic>>> _getWalletTransactions(Wallet wallet) async {
+    // Implementation
+    throw UnimplementedError();
   }
 
-  /// Get Lightning channel backups
   Future<List<Map<String, dynamic>>> _getChannelBackups(Wallet wallet) async {
-    // Implementation would get channel backup data
-    return [];
+    // Implementation
+    throw UnimplementedError();
   }
 
-  /// Restore UTXO data
   Future<void> _restoreWalletUTXOs(
     Wallet wallet,
     List<Map<String, dynamic>> utxos,
   ) async {
-    // Implementation would restore UTXO data
+    // Implementation
+    throw UnimplementedError();
   }
 
-  /// Restore transaction history
   Future<void> _restoreWalletTransactions(
     Wallet wallet,
     List<Map<String, dynamic>> transactions,
   ) async {
-    // Implementation would restore transaction history
+    // Implementation
+    throw UnimplementedError();
   }
 
-  /// Restore Lightning channel backups
   Future<void> _restoreChannelBackups(
     Wallet wallet,
     List<Map<String, dynamic>> channels,
   ) async {
-    // Implementation would restore channel backups
+    // Implementation
+    throw UnimplementedError();
+  }
+
+  Future<void> _storeBackup(String encrypted, String ownerDid) async {
+    await _web5.records.create({
+      'message': {
+        'type': 'wallet-backup',
+        'owner': ownerDid,
+        'data': encrypted,
+        'timestamp': DateTime.now().toIso8601String(),
+      }
+    });
   }
 }
 
+/// Error thrown by BackupService
 class BackupServiceError implements Exception {
   final String message;
-  BackupServiceError(this.message);
+  
+  const BackupServiceError(this.message);
+  
   @override
-  String toString() => message;
+  String toString() => 'BackupServiceError: $message';
 }

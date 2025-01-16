@@ -1,0 +1,28 @@
+targets:
+  $default:
+    builders:
+      json_serializable:
+        options:
+          # Options configure how source code is generated for every
+          # `@JsonSerializable`-annotated class in the package.
+          any_map: false # Support any type of Map, not just Map<String, dynamic>
+          checked: true # Include runtime type checks
+          create_factory: true # Generate fromJson factory methods
+          create_to_json: true # Generate toJson methods
+          explicit_to_json: true # Include explicit toJson in generated output
+          field_rename: snake # Use snake_case for JSON keys
+          generic_argument_factories: true # Support generic types
+          ignore_unannotated: false # Process all classes
+          include_if_null: false # Omit fields with null values from JSON
+
+      freezed:
+        options:
+          # Options configure how source code is generated for every
+          # `@freezed`-annotated class in the package.
+          copy_with: true # Generate copyWith method
+          make_collections_unmodifiable: true # Make collections unmodifiable
+          union_key: type # Key used for union types
+          union_value_case: snake # Case for union values
+          map: true # Generate map method
+          when: true # Generate when method
+          private_setters: true # Make setters private

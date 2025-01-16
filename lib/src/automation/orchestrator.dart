@@ -1,8 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
+
 import 'package:logging/logging.dart';
-import 'monitoring.dart';
+
 import 'auto_fixer.dart';
+import 'monitoring.dart';
 
 /// Workflow orchestration and automation management
 class AutomationOrchestrator {
@@ -36,7 +37,7 @@ class AutomationOrchestrator {
   void _setupLogging() {
     Logger.root.level = Level.ALL;
     Logger.root.onRecord.listen((record) {
-      print('${record.level.name}: ${record.time}: ${record.message}');
+      _logger.info('${record.level.name}: ${record.time}: ${record.message}');
     });
   }
 
@@ -104,26 +105,39 @@ class AutomationOrchestrator {
 
   /// Check if fixes are needed based on health check
   bool _needsFixes(Map<String, dynamic> health) {
+    final workflows = health['workflows'] as Map<String, dynamic>?;
+    final dependencies = health['dependencies'] as Map<String, dynamic>?;
+    final issues = health['issues'] as Map<String, dynamic>?;
+
     // Check workflows
-    if (health['workflows']?['failed'] > 0) return true;
+    if (workflows != null && (workflows['failed'] as int? ?? 0) > 0) return true;
 
     // Check dependencies
-    if (health['dependencies']?['vulnerable'] > 0) return true;
-    if (health['dependencies']?['outdated'] > 0) return true;
+    if (dependencies != null) {
+      if ((dependencies['vulnerable'] as int? ?? 0) > 0) return true;
+      if ((dependencies['outdated'] as int? ?? 0) > 0) return true;
+    }
 
     // Check issues
-    if (health['issues']?['stale_issues'] > 0) return true;
-    if (health['issues']?['stale_prs'] > 0) return true;
+    if (issues != null) {
+      if ((issues['stale_issues'] as int? ?? 0) > 0) return true;
+      if ((issues['stale_prs'] as int? ?? 0) > 0) return true;
+    }
 
     return false;
   }
 
   /// Check if fixes were applied
   bool _fixesApplied(Map<String, dynamic> fixes) {
-    return fixes['dependencies']?['status'] == 'success' ||
-        fixes['code_style']?['status'] == 'success' ||
-        fixes['documentation']?['status'] == 'success' ||
-        fixes['tests']?['status'] == 'success';
+    final dependencies = fixes['dependencies'] as Map<String, dynamic>?;
+    final codeStyle = fixes['code_style'] as Map<String, dynamic>?;
+    final documentation = fixes['documentation'] as Map<String, dynamic>?;
+    final tests = fixes['tests'] as Map<String, dynamic>?;
+
+    return (dependencies?['status'] as String? == 'success') ||
+           (codeStyle?['status'] as String? == 'success') ||
+           (documentation?['status'] as String? == 'success') ||
+           (tests?['status'] as String? == 'success');
   }
 
   /// Generate automation report
@@ -137,34 +151,43 @@ class AutomationOrchestrator {
 
     // Health Status
     if (results.containsKey('health')) {
-      buffer.writeln('Health Status:');
-      buffer.writeln('--------------');
-      _formatHealthStatus(buffer, results['health']);
-      buffer.writeln();
+      final health = results['health'];
+      if (health is Map<String, dynamic>) {
+        buffer.writeln('Health Status:');
+        buffer.writeln('--------------');
+        _formatHealthStatus(buffer, health);
+        buffer.writeln();
+      }
     }
 
     // Fixes Applied
     if (results.containsKey('fixes')) {
-      buffer.writeln('Fixes Applied:');
-      buffer.writeln('-------------');
-      _formatFixes(buffer, results['fixes']);
-      buffer.writeln();
+      final fixes = results['fixes'];
+      if (fixes is Map<String, dynamic>) {
+        buffer.writeln('Fixes Applied:');
+        buffer.writeln('-------------');
+        _formatFixes(buffer, fixes);
+        buffer.writeln();
+      }
     }
 
     // Pull Request
     if (results.containsKey('pull_request')) {
       buffer.writeln('Pull Request:');
       buffer.writeln('-------------');
-      buffer.writeln(results['pull_request'] ?? 'No PR created');
+      buffer.writeln(results['pull_request'] as String? ?? 'No PR created');
       buffer.writeln();
     }
 
     // Errors
     if (results.containsKey('error')) {
-      buffer.writeln('Errors:');
-      buffer.writeln('-------');
-      buffer.writeln(results['error']['message']);
-      buffer.writeln();
+      final error = results['error'] as Map<String, dynamic>?;
+      if (error != null) {
+        buffer.writeln('Errors:');
+        buffer.writeln('-------');
+        buffer.writeln(error['message'] as String? ?? 'Unknown error');
+        buffer.writeln();
+      }
     }
 
     return buffer.toString();
@@ -172,45 +195,48 @@ class AutomationOrchestrator {
 
   /// Format health status for report
   void _formatHealthStatus(StringBuffer buffer, Map<String, dynamic> health) {
+    final workflows = health['workflows'] as Map<String, dynamic>?;
+    final dependencies = health['dependencies'] as Map<String, dynamic>?;
+    final issues = health['issues'] as Map<String, dynamic>?;
+
     // Workflows
     buffer.writeln('Workflows:');
-    buffer.writeln('- Total: ${health['workflows']['total']}');
-    buffer.writeln('- Successful: ${health['workflows']['successful']}');
-    buffer.writeln('- Failed: ${health['workflows']['failed']}');
+    buffer.writeln('- Total: ${workflows?['total'] ?? 0}');
+    buffer.writeln('- Successful: ${workflows?['successful'] ?? 0}');
+    buffer.writeln('- Failed: ${workflows?['failed'] ?? 0}');
 
     // Dependencies
     buffer.writeln('\nDependencies:');
-    buffer.writeln('- Vulnerable: ${health['dependencies']['vulnerable']}');
-    buffer.writeln('- Outdated: ${health['dependencies']['outdated']}');
+    buffer.writeln('- Vulnerable: ${dependencies?['vulnerable'] ?? 0}');
+    buffer.writeln('- Outdated: ${dependencies?['outdated'] ?? 0}');
 
     // Issues
     buffer.writeln('\nIssues:');
-    buffer.writeln('- Open Issues: ${health['issues']['open_issues']}');
-    buffer.writeln('- Open PRs: ${health['issues']['open_prs']}');
-    buffer.writeln('- Stale Issues: ${health['issues']['stale_issues']}');
-    buffer.writeln('- Stale PRs: ${health['issues']['stale_prs']}');
+    buffer.writeln('- Open Issues: ${issues?['open_issues'] ?? 0}');
+    buffer.writeln('- Open PRs: ${issues?['open_prs'] ?? 0}');
+    buffer.writeln('- Stale Issues: ${issues?['stale_issues'] ?? 0}');
+    buffer.writeln('- Stale PRs: ${issues?['stale_prs'] ?? 0}');
   }
 
   /// Format fixes for report
   void _formatFixes(StringBuffer buffer, Map<String, dynamic> fixes) {
     fixes.forEach((category, data) {
-      buffer.writeln('$category:');
-      buffer.writeln('- Status: ${data['status']}');
+      if (data is Map<String, dynamic>) {
+        buffer.writeln('$category:');
+        buffer.writeln('- Status: ${data['status'] as String? ?? 'unknown'}');
 
-      if (data['status'] == 'error') {
-        buffer.writeln('- Error: ${data['error']}');
-      } else {
-        if (data.containsKey('conflicts')) {
-          buffer.writeln('- Conflicts Resolved: ${data['conflicts'].length}');
-        }
-        if (data.containsKey('removed')) {
-          buffer.writeln('- Dependencies Removed: ${data['removed'].length}');
-        }
-        if (data.containsKey('lint_fixes')) {
-          buffer.writeln('- Lint Issues Fixed: ${data['lint_fixes'].length}');
+        if (data['status'] == 'error') {
+          buffer.writeln('- Error: ${data['error'] as String? ?? 'Unknown error'}');
+        } else if (data['status'] == 'success') {
+          final changes = data['changes'] as Map<String, dynamic>?;
+          if (changes != null) {
+            buffer.writeln('- Changes:');
+            changes.forEach((key, value) {
+              buffer.writeln('  - $key: $value');
+            });
+          }
         }
       }
-      buffer.writeln();
     });
   }
 }

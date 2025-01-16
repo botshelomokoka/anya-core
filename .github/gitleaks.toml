@@ -1,0 +1,37 @@
+[allowlist]
+paths = [
+    '''gitleaks.toml''',
+    '''(.*?)(jpg|gif|doc|pdf|bin)$''',
+    '''(.*?)(pb.go|pb.js)$'''
+]
+
+description = '''global allow list'''
+
+[rules]
+    [rules.bitcoin-private-key]
+    description = "Bitcoin Private Key"
+    regex = '''[5KL][1-9A-HJ-NP-Za-km-z]{50,51}'''
+    
+    [rules.bitcoin-xprv]
+    description = "Bitcoin Extended Private Key"
+    regex = '''xprv[a-zA-Z0-9]{107,108}'''
+    
+    [rules.bitcoin-seed]
+    description = "Bitcoin Seed Phrase"
+    regex = '''(?i)(seed phrase|recovery phrase|mnemonic)(.{0,20})?['"][a-z\s]{50,}'''
+    
+    [rules.api-key]
+    description = "API Key"
+    regex = '''(?i)(api[_-]?key|apikey)(.{0,20})?['"][0-9a-zA-Z]{32,}['"]'''
+    
+    [rules.password]
+    description = "Password"
+    regex = '''(?i)(password|passwd|pwd)(.{0,20})?['"][^'"\n]{8,}['"]'''
+    
+    [rules.private-key]
+    description = "Private Key"
+    regex = '''-----BEGIN ((RSA|DSA|EC|PGP|OPENSSH) )?PRIVATE KEY( BLOCK)?-----'''
+    
+    [rules.encryption-key]
+    description = "Encryption Key"
+    regex = '''(?i)(encryption[_-]?key|encryptionkey)(.{0,20})?['"][0-9a-zA-Z]{32,}['"]'''

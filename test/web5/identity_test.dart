@@ -1,6 +1,7 @@
-import 'package:test/test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:test/test.dart';
 import 'package:web5/web5.dart';
+
 import '../../lib/src/core/web5/identity.dart';
 
 class MockWeb5Client extends Mock implements Web5Client {}

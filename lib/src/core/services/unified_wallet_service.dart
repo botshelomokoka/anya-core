@@ -1,9 +1,9 @@
+import '../errors/service_errors.dart';
 import '../models/wallet.dart';
 import '../repositories/wallet_repository.dart';
-import '../security/encryption_service.dart';
 import '../security/biometric_service.dart';
+import '../security/encryption_service.dart';
 import 'chain_coordinator.dart';
-import '../errors/service_errors.dart';
 
 class UnifiedWalletService {
   final ChainCoordinator _coordinator;

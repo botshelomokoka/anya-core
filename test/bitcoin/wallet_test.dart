@@ -1,7 +1,8 @@
-import 'package:test/test.dart';
-import 'package:mockito/mockito.dart';
-import 'package:web5/web5.dart';
 import 'package:bitcoindart/bitcoindart.dart';
+import 'package:mockito/mockito.dart';
+import 'package:test/test.dart';
+import 'package:web5/web5.dart';
+
 import '../../lib/src/core/bitcoin/wallet.dart';
 import '../../lib/src/core/models/wallet.dart' as models;
 import '../../lib/src/core/repositories/wallet_repository.dart';

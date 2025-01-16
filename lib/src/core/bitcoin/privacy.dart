@@ -25,7 +25,7 @@ class PrivacyManager {
   }) async {
     try {
       if (participants.length < minParticipants) {
-        throw PrivacyError(
+        throw const PrivacyError(
             'Not enough participants. Minimum required: $minParticipants');
       }
 

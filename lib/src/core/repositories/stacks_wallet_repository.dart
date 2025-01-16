@@ -36,7 +36,7 @@ class StacksWalletRepository extends WalletRepository {
     try {
       final wallets = await listWallets();
       return wallets.firstWhere(
-        (w) => w is StacksWallet && w.stacksAddress == stacksAddress,
+        (w) => w.stacksAddress == stacksAddress,
         orElse: () => null,
       ) as StacksWallet?;
     } catch (e) {
