@@ -15,7 +15,7 @@ jobs:
           fetch-depth: 0
           
       - name: Conventional Commits Check
-        uses: webiny/action-conventional-commits@v1.1.0
+        uses: webiny/action-conventional-commits@v1.3.0
         
       - name: PR Size Check
         uses: codelytv/pr-size-labeler@v1
