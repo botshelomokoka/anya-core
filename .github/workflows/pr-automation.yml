@@ -10,12 +10,12 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           
       - name: Conventional Commits Check
-        uses: webiny/action-conventional-commits@v1.1.0
+        uses: webiny/action-conventional-commits@v1.3.0
         
       - name: PR Size Check
         uses: codelytv/pr-size-labeler@v1
@@ -34,7 +34,7 @@ jobs:
   security:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Security Scan
         uses: github/codeql-action/analyze@v2
@@ -50,7 +50,7 @@ jobs:
       !github.event.pull_request.draft
     steps:
       - name: Auto-merge Pull Request
-        uses: pascalgn/automerge-action@v0.15.6
+        uses: pascalgn/automerge-action@v0.16.4
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           MERGE_METHOD: "squash"
