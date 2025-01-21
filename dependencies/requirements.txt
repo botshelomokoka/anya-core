@@ -1,4 +1,0 @@
-flask
-inquirer
-requests
-bitcoinlib
