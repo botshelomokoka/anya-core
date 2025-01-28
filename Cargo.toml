@@ -1,0 +1,53 @@
+[package]
+name = "anya-core"
+version = "0.1.0"
+edition = "2021"
+authors = ["Anya Development Team"]
+description = "Core library for the Anya AI IDE system"
+license = "MIT"
+repository = "https://github.com/botshelomokoka/anya-core"
+
+[dependencies]
+# Core dependencies
+tokio = { version = "1.28", features = ["full"] }
+async-trait = "0.1.68"
+futures = "0.3"
+thiserror = "1.0"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Logging and metrics
+tracing = "0.1"
+metrics = "0.21"
+
+# Machine Learning
+tch = "0.13"
+ndarray = "0.15"
+
+# Web5 integration
+web5-rs = { path = "../dependencies/web5-rs" }
+
+# Bitcoin integration
+bitcoin = "0.30"
+lightning = "0.0.118"
+
+# Security
+ring = "0.16"
+rand = "0.8"
+
+[dev-dependencies]
+tokio-test = "0.4"
+mockall = "0.11"
+criterion = "0.4"
+
+[features]
+default = ["ml", "web5", "bitcoin"]
+ml = []
+web5 = []
+bitcoin = []
+
+[lib]
+name = "anya_core"
+path = "src/lib.rs"
